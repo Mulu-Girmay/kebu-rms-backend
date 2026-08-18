@@ -14,6 +14,12 @@ export const categorySchema = new Schema(
       trim: true,
     },
 
+    imageUrl: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+
     isActive: {
       type: Boolean,
       default: true,

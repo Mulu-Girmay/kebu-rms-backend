@@ -26,6 +26,12 @@ export const menuItemSchema = new Schema(
       min: 0,
     },
 
+    imageUrl: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+
     isAvailable: {
       type: Boolean,
       default: true,
