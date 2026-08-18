@@ -12,6 +12,7 @@ export interface MenuItemModel extends Model<MenuItem, {}, MenuItemMethods> {
   findByCategoryId(categoryId: string): Promise<MenuItem[]>;
   findAvailableByCategoryId(categoryId: string): Promise<MenuItem[]>;
   findAvailable(): Promise<MenuItem[]>;
+  findPopular(limit?: number): Promise<MenuItem[]>;
 }
 
 export const MenuItem = mongoose.model<MenuItem, MenuItemModel>("MenuItem", menuItemSchema);
