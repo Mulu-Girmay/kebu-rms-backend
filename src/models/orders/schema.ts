@@ -62,12 +62,14 @@ export const orderSchema = new Schema(
 
     rejectionReason: {
       type: String,
+      trim: true,
       default: null,
     },
 
     customerNotes: {
       type: String,
       trim: true,
+      default: null,
     },
 
     items: {
@@ -111,3 +113,4 @@ export const orderSchema = new Schema(
 );
 
 orderSchema.index({ userId: 1, createdAt: -1 });
+orderSchema.index({ status: 1, createdAt: -1 });
