@@ -16,7 +16,7 @@ export const roleSchema = new Schema(
 
     is_system_role: {
       type: Boolean,
-      default: true,
+      default: false,
     },
      permissions: [{
       type: Schema.Types.ObjectId,
@@ -31,4 +31,4 @@ export const roleSchema = new Schema(
   }
 );
 
-roleSchema.index({ name: 1 }, { unique: true });
+roleSchema.index({ name: 1 });
