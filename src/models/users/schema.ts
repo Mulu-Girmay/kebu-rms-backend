@@ -31,6 +31,12 @@ export const userSchema = new Schema(
       select: false,
     },
 
+    profileImage: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+
     status: {
       type: String,
       enum: [
