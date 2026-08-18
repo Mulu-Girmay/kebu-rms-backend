@@ -6,9 +6,15 @@ import './statics.js';
 
 export type Wallet = InferSchemaType<typeof walletSchema>;
 
-export interface WalletModel extends Model<Wallet> {
-  findByUser(userId: string): ReturnType<Model<Wallet>['findOne']>;
-  findActiveByUser(userId: string): ReturnType<Model<Wallet>['findOne']>;
+export interface WalletMethods {
+    hasSufficientBalance(amount: number): number,
+    canDebit(amount: number):  number,
+    getStatus(): boolean
+ }
+
+export interface WalletModel extends Model<Wallet, {}, WalletMethods> {
+  findByUser(userId: string): Promise<Wallet>;
+  findActiveByUser(userId: string): Promise<Wallet>;
 }
 
 export const Wallet = mongoose.model<Wallet, WalletModel>(
