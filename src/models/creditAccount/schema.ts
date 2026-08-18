@@ -1,15 +1,6 @@
 import { Schema } from 'mongoose';
 
-export type CreditAccountStatus = 'active' | 'frozen' | 'closed';
-
-export interface ICreditAccount {
-  user: Schema.Types.ObjectId;
-  creditLimit: number;
-  usedCredit: number;
-  status: CreditAccountStatus;
-}
-
-const creditAccountSchema = new Schema<ICreditAccount>(
+export const creditAccountSchema = new Schema(
   {
     user: {
       type: Schema.Types.ObjectId,
@@ -45,5 +36,3 @@ const creditAccountSchema = new Schema<ICreditAccount>(
     timestamps: true,
   },
 );
-
-export default creditAccountSchema;
