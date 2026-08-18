@@ -27,7 +27,6 @@ const walletTransactionSchema = new Schema<IWalletTransaction>(
     order: {
       type: Schema.Types.ObjectId,
       ref: 'Order',
-      required: true,
       index: true,
     },
 
