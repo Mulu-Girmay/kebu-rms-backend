@@ -1,21 +1,6 @@
 import { Schema } from 'mongoose';
 
-export type WalletTransactionType =
-  | 'mixed'
-  | 'credit'
-  | 'refund'
-  | 'debit';
-
-export interface IWalletTransaction {
-  wallet: Schema.Types.ObjectId;
-  order: Schema.Types.ObjectId;
-  amount: number;
-  type: WalletTransactionType;
-  balanceBefore: number;
-  balanceAfter: number;
-}
-
-const walletTransactionSchema = new Schema<IWalletTransaction>(
+export const walletTransactionSchema = new Schema(
   {
     wallet: {
       type: Schema.Types.ObjectId,
@@ -62,5 +47,3 @@ const walletTransactionSchema = new Schema<IWalletTransaction>(
     },
   },
 );
-
-export default walletTransactionSchema;
