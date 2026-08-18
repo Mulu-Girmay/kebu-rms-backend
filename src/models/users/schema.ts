@@ -23,7 +23,15 @@ export const userSchema = new Schema(
       trim: true,
       lowercase: true,
     },
+    is_email_verified: {
+      type: Boolean,
+      default: false,
+    },
 
+    email_verified_at: {
+      type: Date,
+      default: null,
+    },
     password: {
       type: String,
       required: true,
@@ -40,6 +48,10 @@ export const userSchema = new Schema(
       ],
       default: "active",
     },    
+    must_change_password: {
+        type: Boolean,
+        default: false,
+},
   },
   {
     timestamps: {

@@ -2,6 +2,25 @@ import { roleSchema } from "./schema.js";
 import { Schema } from "mongoose";
 
 
+roleSchema.statics.findSystemRoles = function () {
+  return this.find({
+    is_system_role: true,
+  });
+};
+
+roleSchema.statics.findCustomRoles = function () {
+  return this.find({
+    is_system_role: false,
+  });
+};
+
+roleSchema.statics.findWithPermissions = function (
+  roleId: string
+) {
+  return this.findById(roleId)
+    .populate("permissions");
+};
+
 roleSchema.statics.assignPermission = async function (roleId: string,permissionId: Schema.Types.ObjectId):Promise<any> {
   return this.findByIdAndUpdate(
     roleId,

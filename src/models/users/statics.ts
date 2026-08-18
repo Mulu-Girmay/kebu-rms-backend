@@ -18,6 +18,15 @@ userSchema.statics.findByActiveId = async function (userId:string) {
   });    
 }
 
+// because password is deliberately excluded by defaulr
+userSchema.statics.findByEmailWithPassword = function (
+  email: string
+) {
+  return this.findOne({
+    email: email.toLowerCase(),
+  }).select("+password");
+};
+
 userSchema.statics.findByRole = function (roleId: string): Promise<User[]>  {
   return this.find({
     role_id: roleId,
