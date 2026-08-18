@@ -1,12 +1,6 @@
-import { Schema, Types } from 'mongoose';
+import { Schema } from 'mongoose';
 
-export interface IWallet {
-  user: Types.ObjectId;
-  balance: number;
-  isActive: boolean;
-}
-
-const walletSchema = new Schema<IWallet>(
+export const walletSchema = new Schema(
   {
     user: {
       type: Schema.Types.ObjectId,
@@ -34,5 +28,3 @@ const walletSchema = new Schema<IWallet>(
     timestamps: true,
   },
 );
-
-export default walletSchema;
