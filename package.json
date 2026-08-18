@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Ensure you have the following installed on your machine:\r * **Node.js** (v18 or higher recommended)\r * **npm** or **yarn**\r * **MongoDB** (running locally or a remote connection string)",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
@@ -15,7 +16,6 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "module",
   "dependencies": {
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
@@ -24,7 +24,8 @@
     "express-validator": "^7.3.2",
     "joi": "^18.2.3",
     "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.9.2"
+    "mongoose": "^9.9.2",
+    "winston": "^3.19.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
