@@ -106,6 +106,17 @@ export const orderSchema = new Schema(
       type: Date,
       default: null,
     },
+
+    isFavorite: {
+      type: Boolean,
+      default: false,
+    },
+
+    favoriteLabel: {
+      type: String,
+      trim: true,
+      default: null,
+    },
   },
   {
     timestamps: true,
@@ -114,3 +125,4 @@ export const orderSchema = new Schema(
 
 orderSchema.index({ userId: 1, createdAt: -1 });
 orderSchema.index({ status: 1, createdAt: -1 });
+orderSchema.index({ userId: 1, isFavorite: 1, createdAt: -1 });

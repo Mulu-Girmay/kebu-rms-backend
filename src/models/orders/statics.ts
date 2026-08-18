@@ -33,3 +33,7 @@ orderSchema.statics.findPendingOrders = async function (): Promise<Order[]> {
     status: { $in: ["placed", "accepted", "preparing"] }
   }).sort({ placedAt: 1 });
 };
+
+orderSchema.statics.findFavoriteOrders = async function (userId: string): Promise<Order[]> {
+  return this.find({ userId, isFavorite: true }).sort({ createdAt: -1 });
+};

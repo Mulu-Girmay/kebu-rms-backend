@@ -11,3 +11,8 @@ menuItemSchema.statics.findAvailableByCategoryId = async function (categoryId: s
 menuItemSchema.statics.findAvailable = async function () {
   return this.find({ isAvailable: true });
 };
+
+menuItemSchema.statics.findPopular = async function (limit: number = 10) {
+  return this.find({ isAvailable: true }).sort({ favoriteCount: -1 }).limit(limit);
+};
+
