@@ -10,7 +10,7 @@ walletSchema.methods.hasSufficientBalance = function (
   return this.balance >= amount;
 };
 
-walletSchema.methods.isActive = function (): boolean {
+walletSchema.methods.getStatus = function (): boolean {
   return this.isActive;
 };
 

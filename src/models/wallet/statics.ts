@@ -1,12 +1,13 @@
+import type { Wallet } from './index.js';
 import { walletSchema } from './schema.js';
 
-walletSchema.statics.findByUser = function (userId: string) {
+walletSchema.statics.findByUser = async function (userId: string): Promise<Wallet> {
   return this.findOne({
     user: userId,
   });
 };
 
-walletSchema.statics.findActiveByUser = function (userId: string) {
+walletSchema.statics.findActiveByUser = async function (userId: string):Promise<Wallet> {
   return this.findOne({
     user: userId,
     isActive: true,
