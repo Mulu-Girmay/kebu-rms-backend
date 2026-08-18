@@ -12,11 +12,11 @@ export interface UserMethods {
     isActive():boolean;
 }
 
-export interface userModel extends Model<User, {}, UserMethods>{
+export interface UserModel extends Model<User, {}, UserMethods>{
     findByEmail(email: string):Promise<User | null >;
     emailExists(email: string):Promise<boolean>;
-    findActiveById(userId: string):Promise<boolean>;
+    findByActiveId(userId: string):Promise<boolean>;
     findByRole(role_id: string):Promise<User[]>;
 }
 
-export const User = mongoose.model<User>( "User",userSchema);
+export const User = mongoose.model<User, UserModel>( "User",userSchema);

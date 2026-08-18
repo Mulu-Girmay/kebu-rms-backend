@@ -6,9 +6,15 @@ import { Types } from 'mongoose';
 
 export type Permission = InferSchemaType<typeof permissionSchema>;
 
-roleSchema.methods.hasPermission = function (resource: string, action: string): boolean {
-  return this.permissions.some((permission: Permission) =>
-      permission.resource === resource && permission.action === action);
+roleSchema.methods.hasPermission = async function (resource: string, action: string): Promise<boolean> {
+
+  const {Permission} = await import('../permissions/index.js')
+  const permission = await Permission.findOne({ resource, action });
+  if (!permission) return false;
+
+  return this.permissions.some((p: any) =>
+      p.toString()  === permission._id.toString()
+  )
 };
 
 roleSchema.methods.addPermission = function (permissionId: string | Types.ObjectId): void {
@@ -19,8 +25,12 @@ roleSchema.methods.addPermission = function (permissionId: string | Types.Object
 }
 
 roleSchema.methods.removePermission = function (permissionId: string ): void{
-    this.permissions.pop(permissionId)
+   const idString = permissionId.toString();
+    this.permissions = this.permissions.filter(
+         (p: any) => p.toString() !== idString
+  );
 }
 roleSchema.methods.clearPermissions = function (): void{
     this.permissions = []
 }
+ 
