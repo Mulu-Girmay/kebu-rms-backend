@@ -1,5 +1,9 @@
 import { Schema } from 'mongoose';
-import { MODEL_NAMES } from '../../utils/constants.js';
+import {
+  MODEL_NAMES,
+  CREDIT_ACCOUNT_STATUS_VALUES,
+  CreditAccountStatus,
+} from '../../utils/constants.js';
 
 export const creditAccountSchema = new Schema(
   {
@@ -27,8 +31,8 @@ export const creditAccountSchema = new Schema(
 
     status: {
       type: String,
-      enum: ['active', 'frozen', 'closed'],
-      default: 'active',
+      enum: CREDIT_ACCOUNT_STATUS_VALUES,
+      default: CreditAccountStatus.ACTIVE,
       required: true,
       index: true,
     },

@@ -1,5 +1,8 @@
 import { Schema } from 'mongoose';
-import { MODEL_NAMES } from '../../utils/constants.js';
+import {
+  MODEL_NAMES,
+  WALLET_TRANSACTION_TYPE_VALUES,
+} from '../../utils/constants.js';
 
 export const walletTransactionSchema = new Schema(
   {
@@ -25,7 +28,7 @@ export const walletTransactionSchema = new Schema(
     type: {
       type: String,
       required: true,
-      enum: ['mixed', 'credit', 'refund', 'debit'],
+      enum: WALLET_TRANSACTION_TYPE_VALUES,
       index: true,
     },
 

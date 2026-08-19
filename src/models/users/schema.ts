@@ -1,5 +1,9 @@
 import { Schema } from 'mongoose';
-import { MODEL_NAMES } from '../../utils/constants.js';
+import {
+  MODEL_NAMES,
+  USER_STATUS_VALUES,
+  UserStatus,
+} from '../../utils/constants.js';
 
 export const userSchema = new Schema(
   {
@@ -14,7 +18,7 @@ export const userSchema = new Schema(
       required: true,
       trim: true,
       minlength: 2,
-      maxlength: 50
+      maxlength: 50,
     },
 
     email: {
@@ -48,12 +52,8 @@ export const userSchema = new Schema(
 
     status: {
       type: String,
-      enum: [
-        "active",
-        "inactive",
-        "suspended",
-      ],
-      default: "active",
+      enum: USER_STATUS_VALUES,
+      default: UserStatus.ACTIVE,
     },    
     must_change_password: {
         type: Boolean,

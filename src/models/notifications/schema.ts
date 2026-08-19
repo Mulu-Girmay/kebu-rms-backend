@@ -1,5 +1,8 @@
 import { Schema } from 'mongoose';
-import { MODEL_NAMES } from '../../utils/constants.js';
+import {
+  MODEL_NAMES,
+  NOTIFICATION_TYPE_VALUES,
+} from '../../utils/constants.js';
 
 export const notificationSchema = new Schema(
   {
@@ -12,7 +15,7 @@ export const notificationSchema = new Schema(
 
     type: {
       type: String,
-      enum: ["order_update", "transaction", "system"],
+      enum: NOTIFICATION_TYPE_VALUES,
       required: true,
     },
 

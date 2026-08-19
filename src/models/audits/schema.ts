@@ -1,5 +1,8 @@
 import { Schema } from 'mongoose';
-import { MODEL_NAMES } from '../../utils/constants.js';
+import {
+  MODEL_NAMES,
+  AUDIT_ACTION_VALUES,
+} from '../../utils/constants.js';
 
 export const auditSchema = new Schema(
   {
@@ -12,7 +15,7 @@ export const auditSchema = new Schema(
 
     action: {
       type: String,
-      enum: ["create", "read", "update", "delete"],
+      enum: AUDIT_ACTION_VALUES,
       required: true,
     },
 
