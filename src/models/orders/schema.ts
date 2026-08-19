@@ -1,10 +1,11 @@
-import { Schema } from "mongoose";
+import { Schema } from 'mongoose';
+import { MODEL_NAMES } from '../../utils/constants.js';
 
 export const orderItemSchema = new Schema(
   {
     menuItemId: {
       type: Schema.Types.ObjectId,
-      ref: "MenuItem",
+      ref: MODEL_NAMES.MENU_ITEM,
       required: true,
     },
 
@@ -33,7 +34,7 @@ export const orderSchema = new Schema(
   {
     userId: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: MODEL_NAMES.USER,
       required: true,
       index: true,
     },

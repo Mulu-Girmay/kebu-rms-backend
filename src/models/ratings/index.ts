@@ -1,8 +1,9 @@
-import mongoose from "mongoose";
-import type { InferSchemaType, Model } from "mongoose";
-import { ratingSchema } from "./schema.js";
-import "./methods.js";
-import "./statics.js";
+import mongoose from 'mongoose';
+import type { InferSchemaType, Model } from 'mongoose';
+import { ratingSchema } from './schema.js';
+import { MODEL_NAMES } from '../../utils/constants.js';
+import './methods.js';
+import './statics.js';
 
 export type Rating = InferSchemaType<typeof ratingSchema>;
 
@@ -14,5 +15,9 @@ export interface RatingModel extends Model<Rating, {}, RatingMethods> {
   findByOrderId(orderId: string): Promise<Rating[]>;
 }
 
-export const Rating = mongoose.model<Rating, RatingModel>("Rating", ratingSchema);
+export const Rating = mongoose.model<Rating, RatingModel>(
+  MODEL_NAMES.RATING,
+  ratingSchema,
+);
 export { ratingSchema };
+

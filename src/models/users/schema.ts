@@ -1,10 +1,11 @@
-import { Schema } from "mongoose";
+import { Schema } from 'mongoose';
+import { MODEL_NAMES } from '../../utils/constants.js';
 
 export const userSchema = new Schema(
   {
     role_id: {
       type: Schema.Types.ObjectId,
-      ref: "Role",
+      ref: MODEL_NAMES.ROLE,
       required: true,
     },
 

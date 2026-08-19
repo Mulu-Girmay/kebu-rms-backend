@@ -1,17 +1,18 @@
 import { Schema } from 'mongoose';
+import { MODEL_NAMES } from '../../utils/constants.js';
 
 export const walletTransactionSchema = new Schema(
   {
     wallet: {
       type: Schema.Types.ObjectId,
-      ref: 'Wallet',
+      ref: MODEL_NAMES.WALLET,
       required: true,
       index: true,
     },
 
     order: {
       type: Schema.Types.ObjectId,
-      ref: 'Order',
+      ref: MODEL_NAMES.ORDER,
       index: true,
     },
 

@@ -1,8 +1,9 @@
-import mongoose from "mongoose";
-import type { InferSchemaType, Model } from "mongoose";
-import { favoriteSchema } from "./schema.js";
-import "./methods.js";
-import "./statics.js";
+import mongoose from 'mongoose';
+import type { InferSchemaType, Model } from 'mongoose';
+import { favoriteSchema } from './schema.js';
+import { MODEL_NAMES } from '../../utils/constants.js';
+import './methods.js';
+import './statics.js';
 
 export type Favorite = InferSchemaType<typeof favoriteSchema>;
 
@@ -14,5 +15,9 @@ export interface FavoriteModel extends Model<Favorite, {}, FavoriteMethods> {
   countByMenuItemId(menuItemId: string): Promise<number>;
 }
 
-export const Favorite = mongoose.model<Favorite, FavoriteModel>("Favorite", favoriteSchema);
+export const Favorite = mongoose.model<Favorite, FavoriteModel>(
+  MODEL_NAMES.FAVORITE,
+  favoriteSchema,
+);
 export { favoriteSchema };
+

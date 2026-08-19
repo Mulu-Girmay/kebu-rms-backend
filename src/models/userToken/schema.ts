@@ -1,13 +1,13 @@
-import { required, string } from "joi";
-import { Schema } from "mongoose";
+import { Schema } from 'mongoose';
+import { MODEL_NAMES } from '../../utils/constants.js';
 
 export const userTokenSchema = new Schema(
-    {
-    user_id:{
-        type: Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
-        index: true,
+  {
+    user_id: {
+      type: Schema.Types.ObjectId,
+      ref: MODEL_NAMES.USER,
+      required: true,
+      index: true,
     },
     type:{
         type:String,
