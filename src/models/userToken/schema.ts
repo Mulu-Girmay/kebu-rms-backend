@@ -1,4 +1,3 @@
-import { required, string } from "joi";
 import { Schema } from "mongoose";
 
 export const userTokenSchema = new Schema(

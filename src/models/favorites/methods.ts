@@ -1,3 +1,2 @@
-import { favoriteSchema } from "./schema.js";
+// Instance methods for favoriteSchema can be defined here
 
-// Additional instance methods for favoriteSchema can be defined here

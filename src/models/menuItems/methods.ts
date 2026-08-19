@@ -1,3 +1,2 @@
-import { menuItemSchema } from "./schema.js";
+// Instance methods for menuItemSchema can be defined here
 
-// Additional instance methods for menuItemSchema can be defined here

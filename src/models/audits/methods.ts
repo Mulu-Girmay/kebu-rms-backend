@@ -1,3 +1,2 @@
-import { auditSchema } from "./schema.js";
+// Instance methods for auditSchema can be defined here
 
-// Additional instance methods for auditSchema can be defined here

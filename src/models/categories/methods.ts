@@ -1,3 +1,2 @@
-import { categorySchema } from "./schema.js";
+// Instance methods for categorySchema can be defined here
 
-// Additional instance methods for categorySchema can be defined here

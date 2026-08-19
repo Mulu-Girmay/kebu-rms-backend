@@ -1,3 +1,2 @@
-import { ratingSchema } from "./schema.js";
+// Instance methods for ratingSchema can be defined here
 
-// Additional instance methods for ratingSchema can be defined here

@@ -1,3 +1,2 @@
-import { walletTransactionSchema } from './schema.js';
+// Instance methods for walletTransactionSchema can be defined here
 
-// Additional instance methods for walletTransactionSchema can be defined here

@@ -1,3 +1,2 @@
-import { creditAccountSchema } from './schema.js';
+// Statics for creditAccountSchema can be defined here
 
-// Additional statics for creditAccountSchema can be defined here
