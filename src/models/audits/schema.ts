@@ -34,10 +34,7 @@ export const auditSchema = new Schema(
     },
   },
   {
-    timestamps: {
-      createdAt: "createdAt",
-      updatedAt: false,
-    },
+    timestamps:true
   }
 );
 

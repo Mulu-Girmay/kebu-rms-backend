@@ -36,10 +36,7 @@ export const ratingSchema = new Schema(
     },
   },
   {
-    timestamps: {
-      createdAt: "createdAt",
-      updatedAt: false,
-    },
+    timestamps:true
   }
 );
 
