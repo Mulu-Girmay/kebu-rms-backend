@@ -17,7 +17,8 @@ export interface OrderModel extends Model<Order, {}, OrderMethods> {
   findByOrderNumber(orderNumber: string): Promise<Order | null>;
   findByStatus(status: string): Promise<Order[]>;
   findByDateRange(start: Date, end: Date): Promise<Order[]>;
-  findPendingOrders():Promise<Order[]>;
+  findPendingOrders(): Promise<Order[]>;
+  findFavoriteOrders(userId: string): Promise<Order[]>;
 }
 
 export const Order = mongoose.model<Order, OrderModel>("Order", orderSchema);
