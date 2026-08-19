@@ -1,44 +1,38 @@
-import { Schema } from "mongoose";
+import { Schema } from 'mongoose';
 
 export const userTokenSchema = new Schema(
-    {
-    user_id:{
-        type: Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
-        index: true,
+  {
+    user_id: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+      index: true,
     },
-    type:{
-        type:String,
-        enum:[
-            "email_verification",
-            "password_reset",
-        ],
-        required: true,
+    type: {
+      type: String,
+      enum: ['email_verification', 'password_reset'],
+      required: true,
     },
     token_hash: {
-        type: String,
-        required:true,
-        unique: true,
+      type: String,
+      required: true,
+      unique: true,
     },
-    expires_at:{
-        type: Date,
-        required: true,
-        index: true,
+    expires_at: {
+      type: Date,
+      required: true,
+      index: true,
     },
     used_at: {
-        type: Date,
-        default: null,
+      type: Date,
+      default: null,
     },
-},
-{
-    timestamps:{
-        createdAt: "created_at",
-        updatedAt: false,
+  },
+  {
+    timestamps: {
+      createdAt: 'created_at',
+      updatedAt: false,
     },
-}
+  }
 );
-userTokenSchema.index(
-  { expires_at: 1 },
-  { expireAfterSeconds: 0 }
-);
+userTokenSchema.index({ expires_at: 1 }, { expireAfterSeconds: 0 });

@@ -1,17 +1,17 @@
-import { Schema } from "mongoose";
+import { Schema } from 'mongoose';
 
 export const auditSchema = new Schema(
   {
     userId: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
       required: true,
       index: true,
     },
 
     action: {
       type: String,
-      enum: ["create", "read", "update", "delete"],
+      enum: ['create', 'read', 'update', 'delete'],
       required: true,
     },
 
@@ -34,7 +34,7 @@ export const auditSchema = new Schema(
     },
   },
   {
-    timestamps:true
+    timestamps: true,
   }
 );
 

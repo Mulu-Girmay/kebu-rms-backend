@@ -1,17 +1,17 @@
-import { Schema } from "mongoose";
+import { Schema } from 'mongoose';
 
 export const notificationSchema = new Schema(
   {
     userId: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
       required: true,
       index: true,
     },
 
     type: {
       type: String,
-      enum: ["order_update", "transaction", "system"],
+      enum: ['order_update', 'transaction', 'system'],
       required: true,
     },
 
@@ -36,7 +36,7 @@ export const notificationSchema = new Schema(
     },
   },
   {
-    timestamps:true
+    timestamps: true,
   }
 );
 

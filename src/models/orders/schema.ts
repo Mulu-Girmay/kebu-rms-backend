@@ -1,10 +1,10 @@
-import { Schema } from "mongoose";
+import { Schema } from 'mongoose';
 
 export const orderItemSchema = new Schema(
   {
     menuItemId: {
       type: Schema.Types.ObjectId,
-      ref: "MenuItem",
+      ref: 'MenuItem',
       required: true,
     },
 
@@ -33,7 +33,7 @@ export const orderSchema = new Schema(
   {
     userId: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
       required: true,
       index: true,
     },
@@ -48,15 +48,15 @@ export const orderSchema = new Schema(
     status: {
       type: String,
       enum: [
-        "placed",
-        "rejected",
-        "accepted",
-        "preparing",
-        "ready",
-        "completed",
-        "cancelled",
+        'placed',
+        'rejected',
+        'accepted',
+        'preparing',
+        'ready',
+        'completed',
+        'cancelled',
       ],
-      default: "placed",
+      default: 'placed',
       index: true,
     },
 
@@ -77,7 +77,7 @@ export const orderSchema = new Schema(
       required: true,
       validate: {
         validator: (v: unknown[]) => Array.isArray(v) && v.length > 0,
-        message: "Order must contain at least one item.",
+        message: 'Order must contain at least one item.',
       },
     },
 
@@ -125,4 +125,4 @@ export const orderSchema = new Schema(
 
 orderSchema.index({ userId: 1, createdAt: -1 });
 orderSchema.index({ status: 1, createdAt: -1 });
-orderSchema.index({ userId: 1, isFavorite: 1, createdAt: -1 });
+orderSchema.index({ userId: 1, isFavorite: 1, createdAt: -1 });

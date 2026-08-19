@@ -1,8 +1,8 @@
-import mongoose from "mongoose";
-import type { InferSchemaType, Model } from "mongoose";
-import { menuItemSchema } from "./schema.js";
-import "./methods.js";
-import "./statics.js";
+import mongoose from 'mongoose';
+import type { InferSchemaType, Model } from 'mongoose';
+import { menuItemSchema } from './schema.js';
+import './methods.js';
+import './statics.js';
 
 export type MenuItem = InferSchemaType<typeof menuItemSchema>;
 
@@ -15,5 +15,8 @@ export interface MenuItemModel extends Model<MenuItem, {}, MenuItemMethods> {
   findPopular(limit?: number): Promise<MenuItem[]>;
 }
 
-export const MenuItem = mongoose.model<MenuItem, MenuItemModel>("MenuItem", menuItemSchema);
+export const MenuItem = mongoose.model<MenuItem, MenuItemModel>(
+  'MenuItem',
+  menuItemSchema
+);
 export { menuItemSchema };

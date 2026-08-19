@@ -1,10 +1,10 @@
-import { Schema } from "mongoose";
+import { Schema } from 'mongoose';
 
 export const menuItemSchema = new Schema(
   {
     categoryId: {
       type: Schema.Types.ObjectId,
-      ref: "Category",
+      ref: 'Category',
       required: true,
       index: true,
     },

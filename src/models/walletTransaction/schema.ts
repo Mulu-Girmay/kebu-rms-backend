@@ -45,5 +45,5 @@ export const walletTransactionSchema = new Schema(
       createdAt: true,
       updatedAt: false,
     },
-  },
+  }
 );

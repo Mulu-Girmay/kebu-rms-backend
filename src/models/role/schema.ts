@@ -1,4 +1,4 @@
-import { Schema } from "mongoose";
+import { Schema } from 'mongoose';
 export const roleSchema = new Schema(
   {
     name: {
@@ -18,15 +18,17 @@ export const roleSchema = new Schema(
       type: Boolean,
       default: false,
     },
-     permissions: [{
-      type: Schema.Types.ObjectId,
-      ref: "Permission"
-        }]
+    permissions: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Permission',
+      },
+    ],
   },
   {
     timestamps: {
-      createdAt: "created_at",
-      updatedAt: "updated_at",
+      createdAt: 'created_at',
+      updatedAt: 'updated_at',
     },
   }
 );

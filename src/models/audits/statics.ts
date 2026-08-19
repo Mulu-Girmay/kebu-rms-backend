@@ -1,6 +1,9 @@
-import { auditSchema } from "./schema.js";
+import { auditSchema } from './schema.js';
 
-auditSchema.statics.findByRecord = async function (tableName: string, recordId: string) {
+auditSchema.statics.findByRecord = async function (
+  tableName: string,
+  recordId: string
+) {
   return this.find({ tableName, recordId }).sort({ createdAt: -1 });
 };
 

@@ -1,24 +1,24 @@
-import { Schema } from "mongoose";
+import { Schema } from 'mongoose';
 
 export const ratingSchema = new Schema(
   {
     userId: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
       required: true,
       index: true,
     },
 
     orderId: {
       type: Schema.Types.ObjectId,
-      ref: "Order",
+      ref: 'Order',
       required: true,
       index: true,
     },
 
     menuItemId: {
       type: Schema.Types.ObjectId,
-      ref: "MenuItem",
+      ref: 'MenuItem',
       required: true,
       index: true,
     },
@@ -36,7 +36,7 @@ export const ratingSchema = new Schema(
     },
   },
   {
-    timestamps:true
+    timestamps: true,
   }
 );
 

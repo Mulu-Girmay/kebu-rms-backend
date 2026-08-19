@@ -1,10 +1,10 @@
-import { Schema } from "mongoose";
+import { Schema } from 'mongoose';
 
 export const userSchema = new Schema(
   {
     role_id: {
       type: Schema.Types.ObjectId,
-      ref: "Role",
+      ref: 'Role',
       required: true,
     },
 
@@ -13,7 +13,7 @@ export const userSchema = new Schema(
       required: true,
       trim: true,
       minlength: 2,
-      maxlength: 50
+      maxlength: 50,
     },
 
     email: {
@@ -47,27 +47,20 @@ export const userSchema = new Schema(
 
     status: {
       type: String,
-      enum: [
-        "active",
-        "inactive",
-        "suspended",
-      ],
-      default: "active",
-    },    
+      enum: ['active', 'inactive', 'suspended'],
+      default: 'active',
+    },
     must_change_password: {
-        type: Boolean,
-        default: false,
-},
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: {
-      createdAt: "created_at",
-      updatedAt: "updated_at",
+      createdAt: 'created_at',
+      updatedAt: 'updated_at',
     },
   }
 );
 
-userSchema.index(
-  { email: 1 },
-  { unique: true }
-);
+userSchema.index({ email: 1 }, { unique: true });

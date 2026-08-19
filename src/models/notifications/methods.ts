@@ -1,4 +1,4 @@
-import { notificationSchema } from "./schema.js";
+import { notificationSchema } from './schema.js';
 
 notificationSchema.methods.markAsRead = async function () {
   this.isRead = true;

@@ -1,15 +1,15 @@
-import mongoose from "mongoose";
-import type { InferSchemaType, Model } from "mongoose";
-import { orderSchema, orderItemSchema } from "./schema.js";
-import "./methods.js";
-import "./statics.js";
+import mongoose from 'mongoose';
+import type { InferSchemaType, Model } from 'mongoose';
+import { orderSchema, orderItemSchema } from './schema.js';
+import './methods.js';
+import './statics.js';
 
 export type OrderItem = InferSchemaType<typeof orderItemSchema>;
 export type Order = InferSchemaType<typeof orderSchema>;
 
 export interface OrderMethods {
   isCancelable(): boolean;
-    isAccepted(): boolean;
+  isAccepted(): boolean;
 }
 
 export interface OrderModel extends Model<Order, {}, OrderMethods> {
@@ -21,5 +21,5 @@ export interface OrderModel extends Model<Order, {}, OrderMethods> {
   findFavoriteOrders(userId: string): Promise<Order[]>;
 }
 
-export const Order = mongoose.model<Order, OrderModel>("Order", orderSchema);
+export const Order = mongoose.model<Order, OrderModel>('Order', orderSchema);
 export { orderSchema, orderItemSchema };
