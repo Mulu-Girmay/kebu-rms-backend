@@ -72,3 +72,17 @@ export enum AuditAction {
   DELETE = 'delete',
 }
 export const AUDIT_ACTION_VALUES = Object.values(AuditAction);
+
+// Auth Token & Cookie Constants
+export const AUTH_COOKIES = {
+  ACCESS_TOKEN: 'accessToken',
+  REFRESH_TOKEN: 'refreshToken',
+} as const;
+
+export const TOKEN_EXPIRATION = {
+  ACCESS_TOKEN: '1d',
+  REFRESH_TOKEN: '7d',
+  ACCESS_TOKEN_MAX_AGE_MS: 1 * 24 * 60 * 60 * 1000, // 1 day in ms
+  REFRESH_TOKEN_MAX_AGE_MS: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
+} as const;
+
