@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.get('/', (_req: Request, res: Response) => {
+app.get('/api', (_req: Request, res: Response) => {
   res.send('API up and running!');
 });
 
