@@ -20,7 +20,7 @@ export default tseslint.config(
         },
       ],
       '@typescript-eslint/no-empty-object-type': 'off',
-      'no-console': 'off',
+      'no-console': 'warn',
       'prefer-const': 'error',
       'no-var': 'error',
     },
