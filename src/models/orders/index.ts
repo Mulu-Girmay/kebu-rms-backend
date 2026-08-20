@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import type { InferSchemaType, Model } from 'mongoose';
 import { orderSchema, orderItemSchema } from './schema.js';
+import { MODEL_NAMES } from '../../utils/constants.js';
 import './methods.js';
 import './statics.js';
 
@@ -21,5 +22,8 @@ export interface OrderModel extends Model<Order, {}, OrderMethods> {
   findFavoriteOrders(userId: string): Promise<Order[]>;
 }
 
-export const Order = mongoose.model<Order, OrderModel>('Order', orderSchema);
+export const Order = mongoose.model<Order, OrderModel>(
+  MODEL_NAMES.ORDER,
+  orderSchema,
+);
 export { orderSchema, orderItemSchema };

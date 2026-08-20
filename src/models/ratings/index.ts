@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import type { InferSchemaType, Model } from 'mongoose';
 import { ratingSchema } from './schema.js';
+import { MODEL_NAMES } from '../../utils/constants.js';
 import './methods.js';
 import './statics.js';
 
@@ -15,7 +16,8 @@ export interface RatingModel extends Model<Rating, {}, RatingMethods> {
 }
 
 export const Rating = mongoose.model<Rating, RatingModel>(
-  'Rating',
-  ratingSchema
+  MODEL_NAMES.RATING,
+  ratingSchema,
 );
 export { ratingSchema };
+

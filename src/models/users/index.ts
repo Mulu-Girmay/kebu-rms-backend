@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import type { InferSchemaType, Model } from 'mongoose';
 import { userSchema } from './schema.js';
+import { MODEL_NAMES } from '../../utils/constants.js';
 import './methods.js';
 import './statics.js';
 
@@ -23,4 +24,9 @@ export interface UserModel extends Model<User, {}, UserMethods> {
   findByEmailWithPassword(email: string): Promise<User>;
 }
 
-export const User = mongoose.model<User, UserModel>('User', userSchema);
+export const User = mongoose.model<User, UserModel>(
+  MODEL_NAMES.USER,
+  userSchema,
+);
+export { userSchema };
+

@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import type { InferSchemaType, Model } from 'mongoose';
 import { favoriteSchema } from './schema.js';
+import { MODEL_NAMES } from '../../utils/constants.js';
 import './methods.js';
 import './statics.js';
 
@@ -15,7 +16,8 @@ export interface FavoriteModel extends Model<Favorite, {}, FavoriteMethods> {
 }
 
 export const Favorite = mongoose.model<Favorite, FavoriteModel>(
-  'Favorite',
-  favoriteSchema
+  MODEL_NAMES.FAVORITE,
+  favoriteSchema,
 );
 export { favoriteSchema };
+

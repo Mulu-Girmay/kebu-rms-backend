@@ -1,10 +1,15 @@
 import { Schema } from 'mongoose';
+import {
+  MODEL_NAMES,
+  ORDER_STATUS_VALUES,
+  OrderStatus,
+} from '../../utils/constants.js';
 
 export const orderItemSchema = new Schema(
   {
     menuItemId: {
       type: Schema.Types.ObjectId,
-      ref: 'MenuItem',
+      ref: MODEL_NAMES.MENU_ITEM,
       required: true,
     },
 
@@ -33,7 +38,7 @@ export const orderSchema = new Schema(
   {
     userId: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: MODEL_NAMES.USER,
       required: true,
       index: true,
     },
@@ -47,16 +52,8 @@ export const orderSchema = new Schema(
 
     status: {
       type: String,
-      enum: [
-        'placed',
-        'rejected',
-        'accepted',
-        'preparing',
-        'ready',
-        'completed',
-        'cancelled',
-      ],
-      default: 'placed',
+      enum: ORDER_STATUS_VALUES,
+      default: OrderStatus.PLACED,
       index: true,
     },
 

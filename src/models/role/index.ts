@@ -1,6 +1,7 @@
 import type { InferSchemaType, Model, Types } from 'mongoose';
 import { roleSchema } from './schema.js';
 import mongoose from 'mongoose';
+import { MODEL_NAMES } from '../../utils/constants.js';
 
 export type Role = InferSchemaType<typeof roleSchema>;
 
@@ -23,4 +24,8 @@ export interface RoleModel extends Model<Role, {}, RoleMethods> {
   findCustomRoles(): Promise<Role>;
   findWithPermissions(roleId: string): Promise<Role>;
 }
-export const Role = mongoose.model<Role, RoleModel>('Role', roleSchema);
+export const Role = mongoose.model<Role, RoleModel>(
+  MODEL_NAMES.ROLE,
+  roleSchema
+);
+export { roleSchema };

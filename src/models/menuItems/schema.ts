@@ -1,10 +1,11 @@
 import { Schema } from 'mongoose';
+import { MODEL_NAMES } from '../../utils/constants.js';
 
 export const menuItemSchema = new Schema(
   {
     categoryId: {
       type: Schema.Types.ObjectId,
-      ref: 'Category',
+      ref: MODEL_NAMES.CATEGORY,
       required: true,
       index: true,
     },

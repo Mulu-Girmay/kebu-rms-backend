@@ -1,4 +1,6 @@
 import { Schema } from 'mongoose';
+import { MODEL_NAMES } from '../../utils/constants.js';
+
 export const roleSchema = new Schema(
   {
     name: {
@@ -21,7 +23,7 @@ export const roleSchema = new Schema(
     permissions: [
       {
         type: Schema.Types.ObjectId,
-        ref: 'Permission',
+        ref: MODEL_NAMES.PERMISSION,
       },
     ],
   },

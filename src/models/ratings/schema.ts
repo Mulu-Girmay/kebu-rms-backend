@@ -1,24 +1,25 @@
 import { Schema } from 'mongoose';
+import { MODEL_NAMES } from '../../utils/constants.js';
 
 export const ratingSchema = new Schema(
   {
     userId: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: MODEL_NAMES.USER,
       required: true,
       index: true,
     },
 
     orderId: {
       type: Schema.Types.ObjectId,
-      ref: 'Order',
+      ref: MODEL_NAMES.ORDER,
       required: true,
       index: true,
     },
 
     menuItemId: {
       type: Schema.Types.ObjectId,
-      ref: 'MenuItem',
+      ref: MODEL_NAMES.MENU_ITEM,
       required: true,
       index: true,
     },

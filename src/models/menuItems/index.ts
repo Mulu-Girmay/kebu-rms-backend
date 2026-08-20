@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import type { InferSchemaType, Model } from 'mongoose';
 import { menuItemSchema } from './schema.js';
+import { MODEL_NAMES } from '../../utils/constants.js';
 import './methods.js';
 import './statics.js';
 
@@ -16,7 +17,8 @@ export interface MenuItemModel extends Model<MenuItem, {}, MenuItemMethods> {
 }
 
 export const MenuItem = mongoose.model<MenuItem, MenuItemModel>(
-  'MenuItem',
-  menuItemSchema
+  MODEL_NAMES.MENU_ITEM,
+  menuItemSchema,
 );
 export { menuItemSchema };
+

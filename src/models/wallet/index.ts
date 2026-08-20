@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import type { InferSchemaType, Model } from 'mongoose';
 import { walletSchema } from './schema.js';
+import { MODEL_NAMES } from '../../utils/constants.js';
 import './methods.js';
 import './statics.js';
 
@@ -18,7 +19,8 @@ export interface WalletModel extends Model<Wallet, {}, WalletMethods> {
 }
 
 export const Wallet = mongoose.model<Wallet, WalletModel>(
-  'Wallet',
-  walletSchema
+  MODEL_NAMES.WALLET,
+  walletSchema,
 );
 export { walletSchema };
+

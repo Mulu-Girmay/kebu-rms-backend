@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import type { InferSchemaType, Model } from 'mongoose';
 import { creditAccountSchema } from './schema.js';
+import { MODEL_NAMES } from '../../utils/constants.js';
 import './methods.js';
 
 export type CreditAccount = InferSchemaType<typeof creditAccountSchema>;
@@ -17,7 +18,7 @@ export interface CreditAccountModel extends Model<
 > {}
 
 export const CreditAccount = mongoose.model<CreditAccount, CreditAccountModel>(
-  'CreditAccount',
+  MODEL_NAMES.CREDIT_ACCOUNT,
   creditAccountSchema
 );
 

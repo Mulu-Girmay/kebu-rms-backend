@@ -1,10 +1,15 @@
 import { Schema } from 'mongoose';
+import {
+  MODEL_NAMES,
+  USER_STATUS_VALUES,
+  UserStatus,
+} from '../../utils/constants.js';
 
 export const userSchema = new Schema(
   {
     role_id: {
       type: Schema.Types.ObjectId,
-      ref: 'Role',
+      ref: MODEL_NAMES.ROLE,
       required: true,
     },
 
@@ -47,8 +52,8 @@ export const userSchema = new Schema(
 
     status: {
       type: String,
-      enum: ['active', 'inactive', 'suspended'],
-      default: 'active',
+      enum: USER_STATUS_VALUES,
+      default: UserStatus.ACTIVE,
     },
     must_change_password: {
       type: Boolean,

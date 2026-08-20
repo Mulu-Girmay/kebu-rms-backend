@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import type { InferSchemaType, Model } from 'mongoose';
 import { categorySchema } from './schema.js';
+import { MODEL_NAMES } from '../../utils/constants.js';
 import './methods.js';
 import './statics.js';
 
@@ -14,7 +15,8 @@ export interface CategoryModel extends Model<Category, {}, CategoryMethods> {
 }
 
 export const Category = mongoose.model<Category, CategoryModel>(
-  'Category',
-  categorySchema
+  MODEL_NAMES.CATEGORY,
+  categorySchema,
 );
 export { categorySchema };
+

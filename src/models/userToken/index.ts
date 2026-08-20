@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import { userTokenSchema } from './schema.js';
 import type { InferSchemaType, Model } from 'mongoose';
+import { MODEL_NAMES } from '../../utils/constants.js';
 
 export type UserToken = InferSchemaType<typeof userTokenSchema>;
 
@@ -17,6 +18,8 @@ export interface UserTokenModel extends Model<UserToken, {}, UserTokenMethods> {
 }
 
 export const UserToken = mongoose.model<UserToken, UserTokenModel>(
-  'UserToken',
-  userTokenSchema
+  MODEL_NAMES.USER_TOKEN,
+  userTokenSchema,
 );
+export { userTokenSchema };
+

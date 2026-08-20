@@ -1,20 +1,20 @@
-import type { Request, Response } from 'express';
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
+import app from './config/express.js';
+import { config } from './config/environments.js';
+import { connectDB } from './config/mongoose.js';
+import logger from './config/winston.js';
 
-dotenv.config();
+const startServer = async () => {
+  try {
+   
+    await connectDB();
 
-const app = express();
-const PORT = process.env.PORT || 5000;
+    app.listen(config.port, () => {
+      logger.info(`Server is listening on port ${config.port}`);
+    });
+  } catch (error) {
+    logger.error('Failed to start server:', error);
+    process.exit(1);
+  }
+};
 
-app.use(cors());
-app.use(express.json());
-
-app.get('/', (req: Request, res: Response) => {
-  res.send('API up and running!');
-});
-
-app.listen(PORT, () => {
-  console.log(`Server is listning on port ${PORT}`);
-});
+startServer();
