@@ -1,17 +1,21 @@
-import { Schema } from "mongoose";
+import { Schema } from 'mongoose';
+import {
+  MODEL_NAMES,
+  AUDIT_ACTION_VALUES,
+} from '../../utils/constants.js';
 
 export const auditSchema = new Schema(
   {
     userId: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: MODEL_NAMES.USER,
       required: true,
       index: true,
     },
 
     action: {
       type: String,
-      enum: ["create", "read", "update", "delete"],
+      enum: AUDIT_ACTION_VALUES,
       required: true,
     },
 

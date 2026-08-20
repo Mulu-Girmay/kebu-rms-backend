@@ -1,21 +1,21 @@
-import { required, string } from "joi";
-import { Schema } from "mongoose";
+import { Schema } from 'mongoose';
+import {
+  MODEL_NAMES,
+  USER_TOKEN_TYPE_VALUES,
+} from '../../utils/constants.js';
 
 export const userTokenSchema = new Schema(
-    {
-    user_id:{
-        type: Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
-        index: true,
+  {
+    user_id: {
+      type: Schema.Types.ObjectId,
+      ref: MODEL_NAMES.USER,
+      required: true,
+      index: true,
     },
-    type:{
-        type:String,
-        enum:[
-            "email_verification",
-            "password_reset",
-        ],
-        required: true,
+    type: {
+      type: String,
+      enum: USER_TOKEN_TYPE_VALUES,
+      required: true,
     },
     token_hash: {
         type: String,

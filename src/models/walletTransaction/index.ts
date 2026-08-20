@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import type { InferSchemaType, Model } from 'mongoose';
 import { walletTransactionSchema } from './schema.js';
+import { MODEL_NAMES } from '../../utils/constants.js';
 import './methods.js';
 import './statics.js';
 
@@ -20,7 +21,7 @@ export const WalletTransaction = mongoose.model<
   WalletTransaction,
   WalletTransactionModel
 >(
-  'WalletTransaction',
+  MODEL_NAMES.WALLET_TRANSACTION,
   walletTransactionSchema,
 );
 
