@@ -1,8 +1,5 @@
 import { Schema } from 'mongoose';
-import {
-  MODEL_NAMES,
-  AUDIT_ACTION_VALUES,
-} from '../../utils/constants.js';
+import { MODEL_NAMES, AUDIT_ACTION_VALUES } from '../../utils/constants.js';
 
 export const auditSchema = new Schema(
   {
@@ -38,7 +35,7 @@ export const auditSchema = new Schema(
     },
   },
   {
-    timestamps:true
+    timestamps: true,
   }
 );
 

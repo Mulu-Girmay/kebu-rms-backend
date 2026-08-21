@@ -11,12 +11,15 @@ export interface CreditAccountMethods {
   hasAvailableCredit(amount: number): boolean;
 }
 
-export interface CreditAccountModel
-  extends Model<CreditAccount, {}, CreditAccountMethods> {}
-
-export const CreditAccount = mongoose.model<
+export interface CreditAccountModel extends Model<
   CreditAccount,
-  CreditAccountModel
->(MODEL_NAMES.CREDIT_ACCOUNT, creditAccountSchema);
+  {},
+  CreditAccountMethods
+> {}
 
-export { creditAccountSchema };
+export const CreditAccount = mongoose.model<CreditAccount, CreditAccountModel>(
+  MODEL_NAMES.CREDIT_ACCOUNT,
+  creditAccountSchema
+);
+
+export { creditAccountSchema };

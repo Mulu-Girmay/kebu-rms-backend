@@ -26,6 +26,6 @@ export interface RoleModel extends Model<Role, {}, RoleMethods> {
 }
 export const Role = mongoose.model<Role, RoleModel>(
   MODEL_NAMES.ROLE,
-  roleSchema,
+  roleSchema
 );
-export { roleSchema };
+export { roleSchema };

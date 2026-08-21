@@ -39,5 +39,5 @@ export const creditAccountSchema = new Schema(
   },
   {
     timestamps: true,
-  },
+  }
 );

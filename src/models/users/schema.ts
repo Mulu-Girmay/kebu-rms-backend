@@ -54,21 +54,18 @@ export const userSchema = new Schema(
       type: String,
       enum: USER_STATUS_VALUES,
       default: UserStatus.ACTIVE,
-    },    
+    },
     must_change_password: {
-        type: Boolean,
-        default: false,
-},
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: {
-      createdAt: "created_at",
-      updatedAt: "updated_at",
+      createdAt: 'created_at',
+      updatedAt: 'updated_at',
     },
   }
 );
 
-userSchema.index(
-  { email: 1 },
-  { unique: true }
-);
+userSchema.index({ email: 1 }, { unique: true });

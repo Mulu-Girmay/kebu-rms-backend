@@ -19,7 +19,7 @@ export const favoriteSchema = new Schema(
   },
   {
     timestamps: {
-      createdAt: "createdAt",
+      createdAt: 'createdAt',
       updatedAt: false,
     },
   }
