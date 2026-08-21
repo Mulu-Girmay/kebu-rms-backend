@@ -16,14 +16,19 @@ const envVarSchema = Joi.object({
   JWT_EXPIRES_IN: Joi.string().default('1d'),
   EMAIL_VERIFICATION_EXPIRES_IN: Joi.number().default(30),
   EMAIL_FROM: Joi.string().default('Kebu RMS <noreply@kebu.com>'),
-  EMAIL_USER: Joi.string().allow('').default(''),
-  OAUTH_CLIENT_ID: Joi.string().allow('').default(''),
-  OAUTH_CLIENT_SECRET: Joi.string().allow('').default(''),
-  OAUTH_REFRESH_TOKEN: Joi.string().allow('').default(''),
-  SMTP_HOST: Joi.string().default('smtp.mailtrap.io'),
-  SMTP_PORT: Joi.number().default(2525),
-  SMTP_USER: Joi.string().allow('').default(''),
-  SMTP_PASS: Joi.string().allow('').default(''),
+  EMAIL_USER: Joi.string()
+    .email()
+    .required()
+    .description('Gmail sender address'),
+  OAUTH_CLIENT_ID: Joi.string()
+    .required()
+    .description('Google OAuth2 Client ID'),
+  OAUTH_CLIENT_SECRET: Joi.string()
+    .required()
+    .description('Google OAuth2 Client Secret'),
+  OAUTH_REFRESH_TOKEN: Joi.string()
+    .required()
+    .description('Google OAuth2 Refresh Token'),
   APP_CLIENT_URL: Joi.string().default('http://localhost:3000'),
 }).unknown(true);
 
@@ -54,14 +59,6 @@ export interface AppConfig {
       clientSecret: string;
       refreshToken: string;
     };
-    smtp: {
-      host: string;
-      port: number;
-      auth: {
-        user: string;
-        pass: string;
-      };
-    };
   };
   clientUrl: string;
 }
@@ -74,19 +71,11 @@ export const config: AppConfig = {
   verification: { expiresIn: envVars.EMAIL_VERIFICATION_EXPIRES_IN },
   email: {
     from: envVars.EMAIL_FROM,
-    user: envVars.EMAIL_USER || envVars.SMTP_USER,
+    user: envVars.EMAIL_USER,
     oauth: {
       clientId: envVars.OAUTH_CLIENT_ID,
       clientSecret: envVars.OAUTH_CLIENT_SECRET,
       refreshToken: envVars.OAUTH_REFRESH_TOKEN,
-    },
-    smtp: {
-      host: envVars.SMTP_HOST,
-      port: Number(envVars.SMTP_PORT),
-      auth: {
-        user: envVars.SMTP_USER,
-        pass: envVars.SMTP_PASS,
-      },
     },
   },
   clientUrl: envVars.APP_CLIENT_URL,

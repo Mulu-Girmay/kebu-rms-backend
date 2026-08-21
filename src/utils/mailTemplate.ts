@@ -1,7 +1,11 @@
 import { transporter } from '../config/nodemailer.js';
 import { config } from '../config/environments.js';
 import logger from '../config/winston.js';
-import { createMail, type EmailTemplateType, type EmailTemplateData } from './templates/createMail.js';
+import {
+  createMail,
+  type EmailTemplateType,
+  type EmailTemplateData,
+} from './templates/createMail.js';
 
 export interface SendEmailOptions<T extends EmailTemplateType> {
   to: string;
@@ -20,7 +24,7 @@ export const sendEmail = async <T extends EmailTemplateType>({
     const html = await createMail(template, data);
 
     const info = await transporter.sendMail({
-      from: config.email.from,
+      from: `"Kebu RMS" <${config.email.user}>`,
       to,
       subject,
       html,
