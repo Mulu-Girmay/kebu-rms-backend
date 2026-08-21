@@ -1,8 +1,5 @@
 import { Schema } from 'mongoose';
-import {
-  MODEL_NAMES,
-  USER_TOKEN_TYPE_VALUES,
-} from '../../utils/constants.js';
+import { MODEL_NAMES, USER_TOKEN_TYPE_VALUES } from '../../utils/constants.js';
 
 export const userTokenSchema = new Schema(
   {
@@ -18,28 +15,25 @@ export const userTokenSchema = new Schema(
       required: true,
     },
     token_hash: {
-        type: String,
-        required:true,
-        unique: true,
+      type: String,
+      required: true,
+      unique: true,
     },
-    expires_at:{
-        type: Date,
-        required: true,
-        index: true,
+    expires_at: {
+      type: Date,
+      required: true,
+      index: true,
     },
     used_at: {
-        type: Date,
-        default: null,
+      type: Date,
+      default: null,
     },
-},
-{
-    timestamps:{
-        createdAt: "created_at",
-        updatedAt: false,
+  },
+  {
+    timestamps: {
+      createdAt: 'created_at',
+      updatedAt: false,
     },
-}
+  }
 );
-userTokenSchema.index(
-  { expires_at: 1 },
-  { expireAfterSeconds: 0 }
-);
+userTokenSchema.index({ expires_at: 1 }, { expireAfterSeconds: 0 });

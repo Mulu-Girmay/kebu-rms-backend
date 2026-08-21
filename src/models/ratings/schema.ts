@@ -37,7 +37,7 @@ export const ratingSchema = new Schema(
     },
   },
   {
-    timestamps:true
+    timestamps: true,
   }
 );
 

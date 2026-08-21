@@ -27,5 +27,5 @@ export const walletSchema = new Schema(
   },
   {
     timestamps: true,
-  },
+  }
 );

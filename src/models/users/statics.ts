@@ -1,33 +1,34 @@
-import { userSchema } from "./schema.js";
-import type { InferSchemaType } from "mongoose";
-import type {User} from './index.js'
+import { userSchema } from './schema.js';
+import type { User } from './index.js';
 
-userSchema.statics.findByEmail =async function(email:string): Promise<User | null> {
-    return await this.findOne({email: email.toLocaleLowerCase()});
+userSchema.statics.findByEmail = async function (
+  email: string
+): Promise<User | null> {
+  return await this.findOne({ email: email.toLocaleLowerCase() });
 };
 
-userSchema.statics.emailExists = async function(email:string):Promise<boolean>{
-    const result = await this.exists({email: email.toLocaleLowerCase()})
-    return !!result
-} 
+userSchema.statics.emailExists = async function (
+  email: string
+): Promise<boolean> {
+  const result = await this.exists({ email: email.toLocaleLowerCase() });
+  return !!result;
+};
 
-userSchema.statics.findByActiveId = async function (userId:string) {
+userSchema.statics.findByActiveId = async function (userId: string) {
   return this.findOne({
     _id: userId,
-    status: "active",
-  });    
-}
-
-// because password is deliberately excluded by defaulr
-userSchema.statics.findByEmailWithPassword = function (
-  email: string
-) {
-  return this.findOne({
-    email: email.toLowerCase(),
-  }).select("+password");
+    status: 'active',
+  });
 };
 
-userSchema.statics.findByRole = function (roleId: string): Promise<User[]>  {
+// because password is deliberately excluded by defaulr
+userSchema.statics.findByEmailWithPassword = function (email: string) {
+  return this.findOne({
+    email: email.toLowerCase(),
+  }).select('+password');
+};
+
+userSchema.statics.findByRole = function (roleId: string): Promise<User[]> {
   return this.find({
     role_id: roleId,
   });

@@ -40,7 +40,7 @@ export const notificationSchema = new Schema(
     },
   },
   {
-    timestamps:true
+    timestamps: true,
   }
 );
 

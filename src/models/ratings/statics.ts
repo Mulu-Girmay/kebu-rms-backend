@@ -1,4 +1,4 @@
-import { ratingSchema } from "./schema.js";
+import { ratingSchema } from './schema.js';
 
 ratingSchema.statics.findByMenuItemId = async function (menuItemId: string) {
   return this.find({ menuItemId });

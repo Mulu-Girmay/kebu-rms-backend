@@ -1,7 +1,7 @@
-import { favoriteSchema } from "./schema.js";
+import { favoriteSchema } from './schema.js';
 
 favoriteSchema.statics.findByUserId = async function (userId: string) {
-  return this.find({ userId }).populate("menuItemId").sort({ createdAt: -1 });
+  return this.find({ userId }).populate('menuItemId').sort({ createdAt: -1 });
 };
 
 favoriteSchema.statics.isFavorited = async function (

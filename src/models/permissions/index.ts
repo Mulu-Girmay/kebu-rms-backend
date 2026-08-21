@@ -7,6 +7,6 @@ export type Permission = InferSchemaType<typeof permissionSchema>;
 
 export const Permission = mongoose.model<Permission>(
   MODEL_NAMES.PERMISSION,
-  permissionSchema,
+  permissionSchema
 );
-export { permissionSchema };
+export { permissionSchema };
