@@ -1,10 +1,15 @@
 import { Schema } from 'mongoose';
+import {
+  MODEL_NAMES,
+  CREDIT_ACCOUNT_STATUS_VALUES,
+  CreditAccountStatus,
+} from '../../utils/constants.js';
 
 export const creditAccountSchema = new Schema(
   {
     user: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: MODEL_NAMES.USER,
       required: true,
       unique: true,
       index: true,
@@ -26,13 +31,13 @@ export const creditAccountSchema = new Schema(
 
     status: {
       type: String,
-      enum: ['active', 'frozen', 'closed'],
-      default: 'active',
+      enum: CREDIT_ACCOUNT_STATUS_VALUES,
+      default: CreditAccountStatus.ACTIVE,
       required: true,
       index: true,
     },
   },
   {
     timestamps: true,
-  },
+  }
 );

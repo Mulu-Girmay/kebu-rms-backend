@@ -1,17 +1,21 @@
-import { Schema } from "mongoose";
+import { Schema } from 'mongoose';
+import {
+  MODEL_NAMES,
+  NOTIFICATION_TYPE_VALUES,
+} from '../../utils/constants.js';
 
 export const notificationSchema = new Schema(
   {
     userId: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: MODEL_NAMES.USER,
       required: true,
       index: true,
     },
 
     type: {
       type: String,
-      enum: ["order_update", "transaction", "system"],
+      enum: NOTIFICATION_TYPE_VALUES,
       required: true,
     },
 
@@ -36,7 +40,7 @@ export const notificationSchema = new Schema(
     },
   },
   {
-    timestamps:true
+    timestamps: true,
   }
 );
 

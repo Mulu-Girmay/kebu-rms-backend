@@ -1,12 +1,12 @@
 # Kebu RMS Backend
- 
 
 ## Prerequisites
 
 Ensure you have the following installed on your machine:
-* **Node.js** (v18 or higher recommended)
-* **npm** or **yarn**
-* **MongoDB** (running locally or a remote connection string)
+
+- **Node.js** (v18 or higher recommended)
+- **npm** or **yarn**
+- **MongoDB** (running locally or a remote connection string)
 
 ## Getting Started
 
@@ -33,25 +33,33 @@ Open `.env` and update the values with your local configuration (e.g., `MONGO_UR
 Run these scripts from the project root using npm:
 
 #### Development Mode
+
 Starts the server with automatic file reloading whenever you make code changes:
+
 ```bash
 npm run dev
 ```
 
 #### Build Project
+
 Compiles the TypeScript code into production-ready JavaScript inside the `dist/` directory:
+
 ```bash
 npm run build
 ```
 
 #### Production Mode
+
 Starts the compiled application (make sure to run the build script first):
+
 ```bash
 npm run start
 ```
 
 #### Database Tools & Migrations
+
 Run your custom CLI tool scripts for migrations or backups:
+
 ```bash
 # Run the migration CLI tool
 npm run script -- --help
@@ -64,6 +72,7 @@ Once the server is running (default port is usually `5000`), verify everything w
 ```text
 GET http://localhost:5000/api/v1/test
 ```
+
 ```json
 {
   "message": "API up and running"

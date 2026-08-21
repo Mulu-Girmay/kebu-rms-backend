@@ -1,10 +1,15 @@
-import { Schema } from "mongoose";
+import { Schema } from 'mongoose';
+import {
+  MODEL_NAMES,
+  USER_STATUS_VALUES,
+  UserStatus,
+} from '../../utils/constants.js';
 
 export const userSchema = new Schema(
   {
     role_id: {
       type: Schema.Types.ObjectId,
-      ref: "Role",
+      ref: MODEL_NAMES.ROLE,
       required: true,
     },
 
@@ -13,7 +18,7 @@ export const userSchema = new Schema(
       required: true,
       trim: true,
       minlength: 2,
-      maxlength: 50
+      maxlength: 50,
     },
 
     email: {
@@ -47,27 +52,20 @@ export const userSchema = new Schema(
 
     status: {
       type: String,
-      enum: [
-        "active",
-        "inactive",
-        "suspended",
-      ],
-      default: "active",
-    },    
+      enum: USER_STATUS_VALUES,
+      default: UserStatus.ACTIVE,
+    },
     must_change_password: {
-        type: Boolean,
-        default: false,
-},
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: {
-      createdAt: "created_at",
-      updatedAt: "updated_at",
+      createdAt: 'created_at',
+      updatedAt: 'updated_at',
     },
   }
 );
 
-userSchema.index(
-  { email: 1 },
-  { unique: true }
-);
+userSchema.index({ email: 1 }, { unique: true });

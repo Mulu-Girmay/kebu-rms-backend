@@ -10,12 +10,10 @@ const logger = winston.createLogger({
     winston.format.errors({ stack: true }),
     winston.format.printf(({ timestamp, level, message, stack }) => {
       return `${timestamp} [${level.toUpperCase()}]: ${stack || message}`;
-    }),
+    })
   ),
 
-  transports: [
-    new winston.transports.Console(),
-  ],
+  transports: [new winston.transports.Console()],
 });
 
 export default logger;

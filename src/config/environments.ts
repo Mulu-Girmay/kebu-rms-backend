@@ -2,10 +2,16 @@ import dotenv from 'dotenv';
 import Joi from 'joi';
 
 dotenv.config();
+
 const envVarSchema = Joi.object({
-  NODE_ENV: Joi.string().valid('development', 'production', 'test').default('development'),
+  NODE_ENV: Joi.string()
+    .valid('development', 'production', 'test')
+    .default('development'),
   PORT: Joi.number().default(5000),
-  MONGO_URI: Joi.string().uri().required().description('mongoDB connection URI'),
+  MONGO_URI: Joi.string()
+    .uri()
+    .required()
+    .description('mongoDB connection URI'),
   JWT_SECRET: Joi.string().min(10).required(),
   JWT_EXPIRES_IN: Joi.string().default('1d'),
   EMAIL_VERIFICATION_EXPIRES_IN: Joi.number().default(30),
@@ -68,4 +74,4 @@ export const config: AppConfig = {
     },
   },
   clientUrl: envVars.APP_CLIENT_URL,
-};
+};

@@ -1,10 +1,15 @@
-import { Schema } from "mongoose";
+import { Schema } from 'mongoose';
+import {
+  MODEL_NAMES,
+  ORDER_STATUS_VALUES,
+  OrderStatus,
+} from '../../utils/constants.js';
 
 export const orderItemSchema = new Schema(
   {
     menuItemId: {
       type: Schema.Types.ObjectId,
-      ref: "MenuItem",
+      ref: MODEL_NAMES.MENU_ITEM,
       required: true,
     },
 
@@ -33,7 +38,7 @@ export const orderSchema = new Schema(
   {
     userId: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: MODEL_NAMES.USER,
       required: true,
       index: true,
     },
@@ -47,16 +52,8 @@ export const orderSchema = new Schema(
 
     status: {
       type: String,
-      enum: [
-        "placed",
-        "rejected",
-        "accepted",
-        "preparing",
-        "ready",
-        "completed",
-        "cancelled",
-      ],
-      default: "placed",
+      enum: ORDER_STATUS_VALUES,
+      default: OrderStatus.PLACED,
       index: true,
     },
 
@@ -77,7 +74,7 @@ export const orderSchema = new Schema(
       required: true,
       validate: {
         validator: (v: unknown[]) => Array.isArray(v) && v.length > 0,
-        message: "Order must contain at least one item.",
+        message: 'Order must contain at least one item.',
       },
     },
 
@@ -125,4 +122,4 @@ export const orderSchema = new Schema(
 
 orderSchema.index({ userId: 1, createdAt: -1 });
 orderSchema.index({ status: 1, createdAt: -1 });
-orderSchema.index({ userId: 1, isFavorite: 1, createdAt: -1 });
+orderSchema.index({ userId: 1, isFavorite: 1, createdAt: -1 });

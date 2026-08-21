@@ -1,4 +1,4 @@
-import { categorySchema } from "./schema.js";
+import { categorySchema } from './schema.js';
 
 categorySchema.statics.findByName = async function (name: string) {
   return this.findOne({ name: name.trim() });

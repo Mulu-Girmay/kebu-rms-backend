@@ -1,17 +1,21 @@
 import { Schema } from 'mongoose';
+import {
+  MODEL_NAMES,
+  WALLET_TRANSACTION_TYPE_VALUES,
+} from '../../utils/constants.js';
 
 export const walletTransactionSchema = new Schema(
   {
     wallet: {
       type: Schema.Types.ObjectId,
-      ref: 'Wallet',
+      ref: MODEL_NAMES.WALLET,
       required: true,
       index: true,
     },
 
     order: {
       type: Schema.Types.ObjectId,
-      ref: 'Order',
+      ref: MODEL_NAMES.ORDER,
       index: true,
     },
 
@@ -24,7 +28,7 @@ export const walletTransactionSchema = new Schema(
     type: {
       type: String,
       required: true,
-      enum: ['mixed', 'credit', 'refund', 'debit'],
+      enum: WALLET_TRANSACTION_TYPE_VALUES,
       index: true,
     },
 
@@ -45,5 +49,5 @@ export const walletTransactionSchema = new Schema(
       createdAt: true,
       updatedAt: false,
     },
-  },
+  }
 );

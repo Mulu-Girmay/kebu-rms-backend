@@ -1,9 +1,7 @@
 import { walletTransactionSchema } from './schema.js';
 import { Wallet } from '../wallet/index.js';
 
-walletTransactionSchema.statics.findByUserId = async function (
-  userId: string,
-) {
+walletTransactionSchema.statics.findByUserId = async function (userId: string) {
   const wallet = await Wallet.findOne({
     user: userId,
   });
@@ -18,7 +16,7 @@ walletTransactionSchema.statics.findByUserId = async function (
 };
 
 walletTransactionSchema.statics.findByOrderId = async function (
-  orderId: string,
+  orderId: string
 ) {
   return this.find({
     order: orderId,
