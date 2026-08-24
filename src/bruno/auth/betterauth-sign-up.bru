@@ -1,0 +1,29 @@
+meta {
+  name: BetterAuth Sign-up
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/api/auth/sign-up/email
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "email": "testuser@example.com",
+    "password": "Password123!",
+    "name": "Test User"
+  }
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+}
