@@ -2,6 +2,10 @@ import { betterAuth } from 'better-auth';
 import { mongodbAdapter } from 'better-auth/adapters/mongodb';
 import mongoose from 'mongoose';
 import { config } from './environments.js';
+import {
+  sendVerificationEmail,
+  sendPasswordResetEmail,
+} from '../utils/mailTemplate.js';
 
 export const auth = betterAuth({
   database: mongodbAdapter(mongoose.connection.getClient().db()),
@@ -10,6 +14,17 @@ export const auth = betterAuth({
 
   emailAndPassword: {
     enabled: true,
+    sendResetPassword: async ({ user, token }) => {
+      await sendPasswordResetEmail(user.email, user.name || 'User', token);
+    },
+  },
+
+  emailVerification: {
+    sendOnSignUp: true,
+    autoSignInAfterVerification: true,
+    sendVerificationEmail: async ({ user, token }) => {
+      await sendVerificationEmail(user.email, user.name || 'User', token);
+    },
   },
 
   user: {
