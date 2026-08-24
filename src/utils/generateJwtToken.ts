@@ -1,5 +1,4 @@
 import jwt from 'jsonwebtoken';
-import type { SignOptions } from 'jsonwebtoken';
 import type { Types } from 'mongoose';
 import type { Response, CookieOptions } from 'express';
 import { config } from '../config/environments.js';
