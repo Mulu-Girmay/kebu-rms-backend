@@ -8,7 +8,7 @@ import {
 export const creditAccountSchema = new Schema(
   {
     user: {
-      type: Schema.Types.ObjectId,
+      type: String,
       ref: MODEL_NAMES.USER,
       required: true,
       unique: true,

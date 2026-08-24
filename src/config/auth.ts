@@ -13,10 +13,24 @@ export const auth = betterAuth({
   },
 
   user: {
+    modelName: 'users',
     additionalFields: {
-      role: {
+      fullName: {
         type: 'string',
-        defaultValue: 'customer',
+        required: false,
+      },
+      role_id: {
+        type: 'string',
+        required: false,
+      },
+      status: {
+        type: 'string',
+        defaultValue: 'active',
+        required: false,
+      },
+      must_change_password: {
+        type: 'boolean',
+        defaultValue: false,
         required: false,
       },
       profileImage: {
