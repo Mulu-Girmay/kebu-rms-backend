@@ -13,6 +13,7 @@ export const MODEL_NAMES = {
   WALLET: 'Wallet',
   WALLET_TRANSACTION: 'WalletTransaction',
   CREDIT_ACCOUNT: 'CreditAccount',
+  FILE: 'File',
 } as const;
 
 export type ModelName = (typeof MODEL_NAMES)[keyof typeof MODEL_NAMES];
@@ -36,7 +37,9 @@ export enum WalletTransactionType {
   REFUND = 'refund',
   DEBIT = 'debit',
 }
-export const WALLET_TRANSACTION_TYPE_VALUES = Object.values(WalletTransactionType);
+export const WALLET_TRANSACTION_TYPE_VALUES = Object.values(
+  WalletTransactionType
+);
 
 export enum CreditAccountStatus {
   ACTIVE = 'active',
@@ -85,4 +88,3 @@ export const TOKEN_EXPIRATION = {
   ACCESS_TOKEN_MAX_AGE_MS: 1 * 24 * 60 * 60 * 1000, // 1 day in ms
   REFRESH_TOKEN_MAX_AGE_MS: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
 } as const;
-

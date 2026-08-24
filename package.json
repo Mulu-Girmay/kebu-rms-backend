@@ -10,9 +10,7 @@
     "test:api:auth": "cd src/bruno/auth && bru run --env development",
     "test:api:users": "cd src/bruno/users && bru run --env development",
     "test:api": "npm run test:api:auth",
-
     "test:api:health": "cd src/bruno/healthCheck && bru run --env development  --output reports/health-report.xml",
-
     "typecheck": "tsc --noEmit",
     "start": "node dist/index.js",
     "lint": "eslint .",
@@ -38,6 +36,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/multer": "^2.2.0",
     "bcrypt": "^6.0.0",
     "cookie": "^2.0.1",
     "cors": "^2.8.6",
@@ -47,6 +46,7 @@
     "joi": "^18.2.3",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.9.2",
+    "multer": "^2.2.0",
     "socket.io": "^4.8.3",
     "winston": "^3.19.0"
   },
