@@ -1,0 +1,28 @@
+meta {
+  name: Login
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/v1/auth/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "email": "{{userEmail}}",
+    "password": "{{userPassword}}"
+  }
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("status is 200 or 401", function() {
+    expect([200, 401]).to.include(res.status);
+  });
+}

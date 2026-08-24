@@ -1,0 +1,21 @@
+meta {
+  name: Get Profile
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/v1/users/me
+}
+
+
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("status is 200 or 401", function() {
+    expect([200, 401]).to.include(res.status);
+  });
+}
