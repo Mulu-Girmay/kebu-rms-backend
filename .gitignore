@@ -6,3 +6,4 @@ build/
 *.log
 pnpm-lock.yaml
 pnpm-workspace.yaml
+uploads/

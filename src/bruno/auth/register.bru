@@ -1,0 +1,29 @@
+meta {
+  name: Register
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/v1/auth/register
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "fullName": "Test User",
+    "email": "newuser@example.com",
+    "password": "Password123!"
+  }
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("status is 201 or 400", function() {
+    expect([201, 400]).to.include(res.status);
+  });
+}

@@ -7,6 +7,10 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
+    "test:api:auth": "cd src/bruno/auth && bru run --env development",
+    "test:api:users": "cd src/bruno/users && bru run --env development",
+    "test:api": "npm run test:api:auth",
+    "test:api:health": "cd src/bruno/healthCheck && bru run --env development  --output reports/health-report.xml",
     "typecheck": "tsc --noEmit",
     "start": "node dist/index.js",
     "lint": "eslint .",
@@ -16,12 +20,11 @@
     "prepare": "husky"
   },
   "lint-staged": {
-    "*.{ts,js}": [
-      "prettier --write",
-      "eslint --fix"
-    ],
-    "*.{json,md,yml,yaml}": [
+    "*.{json,md,yml,yaml,ts,js}": [
       "prettier --write"
+    ],
+    "*.{ts,js}": [
+      "eslint --fix"
     ]
   },
   "repository": {
@@ -32,8 +35,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/multer": "^2.2.0",
+    "@react-email/components": "^1.0.12",
+    "@react-email/render": "^2.1.0",
     "bcrypt": "^6.0.0",
     "better-auth": "^1.7.1",
+    "cookie": "^2.0.1",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
@@ -41,6 +48,10 @@
     "joi": "^18.2.3",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.9.2",
+    "multer": "^2.2.0",
+    "socket.io": "^4.8.3",
+    "nodemailer": "^9.0.5",
+    "react": "^19.2.8",
     "winston": "^3.19.0"
   },
   "devDependencies": {
@@ -50,6 +61,8 @@
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^26.2.0",
+    "@types/nodemailer": "^8.0.1",
+    "@types/react": "^19.2.18",
     "eslint": "^10.8.1",
     "eslint-config-prettier": "^10.1.8",
     "husky": "^9.1.7",
