@@ -2,6 +2,7 @@ import { betterAuth } from 'better-auth';
 import { mongodbAdapter } from 'better-auth/adapters/mongodb';
 import { MongoClient } from 'mongodb';
 import { config } from './environments.js';
+import { MODEL_NAMES, UserStatus } from '../utils/constants.js';
 import {
   sendVerificationEmail,
   sendPasswordResetEmail,
@@ -31,7 +32,7 @@ export const auth = betterAuth({
   },
 
   user: {
-    modelName: 'users',
+    modelName: MODEL_NAMES.USER,
     additionalFields: {
       fullName: {
         type: 'string',
@@ -43,7 +44,7 @@ export const auth = betterAuth({
       },
       status: {
         type: 'string',
-        defaultValue: 'active',
+        defaultValue: UserStatus.ACTIVE,
         required: false,
       },
       must_change_password: {
