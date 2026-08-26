@@ -2,23 +2,17 @@ import { betterAuth } from 'better-auth';
 import { mongodbAdapter } from 'better-auth/adapters/mongodb';
 import { MongoClient } from 'mongodb';
 import { config } from './environments.js';
-// import dns from 'dns';
 import {
   sendVerificationEmail,
   sendPasswordResetEmail,
 } from '../utils/mailTemplate.js';
-
-// const servers = dns.getServers();
-// if (servers.includes('127.0.0.1') || servers.includes('::1') || servers.length === 0) {
-//   dns.setServers(['8.8.8.8', '1.1.1.1']);
-// }
 
 const client = new MongoClient(config.mongoose.url);
 const db = client.db();
 
 export const auth = betterAuth({
   database: mongodbAdapter(db, { client, transaction: false }),
-  baseURL: `http://localhost:${config.port}`,
+  baseURL: config.auth.baseUrl,
   secret: config.jwt.secret,
 
   emailAndPassword: {

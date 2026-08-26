@@ -8,6 +8,7 @@ const envVarSchema = Joi.object({
     .valid('development', 'production', 'test')
     .default('development'),
   PORT: Joi.number().default(5000),
+  API_URL: Joi.string().default('http://localhost:5000'),
   MONGO_URI: Joi.string()
     .uri()
     .required()
@@ -41,6 +42,10 @@ if (error) throw new Error(`Config validation error: ${error.message}`);
 export interface AppConfig {
   env: string;
   port: number;
+  apiUrl: string;
+  auth: {
+    baseUrl: string;
+  };
   mongoose: {
     url: string;
   };
@@ -66,6 +71,10 @@ export interface AppConfig {
 export const config: AppConfig = {
   env: envVars.NODE_ENV,
   port: Number(envVars.PORT),
+  apiUrl: envVars.API_URL,
+  auth: {
+    baseUrl: envVars.API_URL,
+  },
   mongoose: { url: envVars.MONGO_URI },
   jwt: { secret: envVars.JWT_SECRET, expiresIn: envVars.JWT_EXPIRES_IN },
   verification: { expiresIn: envVars.EMAIL_VERIFICATION_EXPIRES_IN },
