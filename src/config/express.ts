@@ -3,12 +3,13 @@ import type { Express, Request, Response } from 'express';
 import cors from 'cors';
 import { toNodeHandler } from 'better-auth/node';
 import { auth } from './auth.js';
+import { config } from './environments.js';
 
 const app: Express = express();
 
 app.use(
   cors({
-    origin: 'http://localhost:3000',
+    origin: config.clientUrl,
     credentials: true,
   })
 );
