@@ -2,7 +2,11 @@ import { betterAuth } from 'better-auth';
 import { mongodbAdapter } from 'better-auth/adapters/mongodb';
 import { MongoClient } from 'mongodb';
 import { config } from './environments.js';
-import { MODEL_NAMES, UserStatus } from '../utils/constants.js';
+import {
+  MODEL_NAMES,
+  UserStatus,
+  TOKEN_EXPIRATION,
+} from '../utils/constants.js';
 import {
   sendVerificationEmail,
   sendPasswordResetEmail,
@@ -60,8 +64,8 @@ export const auth = betterAuth({
   },
 
   session: {
-    expiresIn: 60 * 60 * 24 * 7,
-    updateAge: 60 * 60 * 24,
+    expiresIn: TOKEN_EXPIRATION.REFRESH_TOKEN_SECONDS,
+    updateAge: TOKEN_EXPIRATION.ACCESS_TOKEN_SECONDS,
   },
 });
 

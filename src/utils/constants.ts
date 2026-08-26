@@ -87,4 +87,6 @@ export const TOKEN_EXPIRATION = {
   REFRESH_TOKEN: '7d',
   ACCESS_TOKEN_MAX_AGE_MS: 1 * 24 * 60 * 60 * 1000, // 1 day in ms
   REFRESH_TOKEN_MAX_AGE_MS: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
+  ACCESS_TOKEN_SECONDS: 1 * 24 * 60 * 60, // 1 day in seconds
+  REFRESH_TOKEN_SECONDS: 7 * 24 * 60 * 60, // 7 days in seconds
 } as const;
