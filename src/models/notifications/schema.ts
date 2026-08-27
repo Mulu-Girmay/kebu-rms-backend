@@ -7,7 +7,7 @@ import {
 export const notificationSchema = new Schema(
   {
     userId: {
-      type: Schema.Types.ObjectId,
+      type: String,
       ref: MODEL_NAMES.USER,
       required: true,
       index: true,

@@ -7,10 +7,13 @@ import {
 
 export const userSchema = new Schema(
   {
+    _id: {
+      type: String,
+    },
     role_id: {
       type: Schema.Types.ObjectId,
       ref: MODEL_NAMES.ROLE,
-      required: true,
+      required: false,
     },
 
     fullName: {

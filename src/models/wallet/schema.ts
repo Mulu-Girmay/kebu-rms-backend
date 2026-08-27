@@ -4,7 +4,7 @@ import { MODEL_NAMES } from '../../utils/constants.js';
 export const walletSchema = new Schema(
   {
     user: {
-      type: Schema.Types.ObjectId,
+      type: String,
       ref: MODEL_NAMES.USER,
       required: true,
       unique: true,

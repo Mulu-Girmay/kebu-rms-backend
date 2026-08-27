@@ -1,0 +1,17 @@
+meta {
+  name: BetterAuth Verify Email
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/api/auth/verify-email?token=REPLACE_WITH_TOKEN_FROM_EMAIL
+  body: none
+  auth: none
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+}
