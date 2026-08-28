@@ -39,6 +39,7 @@
     "@react-email/components": "^1.0.12",
     "@react-email/render": "^2.1.0",
     "bcrypt": "^6.0.0",
+    "better-auth": "^1.7.1",
     "cookie": "^2.0.1",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",

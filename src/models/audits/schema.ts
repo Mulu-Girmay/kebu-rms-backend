@@ -4,7 +4,7 @@ import { MODEL_NAMES, AUDIT_ACTION_VALUES } from '../../utils/constants.js';
 export const auditSchema = new Schema(
   {
     userId: {
-      type: Schema.Types.ObjectId,
+      type: String,
       ref: MODEL_NAMES.USER,
       required: true,
       index: true,

@@ -4,7 +4,7 @@ import { MODEL_NAMES, USER_TOKEN_TYPE_VALUES } from '../../utils/constants.js';
 export const userTokenSchema = new Schema(
   {
     user_id: {
-      type: Schema.Types.ObjectId,
+      type: String,
       ref: MODEL_NAMES.USER,
       required: true,
       index: true,
