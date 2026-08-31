@@ -1,0 +1,32 @@
+meta {
+  name: Create Category
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/categories
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "Beverages",
+    "description": "Hot and cold drinks, juices and coffee",
+    "isActive": true
+  }
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("should create category or return 409 if exists", function() {
+    expect([201, 409]).to.include(res.getStatus());
+    if (res.getStatus() === 201) {
+      bru.setVar("categoryId", res.getBody().data._id);
+    }
+  });
+}

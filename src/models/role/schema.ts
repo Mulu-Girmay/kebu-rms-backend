@@ -34,5 +34,3 @@ export const roleSchema = new Schema(
     },
   }
 );
-
-roleSchema.index({ name: 1 });

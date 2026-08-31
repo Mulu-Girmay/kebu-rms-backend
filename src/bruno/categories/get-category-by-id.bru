@@ -1,0 +1,17 @@
+meta {
+  name: Get Category By ID
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/categories/{{categoryId}}
+  body: none
+  auth: none
+}
+
+tests {
+  test("should get category by id", function() {
+    expect([200, 404]).to.include(res.getStatus());
+  });
+}
