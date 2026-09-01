@@ -4,14 +4,11 @@ import {
   USER_STATUS_VALUES,
   UserStatus,
 } from '../../utils/constants.js';
-import { Types } from 'mongoose';
 
 export const userSchema = new Schema(
   {
     _id: {
       type: String,
-      trim: true,
-      default: () => `user_${new Types.ObjectId().toString()}`, // Match Better Auth format
     },
     role_id: {
       type: String,
