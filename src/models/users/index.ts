@@ -27,6 +27,6 @@ export interface UserModel extends Model<User, {}, UserMethods> {
 export const User = mongoose.model<User, UserModel>(
   MODEL_NAMES.USER,
   userSchema,
+  MODEL_NAMES.USER
 );
 export { userSchema };
-

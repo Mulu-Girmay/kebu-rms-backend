@@ -4,14 +4,17 @@ import {
   USER_STATUS_VALUES,
   UserStatus,
 } from '../../utils/constants.js';
+import { Types } from 'mongoose';
 
 export const userSchema = new Schema(
   {
     _id: {
       type: String,
+      trim: true,
+      default: () => `user_${new Types.ObjectId().toString()}`, // Match Better Auth format
     },
     role_id: {
-      type: Schema.Types.ObjectId,
+      type: String,
       ref: MODEL_NAMES.ROLE,
       required: false,
     },
@@ -40,6 +43,7 @@ export const userSchema = new Schema(
       type: Date,
       default: null,
     },
+
     password: {
       type: String,
       required: true,
@@ -70,5 +74,3 @@ export const userSchema = new Schema(
     },
   }
 );
-
-userSchema.index({ email: 1 }, { unique: true });
