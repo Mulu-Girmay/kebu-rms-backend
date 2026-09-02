@@ -4,6 +4,7 @@ import cors from 'cors';
 import { toNodeHandler } from 'better-auth/node';
 import { auth } from './auth.js';
 import { config } from './environments.js';
+import rolesRouter from '../routes/roles.js';
 
 const app: Express = express();
 
@@ -18,6 +19,8 @@ app.all('/api/auth/*splat', toNodeHandler(auth));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use('/api', rolesRouter);
 
 app.get('/api', (_req: Request, res: Response) => {
   res.send('API up and running!');
