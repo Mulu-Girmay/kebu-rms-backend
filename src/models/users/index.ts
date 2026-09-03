@@ -19,14 +19,12 @@ export interface UserMethods {
 export interface UserModel extends Model<User, {}, UserMethods> {
   findByEmail(email: string): Promise<User | null>;
   emailExists(email: string): Promise<boolean>;
-  findByActiveId(userId: string): Promise<boolean>;
   findByRole(role_id: string): Promise<User[]>;
   findByEmailWithPassword(email: string): Promise<User>;
 }
 
 export const User = mongoose.model<User, UserModel>(
   MODEL_NAMES.USER,
-  userSchema,
+  userSchema
 );
 export { userSchema };
-

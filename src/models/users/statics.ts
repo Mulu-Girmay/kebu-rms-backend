@@ -14,13 +14,6 @@ userSchema.statics.emailExists = async function (
   return !!result;
 };
 
-userSchema.statics.findByActiveId = async function (userId: string) {
-  return this.findOne({
-    _id: userId,
-    status: 'active',
-  });
-};
-
 // because password is deliberately excluded by defaulr
 userSchema.statics.findByEmailWithPassword = function (email: string) {
   return this.findOne({

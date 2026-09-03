@@ -4,14 +4,15 @@ import {
   USER_STATUS_VALUES,
   UserStatus,
 } from '../../utils/constants.js';
+import type { IUser } from '../../type/types.js';
 
-export const userSchema = new Schema(
+export const userSchema = new Schema<IUser>(
   {
     _id: {
       type: String,
     },
     role_id: {
-      type: Schema.Types.ObjectId,
+      type: String,
       ref: MODEL_NAMES.ROLE,
       required: false,
     },
@@ -40,6 +41,7 @@ export const userSchema = new Schema(
       type: Date,
       default: null,
     },
+
     password: {
       type: String,
       required: true,
@@ -70,5 +72,3 @@ export const userSchema = new Schema(
     },
   }
 );
-
-userSchema.index({ email: 1 }, { unique: true });

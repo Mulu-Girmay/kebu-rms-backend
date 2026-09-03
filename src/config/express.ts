@@ -4,7 +4,9 @@ import cors from 'cors';
 import { toNodeHandler } from 'better-auth/node';
 import { auth } from './auth.js';
 import { config } from './environments.js';
-
+import testRoutes from '../routes/test.js';
+import userRoutes from '../routes/user.js';
+import rbacTest from '../routes/rabac.js';
 const app: Express = express();
 
 app.use(
@@ -18,9 +20,10 @@ app.all('/api/auth/*splat', toNodeHandler(auth));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use('/api/v1/test', rbacTest);
+app.use('/api/v1/test', testRoutes);
+app.use('/api/v1/users', userRoutes);
 app.get('/api', (_req: Request, res: Response) => {
   res.send('API up and running!');
 });
-
 export default app;
