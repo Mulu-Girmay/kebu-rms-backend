@@ -8,6 +8,7 @@ import { getUploadDirectory, ensureUploadDirectory } from '../utils/upload.js';
 import categoryRoutes from '../routes/category.routes.js';
 import menuItemRoutes from '../routes/menuItem.routes.js';
 
+import rbacTest from '../routes/rabac.js';
 const app: Express = express();
 
 ensureUploadDirectory();
@@ -51,4 +52,8 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
   });
 });
 
+app.use('/api/v1/test', rbacTest);
+app.get('/api', (_req: Request, res: Response) => {
+  res.send('API up and running!');
+});
 export default app;

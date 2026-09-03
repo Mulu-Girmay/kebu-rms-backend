@@ -19,7 +19,8 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "seed": "tsx src/seed/index.ts"
   },
   "lint-staged": {
     "*.{json,md,yml,yaml,ts,js}": [
