@@ -4,7 +4,7 @@ import {
   USER_STATUS_VALUES,
   UserStatus,
 } from '../../utils/constants.js';
-import type { IUser } from '../../type/types.js';
+import type { IUser } from '../../types/types.js';
 
 export const userSchema = new Schema<IUser>(
   {
@@ -17,7 +17,7 @@ export const userSchema = new Schema<IUser>(
       required: false,
     },
 
-    fullName: {
+    name: {
       type: String,
       required: true,
       trim: true,
@@ -32,24 +32,8 @@ export const userSchema = new Schema<IUser>(
       trim: true,
       lowercase: true,
     },
-    is_email_verified: {
-      type: Boolean,
-      default: false,
-    },
 
-    email_verified_at: {
-      type: Date,
-      default: null,
-    },
-
-    password: {
-      type: String,
-      required: true,
-      minlength: 8,
-      select: false,
-    },
-
-    profileImage: {
+    image: {
       type: String,
       trim: true,
       default: null,

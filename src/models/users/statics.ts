@@ -21,8 +21,8 @@ userSchema.statics.findByEmailWithPassword = function (email: string) {
   }).select('+password');
 };
 
-userSchema.statics.findByRole = function (roleId: string): Promise<User[]> {
+userSchema.statics.findByRole = function (role_id: string): Promise<User[]> {
   return this.find({
-    role_id: roleId,
+    role_id: role_id,
   });
 };
