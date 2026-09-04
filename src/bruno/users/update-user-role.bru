@@ -1,0 +1,30 @@
+meta {
+  name: Update User Role
+  type: http
+  seq: 10
+}
+
+patch {
+  url: {{baseUrl}}/api/v1/users/{{userId}}/role
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "role_id": {{user_role_id}}   // replace with a valid role ID
+  }
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("message says role updated", function() {
+    expect(res.body.message).to.contain("role updated");
+  });
+}

@@ -1,0 +1,31 @@
+meta {
+  name: Update User (Admin)
+  type: http
+  seq: 5
+}
+
+patch {
+  url: {{baseUrl}}/api/v1/users/{{userId}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "fullName": "Updated by Admin",
+    "status": "inactive"
+  }
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("message indicates success", function() {
+    expect(res.body.message).to.contain("User updated");
+  });
+}
