@@ -7,8 +7,8 @@ import { config } from './environments.js';
 import { getUploadDirectory, ensureUploadDirectory } from '../utils/upload.js';
 import categoryRoutes from '../routes/category.routes.js';
 import menuItemRoutes from '../routes/menuItem.routes.js';
-
 import rbacTest from '../routes/rabac.js';
+
 const app: Express = express();
 
 ensureUploadDirectory();
@@ -33,11 +33,11 @@ app.get('/api', (_req: Request, res: Response) => {
   res.send('API up and running!');
 });
 
-// Mount Resource Routes
 app.use('/api/categories', categoryRoutes);
 app.use('/api/menu-items', menuItemRoutes);
+app.use('/api/v1/test', rbacTest);
 
-// Centralized error handling middleware
+// Centralized error handling middleware (always after all routes)
 app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
   const statusCode =
     err.statusCode || (err.name === 'ValidationError' ? 400 : 500);
@@ -52,8 +52,4 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
   });
 });
 
-app.use('/api/v1/test', rbacTest);
-app.get('/api', (_req: Request, res: Response) => {
-  res.send('API up and running!');
-});
 export default app;

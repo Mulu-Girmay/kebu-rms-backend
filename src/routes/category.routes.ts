@@ -8,6 +8,7 @@ import {
   deleteCategory,
 } from '../controllers/category.controller.js';
 import { requireAuth } from '../middlewares/auth.js';
+import { requirePermission } from '../middlewares/authorize.js';
 import { createUploadMiddleware } from '../middlewares/upload.js';
 import { validateRequest } from '../validators/errors.parser.js';
 import {
@@ -16,6 +17,7 @@ import {
   updateCategorySchema,
   categoryQuerySchema,
 } from '../validators/category.validator.js';
+import { RESOURCES, ACTIONS } from '../utils/constants.js';
 
 const router = Router();
 
@@ -28,17 +30,29 @@ router
   .route('/')
   .post(
     requireAuth,
+    requirePermission(RESOURCES.CATEGORIES, ACTIONS.CREATE),
     upload.single('image'),
     validateRequest(createCategorySchema, 'body'),
     createCategory
   )
-  .get(validateRequest(categoryQuerySchema, 'query'), getCategories);
+  .get(
+    requireAuth,
+    requirePermission(RESOURCES.CATEGORIES, ACTIONS.READ),
+    validateRequest(categoryQuerySchema, 'query'),
+    getCategories
+  );
 
 router
   .route('/:id')
-  .get(validateRequest(categoryIdParamSchema, 'params'), getCategoryById)
+  .get(
+    requireAuth,
+    requirePermission(RESOURCES.CATEGORIES, ACTIONS.READ),
+    validateRequest(categoryIdParamSchema, 'params'),
+    getCategoryById
+  )
   .put(
     requireAuth,
+    requirePermission(RESOURCES.CATEGORIES, ACTIONS.UPDATE),
     upload.single('image'),
     validateRequest(categoryIdParamSchema, 'params'),
     validateRequest(updateCategorySchema, 'body'),
@@ -46,6 +60,7 @@ router
   )
   .patch(
     requireAuth,
+    requirePermission(RESOURCES.CATEGORIES, ACTIONS.UPDATE),
     upload.single('image'),
     validateRequest(categoryIdParamSchema, 'params'),
     validateRequest(updateCategorySchema, 'body'),
@@ -53,12 +68,18 @@ router
   )
   .delete(
     requireAuth,
+    requirePermission(RESOURCES.CATEGORIES, ACTIONS.DELETE),
     validateRequest(categoryIdParamSchema, 'params'),
     deleteCategory
   );
 
 router
   .route('/:id/menu-items')
-  .get(validateRequest(categoryIdParamSchema, 'params'), getCategoryMenuItems);
+  .get(
+    requireAuth,
+    requirePermission(RESOURCES.CATEGORIES, ACTIONS.READ),
+    validateRequest(categoryIdParamSchema, 'params'),
+    getCategoryMenuItems
+  );
 
 export default router;
