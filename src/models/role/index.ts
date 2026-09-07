@@ -20,8 +20,9 @@ export interface RoleModel extends Model<Role, {}, RoleMethods> {
     roleId: string | Types.ObjectId,
     permissionId: Types.ObjectId
   ): Promise<Role>;
-  findSystemRoles(): Promise<Role>;
-  findCustomRoles(): Promise<Role>;
+
+  findSystemRoles(): Promise<Role[]>;
+  findCustomRoles(): Promise<Role[]>;
   findWithPermissions(roleId: string): Promise<Role>;
 }
 export const Role = mongoose.model<Role, RoleModel>(

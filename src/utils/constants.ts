@@ -1,5 +1,5 @@
 export const MODEL_NAMES = {
-  USER: 'User',
+  USER: 'users',
   ROLE: 'Role',
   PERMISSION: 'Permission',
   USER_TOKEN: 'UserToken',
@@ -90,3 +90,28 @@ export const TOKEN_EXPIRATION = {
   ACCESS_TOKEN_SECONDS: 1 * 24 * 60 * 60, // 1 day in seconds
   REFRESH_TOKEN_SECONDS: 7 * 24 * 60 * 60, // 7 days in seconds
 } as const;
+export const RESOURCES = {
+  USERS: 'users',
+  ROLES: 'roles',
+  PERMISSIONS: 'permissions',
+  CATEGORIES: 'categories',
+  MENU_ITEMS: 'menu_items',
+  ORDERS: 'orders',
+  WALLETS: 'wallets',
+  WALLET_TRANSACTIONS: 'wallet_transactions',
+  CREDIT_ACCOUNTS: 'credit_accounts',
+  RATINGS: 'ratings',
+  NOTIFICATIONS: 'notifications',
+  AUDITS: 'audits',
+} as const;
+
+export type Resource = (typeof RESOURCES)[keyof typeof RESOURCES];
+
+export const ACTIONS = {
+  CREATE: 'create',
+  READ: 'read',
+  UPDATE: 'update',
+  DELETE: 'delete',
+} as const;
+
+export type Action = (typeof ACTIONS)[keyof typeof ACTIONS];
