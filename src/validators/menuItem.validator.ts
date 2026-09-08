@@ -1,62 +1,101 @@
-import Joi from 'joi';
+import { body, param, query } from 'express-validator';
 
-const objectIdPattern = /^[0-9a-fA-F]{24}$/;
+export const menuItemIdParamSchema = [
+  param('id').isMongoId().withMessage('Invalid menu item ID format'),
+];
 
-export const menuItemIdParamSchema = Joi.object({
-  id: Joi.string().pattern(objectIdPattern).required().messages({
-    'string.pattern.base': 'Invalid menu item ID format',
-  }),
-});
+export const createMenuItemSchema = [
+  body('categoryId')
+    .notEmpty()
+    .withMessage('Category ID is required')
+    .isMongoId()
+    .withMessage('Invalid Category ID format'),
+  body('name')
+    .trim()
+    .notEmpty()
+    .withMessage('Menu item name is required')
+    .isLength({ min: 2, max: 150 })
+    .withMessage('Menu item name must be between 2 and 150 characters'),
+  body('description').optional().trim(),
+  body('price')
+    .notEmpty()
+    .withMessage('Price is required')
+    .isFloat({ min: 0 })
+    .withMessage('Price cannot be negative')
+    .toFloat(),
+  body('imageUrl').optional().trim(),
+  body('isAvailable')
+    .optional()
+    .isBoolean()
+    .withMessage('isAvailable must be a boolean')
+    .toBoolean(),
+];
 
-export const createMenuItemSchema = Joi.object({
-  categoryId: Joi.string().pattern(objectIdPattern).required().messages({
-    'any.required': 'Category ID is required',
-    'string.pattern.base': 'Invalid Category ID format',
+export const updateMenuItemSchema = [
+  body().custom((_, { req }) => {
+    const { categoryId, name, description, price, imageUrl, isAvailable } =
+      req.body || {};
+    if (
+      categoryId === undefined &&
+      name === undefined &&
+      description === undefined &&
+      price === undefined &&
+      imageUrl === undefined &&
+      isAvailable === undefined
+    ) {
+      throw new Error('At least one field must be provided to update');
+    }
+    return true;
   }),
-  name: Joi.string().trim().min(2).max(150).required().messages({
-    'any.required': 'Menu item name is required',
-    'string.empty': 'Menu item name cannot be empty',
-  }),
-  description: Joi.string().trim().allow('').optional(),
-  price: Joi.number().min(0).required().messages({
-    'any.required': 'Price is required',
-    'number.min': 'Price cannot be negative',
-  }),
-  imageUrl: Joi.string().trim().allow('', null).optional(),
-  isAvailable: Joi.boolean().default(true),
-});
+  body('categoryId')
+    .optional()
+    .isMongoId()
+    .withMessage('Invalid Category ID format'),
+  body('name')
+    .optional()
+    .trim()
+    .isLength({ min: 2, max: 150 })
+    .withMessage('Menu item name must be between 2 and 150 characters'),
+  body('description').optional().trim(),
+  body('price')
+    .optional()
+    .isFloat({ min: 0 })
+    .withMessage('Price cannot be negative')
+    .toFloat(),
+  body('imageUrl').optional().trim(),
+  body('isAvailable')
+    .optional()
+    .isBoolean()
+    .withMessage('isAvailable must be a boolean')
+    .toBoolean(),
+];
 
-export const updateMenuItemSchema = Joi.object({
-  categoryId: Joi.string().pattern(objectIdPattern).optional().messages({
-    'string.pattern.base': 'Invalid Category ID format',
-  }),
-  name: Joi.string().trim().min(2).max(150).optional(),
-  description: Joi.string().trim().allow('').optional(),
-  price: Joi.number().min(0).optional(),
-  imageUrl: Joi.string().trim().allow('', null).optional(),
-  isAvailable: Joi.boolean().optional(),
-})
-  .min(1)
-  .messages({
-    'object.min': 'At least one field must be provided to update',
-  });
+export const toggleAvailabilitySchema = [
+  body('isAvailable')
+    .notEmpty()
+    .withMessage('isAvailable boolean is required')
+    .isBoolean()
+    .withMessage('isAvailable must be a boolean')
+    .toBoolean(),
+];
 
-export const toggleAvailabilitySchema = Joi.object({
-  isAvailable: Joi.boolean().required().messages({
-    'any.required': 'isAvailable boolean is required',
-  }),
-});
-
-export const menuItemQuerySchema = Joi.object({
-  q: Joi.string().trim().allow('').optional(),
-  categoryId: Joi.string().pattern(objectIdPattern).optional(),
-  isAvailable: Joi.boolean().optional(),
-  minPrice: Joi.number().min(0).optional(),
-  maxPrice: Joi.number().min(0).optional(),
-  page: Joi.number().integer().min(1).default(1),
-  limit: Joi.number().integer().min(1).max(100).default(20),
-  sortBy: Joi.string()
-    .valid('name', 'price', 'createdAt', 'favoriteCount')
-    .default('createdAt'),
-  sortOrder: Joi.string().valid('asc', 'desc').default('desc'),
-});
+export const menuItemQuerySchema = [
+  query('q').optional().trim(),
+  query('categoryId')
+    .optional()
+    .isMongoId()
+    .withMessage('Invalid Category ID format'),
+  query('isAvailable').optional().isBoolean().toBoolean(),
+  query('minPrice').optional().isFloat({ min: 0 }).toFloat(),
+  query('maxPrice').optional().isFloat({ min: 0 }).toFloat(),
+  query('page').optional().isInt({ min: 1 }).toInt(),
+  query('limit').optional().isInt({ min: 1, max: 100 }).toInt(),
+  query('sortBy')
+    .optional()
+    .isIn(['name', 'price', 'createdAt', 'favoriteCount'])
+    .withMessage('Invalid sortBy field'),
+  query('sortOrder')
+    .optional()
+    .isIn(['asc', 'desc'])
+    .withMessage('Invalid sortOrder value'),
+];

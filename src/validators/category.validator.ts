@@ -1,34 +1,56 @@
-import Joi from 'joi';
+import { body, param, query } from 'express-validator';
 
-const objectIdPattern = /^[0-9a-fA-F]{24}$/;
+export const categoryIdParamSchema = [
+  param('id').isMongoId().withMessage('Invalid category ID format'),
+];
 
-export const categoryIdParamSchema = Joi.object({
-  id: Joi.string().pattern(objectIdPattern).required().messages({
-    'string.pattern.base': 'Invalid category ID format',
+export const createCategorySchema = [
+  body('name')
+    .trim()
+    .notEmpty()
+    .withMessage('Category name is required')
+    .isLength({ min: 2, max: 100 })
+    .withMessage('Category name must be between 2 and 100 characters'),
+  body('description').optional().trim(),
+  body('imageUrl').optional().trim(),
+  body('isActive')
+    .optional()
+    .isBoolean()
+    .withMessage('isActive must be a boolean')
+    .toBoolean(),
+];
+
+export const updateCategorySchema = [
+  body().custom((_, { req }) => {
+    const { name, description, imageUrl, isActive } = req.body || {};
+    if (
+      name === undefined &&
+      description === undefined &&
+      imageUrl === undefined &&
+      isActive === undefined
+    ) {
+      throw new Error('At least one field must be provided to update');
+    }
+    return true;
   }),
-});
+  body('name')
+    .optional()
+    .trim()
+    .isLength({ min: 2, max: 100 })
+    .withMessage('Category name must be between 2 and 100 characters'),
+  body('description').optional().trim(),
+  body('imageUrl').optional().trim(),
+  body('isActive')
+    .optional()
+    .isBoolean()
+    .withMessage('isActive must be a boolean')
+    .toBoolean(),
+];
 
-export const createCategorySchema = Joi.object({
-  name: Joi.string().trim().min(2).max(100).required().messages({
-    'any.required': 'Category name is required',
-    'string.empty': 'Category name cannot be empty',
-  }),
-  description: Joi.string().trim().allow('').optional(),
-  imageUrl: Joi.string().trim().allow('', null).optional(),
-  isActive: Joi.boolean().default(true),
-});
-
-export const updateCategorySchema = Joi.object({
-  name: Joi.string().trim().min(2).max(100).optional(),
-  description: Joi.string().trim().allow('').optional(),
-  imageUrl: Joi.string().trim().allow('', null).optional(),
-  isActive: Joi.boolean().optional(),
-})
-  .min(1)
-  .messages({
-    'object.min': 'At least one field must be provided to update',
-  });
-
-export const categoryQuerySchema = Joi.object({
-  isActive: Joi.boolean().optional(),
-});
+export const categoryQuerySchema = [
+  query('isActive')
+    .optional()
+    .isBoolean()
+    .withMessage('isActive must be a boolean')
+    .toBoolean(),
+];

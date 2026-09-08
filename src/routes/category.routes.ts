@@ -31,7 +31,7 @@ router.post(
   requireAuth,
   requirePermission(RESOURCES.CATEGORIES, ACTIONS.CREATE),
   upload.single('image'),
-  validateRequest(createCategorySchema, 'body'),
+  validateRequest(createCategorySchema),
   createCategory
 );
 
@@ -39,7 +39,7 @@ router.get(
   '/',
   requireAuth,
   requirePermission(RESOURCES.CATEGORIES, ACTIONS.READ),
-  validateRequest(categoryQuerySchema, 'query'),
+  validateRequest(categoryQuerySchema),
   getCategories
 );
 
@@ -47,7 +47,7 @@ router.get(
   '/:id',
   requireAuth,
   requirePermission(RESOURCES.CATEGORIES, ACTIONS.READ),
-  validateRequest(categoryIdParamSchema, 'params'),
+  validateRequest(categoryIdParamSchema),
   getCategoryById
 );
 
@@ -56,8 +56,8 @@ router.put(
   requireAuth,
   requirePermission(RESOURCES.CATEGORIES, ACTIONS.UPDATE),
   upload.single('image'),
-  validateRequest(categoryIdParamSchema, 'params'),
-  validateRequest(updateCategorySchema, 'body'),
+  validateRequest(categoryIdParamSchema),
+  validateRequest(updateCategorySchema),
   updateCategory
 );
 
@@ -66,8 +66,8 @@ router.patch(
   requireAuth,
   requirePermission(RESOURCES.CATEGORIES, ACTIONS.UPDATE),
   upload.single('image'),
-  validateRequest(categoryIdParamSchema, 'params'),
-  validateRequest(updateCategorySchema, 'body'),
+  validateRequest(categoryIdParamSchema),
+  validateRequest(updateCategorySchema),
   updateCategory
 );
 
@@ -75,7 +75,7 @@ router.delete(
   '/:id',
   requireAuth,
   requirePermission(RESOURCES.CATEGORIES, ACTIONS.DELETE),
-  validateRequest(categoryIdParamSchema, 'params'),
+  validateRequest(categoryIdParamSchema),
   deleteCategory
 );
 
@@ -83,7 +83,7 @@ router.get(
   '/:id/menu-items',
   requireAuth,
   requirePermission(RESOURCES.CATEGORIES, ACTIONS.READ),
-  validateRequest(categoryIdParamSchema, 'params'),
+  validateRequest(categoryIdParamSchema),
   getCategoryMenuItems
 );
 
