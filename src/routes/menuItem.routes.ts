@@ -28,21 +28,22 @@ const upload = createUploadMiddleware({
   maxFileSize: 5 * 1024 * 1024,
 });
 
-router
-  .route('/')
-  .post(
-    requireAuth,
-    requirePermission(RESOURCES.MENU_ITEMS, ACTIONS.CREATE),
-    upload.single('image'),
-    validateRequest(createMenuItemSchema, 'body'),
-    createMenuItem
-  )
-  .get(
-    requireAuth,
-    requirePermission(RESOURCES.MENU_ITEMS, ACTIONS.READ),
-    validateRequest(menuItemQuerySchema, 'query'),
-    getMenuItems
-  );
+router.post(
+  '/',
+  requireAuth,
+  requirePermission(RESOURCES.MENU_ITEMS, ACTIONS.CREATE),
+  upload.single('image'),
+  validateRequest(createMenuItemSchema, 'body'),
+  createMenuItem
+);
+
+router.get(
+  '/',
+  requireAuth,
+  requirePermission(RESOURCES.MENU_ITEMS, ACTIONS.READ),
+  validateRequest(menuItemQuerySchema, 'query'),
+  getMenuItems
+);
 
 router.get(
   '/popular',
@@ -51,45 +52,49 @@ router.get(
   getPopularMenuItems
 );
 
-router
-  .route('/:id')
-  .get(
-    requireAuth,
-    requirePermission(RESOURCES.MENU_ITEMS, ACTIONS.READ),
-    validateRequest(menuItemIdParamSchema, 'params'),
-    getMenuItemById
-  )
-  .put(
-    requireAuth,
-    requirePermission(RESOURCES.MENU_ITEMS, ACTIONS.UPDATE),
-    upload.single('image'),
-    validateRequest(menuItemIdParamSchema, 'params'),
-    validateRequest(updateMenuItemSchema, 'body'),
-    updateMenuItem
-  )
-  .patch(
-    requireAuth,
-    requirePermission(RESOURCES.MENU_ITEMS, ACTIONS.UPDATE),
-    upload.single('image'),
-    validateRequest(menuItemIdParamSchema, 'params'),
-    validateRequest(updateMenuItemSchema, 'body'),
-    updateMenuItem
-  )
-  .delete(
-    requireAuth,
-    requirePermission(RESOURCES.MENU_ITEMS, ACTIONS.DELETE),
-    validateRequest(menuItemIdParamSchema, 'params'),
-    deleteMenuItem
-  );
+router.get(
+  '/:id',
+  requireAuth,
+  requirePermission(RESOURCES.MENU_ITEMS, ACTIONS.READ),
+  validateRequest(menuItemIdParamSchema, 'params'),
+  getMenuItemById
+);
 
-router
-  .route('/:id/availability')
-  .patch(
-    requireAuth,
-    requirePermission(RESOURCES.MENU_ITEMS, ACTIONS.UPDATE),
-    validateRequest(menuItemIdParamSchema, 'params'),
-    validateRequest(toggleAvailabilitySchema, 'body'),
-    toggleMenuItemAvailability
-  );
+router.put(
+  '/:id',
+  requireAuth,
+  requirePermission(RESOURCES.MENU_ITEMS, ACTIONS.UPDATE),
+  upload.single('image'),
+  validateRequest(menuItemIdParamSchema, 'params'),
+  validateRequest(updateMenuItemSchema, 'body'),
+  updateMenuItem
+);
+
+router.patch(
+  '/:id',
+  requireAuth,
+  requirePermission(RESOURCES.MENU_ITEMS, ACTIONS.UPDATE),
+  upload.single('image'),
+  validateRequest(menuItemIdParamSchema, 'params'),
+  validateRequest(updateMenuItemSchema, 'body'),
+  updateMenuItem
+);
+
+router.delete(
+  '/:id',
+  requireAuth,
+  requirePermission(RESOURCES.MENU_ITEMS, ACTIONS.DELETE),
+  validateRequest(menuItemIdParamSchema, 'params'),
+  deleteMenuItem
+);
+
+router.patch(
+  '/:id/availability',
+  requireAuth,
+  requirePermission(RESOURCES.MENU_ITEMS, ACTIONS.UPDATE),
+  validateRequest(menuItemIdParamSchema, 'params'),
+  validateRequest(toggleAvailabilitySchema, 'body'),
+  toggleMenuItemAvailability
+);
 
 export default router;

@@ -26,60 +26,65 @@ const upload = createUploadMiddleware({
   maxFileSize: 5 * 1024 * 1024,
 });
 
-router
-  .route('/')
-  .post(
-    requireAuth,
-    requirePermission(RESOURCES.CATEGORIES, ACTIONS.CREATE),
-    upload.single('image'),
-    validateRequest(createCategorySchema, 'body'),
-    createCategory
-  )
-  .get(
-    requireAuth,
-    requirePermission(RESOURCES.CATEGORIES, ACTIONS.READ),
-    validateRequest(categoryQuerySchema, 'query'),
-    getCategories
-  );
+router.post(
+  '/',
+  requireAuth,
+  requirePermission(RESOURCES.CATEGORIES, ACTIONS.CREATE),
+  upload.single('image'),
+  validateRequest(createCategorySchema, 'body'),
+  createCategory
+);
 
-router
-  .route('/:id')
-  .get(
-    requireAuth,
-    requirePermission(RESOURCES.CATEGORIES, ACTIONS.READ),
-    validateRequest(categoryIdParamSchema, 'params'),
-    getCategoryById
-  )
-  .put(
-    requireAuth,
-    requirePermission(RESOURCES.CATEGORIES, ACTIONS.UPDATE),
-    upload.single('image'),
-    validateRequest(categoryIdParamSchema, 'params'),
-    validateRequest(updateCategorySchema, 'body'),
-    updateCategory
-  )
-  .patch(
-    requireAuth,
-    requirePermission(RESOURCES.CATEGORIES, ACTIONS.UPDATE),
-    upload.single('image'),
-    validateRequest(categoryIdParamSchema, 'params'),
-    validateRequest(updateCategorySchema, 'body'),
-    updateCategory
-  )
-  .delete(
-    requireAuth,
-    requirePermission(RESOURCES.CATEGORIES, ACTIONS.DELETE),
-    validateRequest(categoryIdParamSchema, 'params'),
-    deleteCategory
-  );
+router.get(
+  '/',
+  requireAuth,
+  requirePermission(RESOURCES.CATEGORIES, ACTIONS.READ),
+  validateRequest(categoryQuerySchema, 'query'),
+  getCategories
+);
 
-router
-  .route('/:id/menu-items')
-  .get(
-    requireAuth,
-    requirePermission(RESOURCES.CATEGORIES, ACTIONS.READ),
-    validateRequest(categoryIdParamSchema, 'params'),
-    getCategoryMenuItems
-  );
+router.get(
+  '/:id',
+  requireAuth,
+  requirePermission(RESOURCES.CATEGORIES, ACTIONS.READ),
+  validateRequest(categoryIdParamSchema, 'params'),
+  getCategoryById
+);
+
+router.put(
+  '/:id',
+  requireAuth,
+  requirePermission(RESOURCES.CATEGORIES, ACTIONS.UPDATE),
+  upload.single('image'),
+  validateRequest(categoryIdParamSchema, 'params'),
+  validateRequest(updateCategorySchema, 'body'),
+  updateCategory
+);
+
+router.patch(
+  '/:id',
+  requireAuth,
+  requirePermission(RESOURCES.CATEGORIES, ACTIONS.UPDATE),
+  upload.single('image'),
+  validateRequest(categoryIdParamSchema, 'params'),
+  validateRequest(updateCategorySchema, 'body'),
+  updateCategory
+);
+
+router.delete(
+  '/:id',
+  requireAuth,
+  requirePermission(RESOURCES.CATEGORIES, ACTIONS.DELETE),
+  validateRequest(categoryIdParamSchema, 'params'),
+  deleteCategory
+);
+
+router.get(
+  '/:id/menu-items',
+  requireAuth,
+  requirePermission(RESOURCES.CATEGORIES, ACTIONS.READ),
+  validateRequest(categoryIdParamSchema, 'params'),
+  getCategoryMenuItems
+);
 
 export default router;
