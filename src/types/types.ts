@@ -7,7 +7,7 @@ export interface IUser {
   email: string;
   image: string;
   role_id?: Types.ObjectId | string;
-  status?: UserStatus;
+  status: UserStatus;
   must_change_password?: boolean;
   created_at: Date;
   updated_at: Date;

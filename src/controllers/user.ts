@@ -14,6 +14,7 @@ import { WalletTransaction } from '../models/walletTransaction/index.js';
 import { CreditAccount } from '../models/creditAccount/index.js';
 import { Permission } from '../models/permissions/index.js';
 import type { BetterAuthUser } from '../types/types.js';
+import { sendStatusEmail } from '../utils/mailTemplate.js';
 
 const populateRole = (query: any) =>
   query.populate('role_id', 'name description is_system_role');
@@ -239,6 +240,9 @@ export const updateUser = async (req: AuthenticatedRequest, res: Response) => {
     message: 'User updated successfully',
     data: serializeUser(updatedUser),
   });
+  if (updatedUser.status) {
+    sendStatusEmail(user.email, user.name, user.status);
+  }
 };
 
 /** DELETE /api/v1/users/:id */
@@ -315,6 +319,7 @@ export const activateUser = async (
     success: true,
     message: 'User activated successfully',
   });
+  sendStatusEmail(user.email, user.name, user.status);
 };
 
 /**PATCH /api/v1/users/:id/deactivate */
@@ -344,6 +349,7 @@ export const deactivateUser = async (
     success: true,
     message: 'User deactivated successfully',
   });
+  sendStatusEmail(user.email, user.name, user.status);
 };
 
 /**PATCH /api/v1/users/:id/suspend */
@@ -370,6 +376,7 @@ export const suspendUser = async (req: AuthenticatedRequest, res: Response) => {
     success: true,
     message: 'User suspended successfully',
   });
+  sendStatusEmail(user.email, user.name, user.status);
 };
 
 /**PATCH /api/v1/users/:id/role */
