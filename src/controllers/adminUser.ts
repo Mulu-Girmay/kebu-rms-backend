@@ -19,33 +19,6 @@ import { sendStatusEmail } from '../utils/mailTemplate.js';
 const populateRole = (query: any) =>
   query.populate('role_id', 'name description is_system_role');
 
-const updateBetterAuthProfile = async (
-  req: AuthenticatedRequest,
-  payload: {
-    name?: string;
-    image?: string | null;
-  }
-): Promise<BetterAuthUser> => {
-  if (!req.user) {
-    throw new APIError('Authentication required', 401);
-  }
-
-  await auth.api.updateUser({
-    headers: fromNodeHeaders(req.headers),
-    body: payload,
-  });
-
-  const session = await auth.api.getSession({
-    headers: fromNodeHeaders(req.headers),
-  });
-
-  if (!session?.user) {
-    throw new APIError('Failed to fetch updated Better Auth user', 500);
-  }
-
-  return session.user as BetterAuthUser;
-};
-
 /** GET /api/v1/users */
 export const listUsers = async (req: AuthenticatedRequest, res: Response) => {
   const {
