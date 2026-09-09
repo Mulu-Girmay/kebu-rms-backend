@@ -46,55 +46,6 @@ const updateBetterAuthProfile = async (
   return session.user as BetterAuthUser;
 };
 
-/** GET /api/v1/users/me */
-export const getMyProfile = async (
-  req: AuthenticatedRequest,
-  res: Response
-) => {
-  if (!req.user) {
-    throw new APIError('Authentication required', 401);
-  }
-  const user = await populateRole(User.findById(req.user.id));
-  if (!user) {
-    throw new APIError('User not found', 404);
-  }
-  res.status(200).json({
-    success: true,
-    data: serializeUser(user),
-  });
-};
-
-/** PATCH /api/v1/users/me */
-export const updateMyProfile = async (
-  req: AuthenticatedRequest,
-  res: Response
-) => {
-  const { fullName } = req.body;
-  const file = req.file;
-
-  const betterAuthPayload: { name?: string; image?: string | null } = {};
-
-  if (fullName !== undefined) {
-    betterAuthPayload.name = fullName;
-  }
-  if (file) {
-    const imageUrl = `/uploads/${file.filename}`;
-    betterAuthPayload.image = imageUrl;
-  }
-
-  if (Object.keys(betterAuthPayload).length === 0) {
-    throw new APIError('At least one field must be provided for update', 400);
-  }
-
-  const updatedAuthUser = await updateBetterAuthProfile(req, betterAuthPayload);
-
-  res.status(200).json({
-    success: true,
-    message: 'Profile updated successfully',
-    data: updatedAuthUser,
-  });
-};
-
 /** GET /api/v1/users */
 export const listUsers = async (req: AuthenticatedRequest, res: Response) => {
   const {

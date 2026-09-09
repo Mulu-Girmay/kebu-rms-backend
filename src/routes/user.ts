@@ -1,8 +1,6 @@
 import { Router } from 'express';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import {
-  getMyProfile,
-  updateMyProfile,
   listUsers,
   getUser,
   updateUser,
@@ -11,7 +9,7 @@ import {
   deactivateUser,
   suspendUser,
   updateRole,
-} from '../controllers/user.js';
+} from '../controllers/adminUser.js';
 import { requireAuth } from '../middlewares/auth.js';
 import { requirePermission } from '../middlewares/authorize.js';
 import { ACTIONS, RESOURCES } from '../utils/constants.js';
@@ -30,16 +28,6 @@ const upload = createUploadMiddleware({
 });
 
 const router = Router();
-
-router.get('/me', requireAuth, asyncHandler(getMyProfile));
-router.patch(
-  '/me',
-  requireAuth,
-  upload.single('profileImage'),
-  ...updateSelfValidator,
-  validateRequest,
-  asyncHandler(updateMyProfile)
-);
 
 /** User management */
 router.get(
