@@ -5,7 +5,7 @@ import { toNodeHandler } from 'better-auth/node';
 import { auth } from './auth.js';
 import { config } from './environments.js';
 import testRoutes from '../routes/test.js';
-import userRoutes from '../routes/user.js';
+import userRoutes from '../routes/adminUser.js';
 import rbacTest from '../routes/rabac.js';
 import path from 'node:path';
 const app: Express = express();
