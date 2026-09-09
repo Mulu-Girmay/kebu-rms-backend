@@ -1,0 +1,27 @@
+meta {
+  name: Get My Profile
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/v1/users/me
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("response has success true", function() {
+    expect(res.body.success).to.equal(true);
+  });
+  test("data contains id and email", function() {
+    expect(res.body.data).to.have.property("id");
+    expect(res.body.data).to.have.property("email");
+  });
+}

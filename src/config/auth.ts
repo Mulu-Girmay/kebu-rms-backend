@@ -63,10 +63,6 @@ export const auth = betterAuth({
   user: {
     modelName: MODEL_NAMES.USER,
     additionalFields: {
-      fullName: {
-        type: 'string',
-        required: false,
-      },
       role_id: {
         type: 'string',
         required: false,
@@ -79,10 +75,6 @@ export const auth = betterAuth({
       must_change_password: {
         type: 'boolean',
         defaultValue: false,
-        required: false,
-      },
-      profileImage: {
-        type: 'string',
         required: false,
       },
     },
