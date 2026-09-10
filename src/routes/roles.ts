@@ -1,7 +1,7 @@
 import { Router } from 'express';
 
 import { requireAuth } from '../middlewares/auth.js';
-import { requirePermission } from '../middlewares/authorization.js';
+import { requirePermission } from '../middlewares/authorize.js';
 import { RESOURCES, ACTIONS } from '../utils/constants.js';
 import rolesController from '../controllers/roles.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
@@ -53,14 +53,14 @@ router.get(
 router.post(
   '/roles/:id/permissions/:permissionId',
   requireAuth,
-  requirePermission(RESOURCES.ROLES, ACTIONS.ASSIGN_PERMISSION),
+  requirePermission(RESOURCES.ROLES, ACTIONS.UPDATE),
   asyncHandler(rolesController.assignPermission)
 );
 
 router.delete(
   '/roles/:id/permissions/:permissionId',
   requireAuth,
-  requirePermission(RESOURCES.ROLES, ACTIONS.REVOKE_PERMISSION),
+  requirePermission(RESOURCES.ROLES, ACTIONS.UPDATE),
   asyncHandler(rolesController.revokePermission)
 );
 

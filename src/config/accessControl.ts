@@ -1,0 +1,76 @@
+import { createAccessControl } from 'better-auth/plugins/access';
+import { RESOURCES, ACTIONS } from '../utils/constants.js';
+export type Action = (typeof ACTIONS)[keyof typeof ACTIONS];
+export type Resource = (typeof RESOURCES)[keyof typeof RESOURCES];
+
+export const PERMISSION_MAP = {
+  [RESOURCES.USERS]: [
+    ACTIONS.CREATE,
+    ACTIONS.READ,
+    ACTIONS.UPDATE,
+    ACTIONS.DELETE,
+  ],
+  [RESOURCES.ROLES]: [
+    ACTIONS.CREATE,
+    ACTIONS.READ,
+    ACTIONS.UPDATE,
+    ACTIONS.DELETE,
+  ],
+  [RESOURCES.PERMISSIONS]: [
+    ACTIONS.CREATE,
+    ACTIONS.READ,
+    ACTIONS.UPDATE,
+    ACTIONS.DELETE,
+  ],
+  [RESOURCES.CATEGORIES]: [
+    ACTIONS.CREATE,
+    ACTIONS.READ,
+    ACTIONS.UPDATE,
+    ACTIONS.DELETE,
+  ],
+  [RESOURCES.MENU_ITEMS]: [
+    ACTIONS.CREATE,
+    ACTIONS.READ,
+    ACTIONS.UPDATE,
+    ACTIONS.DELETE,
+  ],
+  [RESOURCES.ORDERS]: [
+    ACTIONS.CREATE,
+    ACTIONS.READ,
+    ACTIONS.UPDATE,
+    ACTIONS.DELETE,
+  ],
+  [RESOURCES.WALLETS]: [
+    ACTIONS.CREATE,
+    ACTIONS.READ,
+    ACTIONS.UPDATE,
+    ACTIONS.DELETE,
+  ],
+  [RESOURCES.WALLET_TRANSACTIONS]: [
+    ACTIONS.CREATE,
+    ACTIONS.READ,
+    ACTIONS.UPDATE,
+    ACTIONS.DELETE,
+  ],
+  [RESOURCES.CREDIT_ACCOUNTS]: [
+    ACTIONS.CREATE,
+    ACTIONS.READ,
+    ACTIONS.UPDATE,
+    ACTIONS.DELETE,
+  ],
+  [RESOURCES.RATINGS]: [
+    ACTIONS.CREATE,
+    ACTIONS.READ,
+    ACTIONS.UPDATE,
+    ACTIONS.DELETE,
+  ],
+  [RESOURCES.NOTIFICATIONS]: [
+    ACTIONS.CREATE,
+    ACTIONS.READ,
+    ACTIONS.UPDATE,
+    ACTIONS.DELETE,
+  ],
+  [RESOURCES.AUDITS]: [ACTIONS.READ], // Only READ for audits
+} as const satisfies Record<Resource, Action[]>;
+export const ac = createAccessControl(PERMISSION_MAP);
+export type AccessControl = typeof ac;

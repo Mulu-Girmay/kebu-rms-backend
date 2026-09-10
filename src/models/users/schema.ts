@@ -11,7 +11,7 @@ export const userSchema = new Schema(
       type: String,
     },
     role_id: {
-      type: Schema.Types.ObjectId,
+      type: String,
       ref: MODEL_NAMES.ROLE,
       required: false,
     },
@@ -40,6 +40,7 @@ export const userSchema = new Schema(
       type: Date,
       default: null,
     },
+
     password: {
       type: String,
       required: true,
@@ -70,5 +71,3 @@ export const userSchema = new Schema(
     },
   }
 );
-
-userSchema.index({ email: 1 }, { unique: true });

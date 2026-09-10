@@ -1,7 +1,8 @@
 import { Schema } from 'mongoose';
 import { MODEL_NAMES } from '../../utils/constants.js';
+import type { IRole } from '../../types/types.js';
 
-export const roleSchema = new Schema(
+export const roleSchema = new Schema<IRole>(
   {
     name: {
       type: String,
@@ -34,5 +35,3 @@ export const roleSchema = new Schema(
     },
   }
 );
-
-roleSchema.index({ name: 1 });
