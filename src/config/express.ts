@@ -6,6 +6,7 @@ import { auth } from './auth.js';
 import { config } from './environments.js';
 import { getUploadDirectory, ensureUploadDirectory } from '../utils/upload.js';
 import routes from '../routes/index.js';
+import { errorHandler } from '../middlewares/error.js';
 
 const app: Express = express();
 
@@ -34,18 +35,6 @@ app.get('/api', (_req: Request, res: Response) => {
 app.use('/api', routes);
 
 // Centralized error handling middleware (always after all routes)
-app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-  const statusCode =
-    err.statusCode || (err.name === 'ValidationError' ? 400 : 500);
-  const message = err.message || 'Internal Server Error';
-
-  res.status(statusCode).json({
-    success: false,
-    error: {
-      message,
-      statusCode,
-    },
-  });
-});
+app.use(errorHandler);
 
 export default app;
