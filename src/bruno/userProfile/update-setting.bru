@@ -1,0 +1,45 @@
+meta {
+  name: Update Settings
+  type: http
+  seq: 11
+}
+
+patch {
+  url: {{baseUrl}}/api/v1/user/me/settings
+  body: json
+  auth: inherit
+
+}
+
+body:json {
+  {
+    "orderStatusNotifications": "rejected_ready_only",
+    "promotionalNotifications": false
+  }
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+
+  test("response has success true", function() {
+    expect(res.body.success).to.equal(true);
+  });
+
+  test("message indicates settings updated", function() {
+    expect(res.body.message).to.contain("Settings updated");
+  });
+
+  test("settings.orderStatusNotifications is updated", function() {
+    expect(res.body.data.settings.orderStatusNotifications).to.equal("rejected_ready_only");
+  });
+
+  test("settings.promotionalNotifications is updated", function() {
+    expect(res.body.data.settings.promotionalNotifications).to.equal(false);
+  });
+}
