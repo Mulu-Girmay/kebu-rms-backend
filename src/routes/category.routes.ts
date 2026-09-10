@@ -18,6 +18,7 @@ import {
   categoryQuerySchema,
 } from '../validators/category.validator.js';
 import { RESOURCES, ACTIONS } from '../utils/constants.js';
+import { asyncHandler } from '../utils/asyncHandler.js';
 
 const router = Router();
 
@@ -32,7 +33,7 @@ router.post(
   requirePermission(RESOURCES.CATEGORIES, ACTIONS.CREATE),
   upload.single('image'),
   validateRequest(createCategorySchema),
-  createCategory
+  asyncHandler(createCategory)
 );
 
 router.get(
@@ -40,7 +41,7 @@ router.get(
   requireAuth,
   requirePermission(RESOURCES.CATEGORIES, ACTIONS.READ),
   validateRequest(categoryQuerySchema),
-  getCategories
+  asyncHandler(getCategories)
 );
 
 router.get(
@@ -48,7 +49,7 @@ router.get(
   requireAuth,
   requirePermission(RESOURCES.CATEGORIES, ACTIONS.READ),
   validateRequest(categoryIdParamSchema),
-  getCategoryById
+  asyncHandler(getCategoryById)
 );
 
 router.put(
@@ -58,7 +59,7 @@ router.put(
   upload.single('image'),
   validateRequest(categoryIdParamSchema),
   validateRequest(updateCategorySchema),
-  updateCategory
+  asyncHandler(updateCategory)
 );
 
 router.patch(
@@ -68,7 +69,7 @@ router.patch(
   upload.single('image'),
   validateRequest(categoryIdParamSchema),
   validateRequest(updateCategorySchema),
-  updateCategory
+  asyncHandler(updateCategory)
 );
 
 router.delete(
@@ -76,7 +77,7 @@ router.delete(
   requireAuth,
   requirePermission(RESOURCES.CATEGORIES, ACTIONS.DELETE),
   validateRequest(categoryIdParamSchema),
-  deleteCategory
+  asyncHandler(deleteCategory)
 );
 
 router.get(
@@ -84,7 +85,7 @@ router.get(
   requireAuth,
   requirePermission(RESOURCES.CATEGORIES, ACTIONS.READ),
   validateRequest(categoryIdParamSchema),
-  getCategoryMenuItems
+  asyncHandler(getCategoryMenuItems)
 );
 
 export default router;

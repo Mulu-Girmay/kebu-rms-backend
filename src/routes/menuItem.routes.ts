@@ -20,6 +20,7 @@ import {
   menuItemQuerySchema,
 } from '../validators/menuItem.validator.js';
 import { RESOURCES, ACTIONS } from '../utils/constants.js';
+import { asyncHandler } from '../utils/asyncHandler.js';
 
 const router = Router();
 
@@ -34,7 +35,7 @@ router.post(
   requirePermission(RESOURCES.MENU_ITEMS, ACTIONS.CREATE),
   upload.single('image'),
   validateRequest(createMenuItemSchema),
-  createMenuItem
+  asyncHandler(createMenuItem)
 );
 
 router.get(
@@ -42,14 +43,14 @@ router.get(
   requireAuth,
   requirePermission(RESOURCES.MENU_ITEMS, ACTIONS.READ),
   validateRequest(menuItemQuerySchema),
-  getMenuItems
+  asyncHandler(getMenuItems)
 );
 
 router.get(
   '/popular',
   requireAuth,
   requirePermission(RESOURCES.MENU_ITEMS, ACTIONS.READ),
-  getPopularMenuItems
+  asyncHandler(getPopularMenuItems)
 );
 
 router.get(
@@ -57,7 +58,7 @@ router.get(
   requireAuth,
   requirePermission(RESOURCES.MENU_ITEMS, ACTIONS.READ),
   validateRequest(menuItemIdParamSchema),
-  getMenuItemById
+  asyncHandler(getMenuItemById)
 );
 
 router.put(
@@ -67,7 +68,7 @@ router.put(
   upload.single('image'),
   validateRequest(menuItemIdParamSchema),
   validateRequest(updateMenuItemSchema),
-  updateMenuItem
+  asyncHandler(updateMenuItem)
 );
 
 router.patch(
@@ -77,7 +78,7 @@ router.patch(
   upload.single('image'),
   validateRequest(menuItemIdParamSchema),
   validateRequest(updateMenuItemSchema),
-  updateMenuItem
+  asyncHandler(updateMenuItem)
 );
 
 router.delete(
@@ -85,7 +86,7 @@ router.delete(
   requireAuth,
   requirePermission(RESOURCES.MENU_ITEMS, ACTIONS.DELETE),
   validateRequest(menuItemIdParamSchema),
-  deleteMenuItem
+  asyncHandler(deleteMenuItem)
 );
 
 router.patch(
@@ -94,7 +95,7 @@ router.patch(
   requirePermission(RESOURCES.MENU_ITEMS, ACTIONS.UPDATE),
   validateRequest(menuItemIdParamSchema),
   validateRequest(toggleAvailabilitySchema),
-  toggleMenuItemAvailability
+  asyncHandler(toggleMenuItemAvailability)
 );
 
 export default router;
