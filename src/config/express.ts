@@ -5,9 +5,7 @@ import { toNodeHandler } from 'better-auth/node';
 import { auth } from './auth.js';
 import { config } from './environments.js';
 import { getUploadDirectory, ensureUploadDirectory } from '../utils/upload.js';
-import categoryRoutes from '../routes/category.routes.js';
-import menuItemRoutes from '../routes/menuItem.routes.js';
-import rbacTest from '../routes/rabac.js';
+import routes from '../routes/index.js';
 
 const app: Express = express();
 
@@ -33,9 +31,7 @@ app.get('/api', (_req: Request, res: Response) => {
   res.send('API up and running!');
 });
 
-app.use('/api/categories', categoryRoutes);
-app.use('/api/menu-items', menuItemRoutes);
-app.use('/api/v1/test', rbacTest);
+app.use('/api', routes);
 
 // Centralized error handling middleware (always after all routes)
 app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
