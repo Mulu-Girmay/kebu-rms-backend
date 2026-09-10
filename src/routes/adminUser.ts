@@ -51,7 +51,6 @@ router.patch(
   '/:id',
   requireAuth,
   requirePermission(RESOURCES.USERS, ACTIONS.UPDATE),
-  upload.single('profileImage'),
   ...validateIdParam,
   ...updateUserValidator,
   validateRequest,

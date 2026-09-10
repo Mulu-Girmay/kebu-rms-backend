@@ -44,6 +44,23 @@ export const userSchema = new Schema<IUser>(
       enum: USER_STATUS_VALUES,
       default: UserStatus.ACTIVE,
     },
+    settings: {
+      type: {
+        orderStatusNotifications: {
+          type: String,
+          enum: ['all', 'rejected_ready_only', 'none'],
+          default: 'all',
+        },
+        promotionalNotifications: {
+          type: Boolean,
+          default: true,
+        },
+      },
+      default: {
+        orderStatusNotifications: 'all',
+        promotionalNotifications: true,
+      },
+    },
     must_change_password: {
       type: Boolean,
       default: false,

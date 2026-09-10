@@ -1,3 +1,5 @@
+import { settings } from 'node:cluster';
+
 export const serializeUser = (user: any) => {
   const role =
     user.role_id && typeof user.role_id === 'object' && '_id' in user.role_id
@@ -18,6 +20,11 @@ export const serializeUser = (user: any) => {
     email: user.email,
     image: user.image ?? user.image ?? null,
     status: user.status,
+    settings: {
+      orderStatusNotifications:
+        user.settings?.orderStatusNotifications ?? 'all',
+      promotionalNotifications: user.settings?.promotionalNotifications ?? true,
+    },
     role,
     createdAt: user.created_at ?? user.createdAt,
     updatedAt: user.updated_at ?? user.updatedAt ?? user.updateAt ?? null,

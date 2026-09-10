@@ -84,3 +84,33 @@ export const validateUsersQuery = [
     .isIn(['asc', 'desc'])
     .withMessage('Order must be asc or desc'),
 ];
+
+export const passwordValidator = [
+  body('currentPassword')
+    .notEmpty()
+    .withMessage('Current password is required'),
+
+  body('newPassword')
+    .isLength({ min: 8 })
+    .withMessage('New password must be at least 8 characters')
+    .custom((value, { req }) => {
+      if (value === req.body.currentPassword) {
+        throw new Error('New password must be different from current password');
+      }
+      return true;
+    }),
+];
+
+export const settingsValidator = [
+  body('orderStatusNotifications')
+    .optional()
+    .isIn(['all', 'rejected_ready_only', 'none'])
+    .withMessage(
+      'orderStatusNotifications must be "all", "rejected_ready_only", or "none"'
+    ),
+
+  body('promotionalNotifications')
+    .optional()
+    .isBoolean()
+    .withMessage('promotionalNotifications must be a boolean'),
+];
