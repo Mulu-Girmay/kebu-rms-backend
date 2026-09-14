@@ -4,6 +4,9 @@ import mongoose from 'mongoose';
 import { MODEL_NAMES } from '../../utils/constants.js';
 import { roleSchema } from './schema.js';
 
+import './methods.js';
+import './statics.js';
+
 export type Role = InferSchemaType<typeof roleSchema>;
 
 export interface RoleMethods {
