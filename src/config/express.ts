@@ -20,8 +20,9 @@ app.all('/api/auth/*splat', toNodeHandler(auth));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use('/api', rolesRouter);
+app.use('/api/v1', rolesRouter);
 app.use('/api/v1/test', rbacTest);
+
 app.get('/api', (_req: Request, res: Response) => {
   res.send('API up and running!');
 });
