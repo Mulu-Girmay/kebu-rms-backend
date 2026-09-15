@@ -1,0 +1,22 @@
+meta {
+  name: Top Up Customer Wallet
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/wallet/{{customerId}}/top-up
+  body: json
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "amount": 500
+  }
+}

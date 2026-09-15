@@ -2,6 +2,7 @@ import type { InferSchemaType, Model, Types } from 'mongoose';
 import { roleSchema } from './schema.js';
 import mongoose from 'mongoose';
 import { MODEL_NAMES } from '../../utils/constants.js';
+import '../permissions/index.js';
 
 export type Role = InferSchemaType<typeof roleSchema>;
 

@@ -3,6 +3,8 @@ import { mongodbAdapter } from 'better-auth/adapters/mongodb';
 import { MongoClient } from 'mongodb';
 import { config } from './environments.js';
 import { Role } from '../models/role/index.js';
+import { Wallet } from '../models/wallet/index.js';
+
 import {
   MODEL_NAMES,
   UserStatus,
@@ -40,6 +42,13 @@ export const auth = betterAuth({
               role_id: customerRole ? String(customerRole._id) : user.role_id,
             },
           };
+        },
+        after: async (user) => {
+          await Wallet.create({
+            user: user.id,
+            balance: 0,
+            isActive: true,
+          });
         },
       },
     },

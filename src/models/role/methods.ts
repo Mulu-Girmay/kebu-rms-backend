@@ -1,16 +1,13 @@
-import type { InferSchemaType } from 'mongoose';
-import type { permissionSchema } from '../permissions/schema.js';
+import { Permission } from '../permissions/index.js';
 import { roleSchema } from './schema.js';
 import { Types } from 'mongoose';
-
-export type Permission = InferSchemaType<typeof permissionSchema>;
 
 roleSchema.methods.hasPermission = async function (
   resource: string,
   action: string
 ): Promise<boolean> {
-  const { Permission } = await import('../permissions/index.js');
   const permission = await Permission.findOne({ resource, action });
+
   if (!permission) return false;
 
   return this.permissions.some(
