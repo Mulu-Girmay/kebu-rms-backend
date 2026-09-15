@@ -5,6 +5,7 @@ import { RESOURCES, ACTIONS } from '../utils/constants.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 
 import {
+  getUserWallet,
   getWallet,
   getWalletTransactions,
   topUpWallet,
@@ -24,6 +25,13 @@ router.get(
   requireAuth,
   requirePermission(RESOURCES.WALLET_TRANSACTIONS, ACTIONS.READ),
   asyncHandler(getWalletTransactions)
+);
+
+router.get(
+  '/:userId',
+  requireAuth,
+  requirePermission(RESOURCES.WALLETS, ACTIONS.READ),
+  asyncHandler(getUserWallet)
 );
 
 router.post(

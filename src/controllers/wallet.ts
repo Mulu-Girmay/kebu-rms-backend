@@ -44,6 +44,40 @@ export const getWallet = async (
   });
 };
 
+export const getUserWallet = async (
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> => {
+  if (!req.user) {
+    throw new APIError('Unauthorized: Authentication required', 401);
+  }
+
+  const { userId } = req.params;
+
+  if (!userId) {
+    throw new APIError('User ID is required', 400);
+  }
+
+  const wallet = await Wallet.findOne({
+    user: userId,
+  });
+
+  if (!wallet) {
+    throw new APIError('Wallet not found for this user', 404);
+  }
+
+  res.status(200).json({
+    wallet: {
+      id: wallet._id,
+      userId: wallet.user,
+      balance: wallet.balance,
+      isActive: wallet.isActive,
+      createdAt: wallet.createdAt,
+      updatedAt: wallet.updatedAt,
+    },
+  });
+};
+
 export const getWalletTransactions = async (
   req: AuthenticatedRequest,
   res: Response
