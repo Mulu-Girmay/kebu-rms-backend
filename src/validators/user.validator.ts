@@ -71,6 +71,7 @@ export const validateUsersQuery = [
     .isIn([
       'fullName',
       'email',
+      'name',
       'status',
       'createdAt',
       'created_at',
