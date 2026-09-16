@@ -17,7 +17,6 @@ export interface RatingModel extends Model<Rating, {}, RatingMethods> {
 
 export const Rating = mongoose.model<Rating, RatingModel>(
   MODEL_NAMES.RATING,
-  ratingSchema,
+  ratingSchema
 );
 export { ratingSchema };
-

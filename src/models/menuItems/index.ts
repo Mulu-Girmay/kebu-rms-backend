@@ -18,7 +18,6 @@ export interface MenuItemModel extends Model<MenuItem, {}, MenuItemMethods> {
 
 export const MenuItem = mongoose.model<MenuItem, MenuItemModel>(
   MODEL_NAMES.MENU_ITEM,
-  menuItemSchema,
+  menuItemSchema
 );
 export { menuItemSchema };
-
