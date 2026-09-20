@@ -16,6 +16,7 @@ export interface WalletMethods {
 export interface WalletModel extends Model<Wallet, {}, WalletMethods> {
   findByUser(userId: string): Promise<Wallet>;
   findActiveByUser(userId: string): Promise<Wallet>;
+  findOrCreateByUser(userId: string): Promise<Wallet>;
 }
 
 export const Wallet = mongoose.model<Wallet, WalletModel>(

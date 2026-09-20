@@ -5,25 +5,18 @@ import { WalletTransaction } from '../models/walletTransaction/index.js';
 import { CreditAccount } from '../models/creditAccount/index.js';
 import { WalletTransactionType } from '../utils/constants.js';
 import type { AuthenticatedRequest } from '../middlewares/auth.js';
+import mongoose from 'mongoose';
 
 export const getWallet = async (
   req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
-  if (!req.user) {
-    throw new APIError('Unauthorized: Authentication required', 401);
-  }
-
-  const userId = req.user.id;
+  const userId = req.user!.id;
 
   const [wallet, creditAccount] = await Promise.all([
-    Wallet.findByUser(userId),
+    Wallet.findOrCreateByUser(userId),
     CreditAccount.findOne({ user: userId }),
   ]);
-
-  if (!wallet) {
-    throw new APIError('Wallet not found', 404);
-  }
 
   res.status(200).json({
     wallet: {
@@ -32,6 +25,7 @@ export const getWallet = async (
       createdAt: wallet.createdAt,
       updatedAt: wallet.updatedAt,
     },
+
     credit: creditAccount
       ? {
           id: creditAccount._id,
@@ -48,15 +42,7 @@ export const getUserWallet = async (
   req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
-  if (!req.user) {
-    throw new APIError('Unauthorized: Authentication required', 401);
-  }
-
-  const { userId } = req.params;
-
-  if (!userId) {
-    throw new APIError('User ID is required', 400);
-  }
+  const { userId } = req.params as { userId: string };
 
   const wallet = await Wallet.findOne({
     user: userId,
@@ -82,11 +68,7 @@ export const getWalletTransactions = async (
   req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
-  if (!req.user) {
-    throw new APIError('Unauthorized: Authentication required', 401);
-  }
-
-  const transactions = await WalletTransaction.findByUserId(req.user.id);
+  const transactions = await WalletTransaction.findByUserId(req.user!.id);
 
   res.status(200).json({
     transactions,
@@ -97,67 +79,66 @@ export const topUpWallet = async (
   req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
-  if (!req.user) {
-    throw new APIError('Unauthorized: Authentication required', 401);
-  }
-
-  const { userId } = req.params;
+  const { userId } = req.params as { userId: string };
   const { amount } = req.body;
 
-  if (!userId) {
-    throw new APIError('Customer user ID is required', 400);
+  const session = await mongoose.startSession();
+  let wallet;
+  let transaction;
+
+  try {
+    await session.withTransaction(async () => {
+      wallet = await Wallet.findOneAndUpdate(
+        { user: userId, isActive: true },
+        { $inc: { balance: amount } },
+        { new: true, session }
+      );
+
+      if (!wallet) {
+        const exists = await Wallet.exists({ user: userId }).session(session);
+        if (!exists) {
+          throw new APIError('Customer wallet not found', 404);
+        }
+        throw new APIError('Customer wallet is inactive', 400);
+      }
+
+      const balanceAfter = wallet.balance;
+      const balanceBefore = balanceAfter - amount;
+
+      const [created] = await WalletTransaction.create(
+        [
+          {
+            wallet: wallet._id,
+            amount,
+            type: WalletTransactionType.CREDIT,
+            balanceBefore,
+            balanceAfter,
+          },
+        ],
+        { session }
+      );
+
+      transaction = created;
+    });
+  } finally {
+    await session.endSession();
   }
-
-  if (typeof amount !== 'number' || !Number.isFinite(amount)) {
-    throw new APIError('Amount must be a valid number', 400);
-  }
-
-  if (amount <= 0) {
-    throw new APIError('Amount must be greater than zero', 400);
-  }
-
-  const wallet = await Wallet.findOne({
-    user: userId,
-  });
-
-  if (!wallet) {
-    throw new APIError('Customer wallet not found', 404);
-  }
-
-  if (!wallet.isActive) {
-    throw new APIError('Customer wallet is inactive', 400);
-  }
-
-  const balanceBefore = wallet.balance;
-  const balanceAfter = balanceBefore + amount;
-
-  wallet.balance = balanceAfter;
-
-  await wallet.save();
-
-  const transaction = await WalletTransaction.create({
-    wallet: wallet._id,
-    amount,
-    type: WalletTransactionType.CREDIT,
-    balanceBefore,
-    balanceAfter,
-  });
 
   res.status(200).json({
     message: 'Wallet topped up successfully',
     wallet: {
-      id: wallet._id,
-      userId: wallet.user,
-      balance: wallet.balance,
-      isActive: wallet.isActive,
+      id: wallet!._id,
+      userId: wallet!.user,
+      balance: wallet!.balance,
+      isActive: wallet!.isActive,
     },
     transaction: {
-      id: transaction._id,
-      amount: transaction.amount,
-      type: transaction.type,
-      balanceBefore: transaction.balanceBefore,
-      balanceAfter: transaction.balanceAfter,
-      createdAt: transaction.createdAt,
+      id: transaction!._id,
+      amount: transaction!.amount,
+      type: transaction!.type,
+      balanceBefore: transaction!.balanceBefore,
+      balanceAfter: transaction!.balanceAfter,
+      createdAt: transaction!.createdAt,
     },
   });
 };
