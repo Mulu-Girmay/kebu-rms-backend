@@ -3,6 +3,7 @@ import type { UserStatus } from '../utils/constants.js';
 export interface IUserSettings {
   orderStatusNotifications: 'all' | 'rejected_ready_only' | 'none';
   promotionalNotifications: boolean;
+  pushNotificaitons: boolean;
 }
 export interface IUser {
   _id: string;

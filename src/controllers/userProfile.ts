@@ -123,13 +123,20 @@ export const updateSettings = async (
   req: AuthenticatedRequest,
   res: Response
 ) => {
-  const { orderStatusNotifications, promotionalNotifications } = req.body;
+  const {
+    orderStatusNotifications,
+    promotionalNotifications,
+    pushNotificaitons,
+  } = req.body;
   const updateData: any = {};
   if (orderStatusNotifications !== undefined) {
     updateData['settings.orderStatusNotifications'] = orderStatusNotifications;
   }
   if (promotionalNotifications !== undefined) {
     updateData['settings.promotionalNotifications'] = promotionalNotifications;
+  }
+  if (pushNotificaitons !== undefined) {
+    updateData['settings.pushNotificaitons'] = pushNotificaitons;
   }
   if (Object.keys(updateData).length === 0) {
     throw new APIError('At least one setting must be provided', 400);

@@ -55,10 +55,15 @@ export const userSchema = new Schema<IUser>(
           type: Boolean,
           default: true,
         },
+        pushNotificaitons: {
+          type: Boolean,
+          default: true,
+        },
       },
       default: {
         orderStatusNotifications: 'all',
         promotionalNotifications: true,
+        pushNotificaitons: true,
       },
     },
     must_change_password: {
