@@ -1,3 +1,4 @@
+import fs from 'fs/promises';
 import { fromNodeHeaders } from 'better-auth/node';
 import { auth } from '../config/auth.js';
 import { APIError } from '../errors/APIError.js';
@@ -61,49 +62,60 @@ export const updateProfile = async (
   const { fullName } = req.body;
   const file = req.file;
 
-  const betterAuthPayload: { name?: string; image?: string | null } = {};
+  const payload: { name?: string; image?: string | null } = {};
 
   if (fullName !== undefined) {
-    betterAuthPayload.name = fullName;
+    payload.name = fullName;
   }
   if (file) {
     const imageUrl = `/uploads/${file.filename}`;
-    betterAuthPayload.image = imageUrl;
+    payload.image = imageUrl;
   }
 
-  if (Object.keys(betterAuthPayload).length === 0) {
+  if (Object.keys(payload).length === 0) {
     throw new APIError('At least one field must be provided for update', 400);
   }
   const session = await mongoose.startSession();
   session.startTransaction();
+
+  let updatedMongoUser;
+  let updatedAuthUser;
+
   try {
-    const updatedMongoUser = await User.findByIdAndUpdate(
+    updatedMongoUser = await User.findByIdAndUpdate(
       req.user!.id,
-      { $set: betterAuthPayload },
-      { new: true, runValidators: true, session } // critical: bind query to this session
+      { $set: payload },
+      { new: true, runValidators: true, session }
     );
 
     if (!updatedMongoUser) {
       throw new APIError('User document not found in database', 404);
     }
-    const updatedAuthUser = await updateBetterAuthProfile(
-      req,
-      betterAuthPayload
-    );
 
-    await session.commitTransaction();
-    res.status(200).json({
-      success: true,
-      message: 'Profile updated successfully',
-      data: updatedAuthUser,
-    });
+    updatedAuthUser = await updateBetterAuthProfile(req, payload);
+
+    if (!updatedAuthUser) {
+      throw new APIError('Failed to update profile in auth system', 500);
+    }
   } catch (error) {
-    await session.abortTransaction();
+    if (session.inTransaction()) {
+      await session.abortTransaction();
+    }
+
+    if (file) {
+      await fs.unlink(file.path).catch(() => {});
+    }
 
     throw error;
   } finally {
     await session.endSession();
   }
+
+  res.status(200).json({
+    success: true,
+    message: 'Profile updated successfully',
+    data: updatedAuthUser,
+  });
 };
 
 /** PATCH /api/v1/user/me/settings */
