@@ -1,7 +1,8 @@
 import { Schema } from 'mongoose';
 import { MODEL_NAMES } from '../../utils/constants.js';
+import type { IMenuItem } from '../../types/types.js';
 
-export const menuItemSchema = new Schema(
+export const menuItemSchema = new Schema<IMenuItem>(
   {
     categoryId: {
       type: Schema.Types.ObjectId,

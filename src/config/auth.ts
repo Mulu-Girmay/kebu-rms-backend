@@ -63,7 +63,7 @@ export const auth = betterAuth({
   user: {
     modelName: MODEL_NAMES.USER,
     additionalFields: {
-      fullName: {
+      name: {
         type: 'string',
         required: false,
       },
