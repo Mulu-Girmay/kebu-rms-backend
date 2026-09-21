@@ -6,6 +6,7 @@ import { User } from '../models/users/index.js';
 import type { BetterAuthUser } from '../types/types.js';
 import { serializeUser } from '../utils/serializers.js';
 import type { Response } from 'express';
+import mongoose from 'mongoose';
 
 const populateRole = (query: any) =>
   query.populate('role_id', 'name description is_system_arole');
@@ -73,14 +74,36 @@ export const updateProfile = async (
   if (Object.keys(betterAuthPayload).length === 0) {
     throw new APIError('At least one field must be provided for update', 400);
   }
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    const updatedMongoUser = await User.findByIdAndUpdate(
+      req.user!.id,
+      { $set: betterAuthPayload },
+      { new: true, runValidators: true, session } // critical: bind query to this session
+    );
 
-  const updatedAuthUser = await updateBetterAuthProfile(req, betterAuthPayload);
+    if (!updatedMongoUser) {
+      throw new APIError('User document not found in database', 404);
+    }
+    const updatedAuthUser = await updateBetterAuthProfile(
+      req,
+      betterAuthPayload
+    );
 
-  res.status(200).json({
-    success: true,
-    message: 'Profile updated successfully',
-    data: updatedAuthUser,
-  });
+    await session.commitTransaction();
+    res.status(200).json({
+      success: true,
+      message: 'Profile updated successfully',
+      data: updatedAuthUser,
+    });
+  } catch (error) {
+    await session.abortTransaction();
+
+    throw error;
+  } finally {
+    await session.endSession();
+  }
 };
 
 /** PATCH /api/v1/user/me/settings */
