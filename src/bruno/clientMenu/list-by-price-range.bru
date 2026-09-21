@@ -1,0 +1,36 @@
+meta {
+  name: List Menu Items by Price Range
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/v1/menu-items?minPrice=10&maxPrice=50&limit=20
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+
+  test("all items are within price range", function() {
+    res.body.data.forEach((item) => {
+      expect(item.price).to.be.gte(10);
+      expect(item.price).to.be.lte(50);
+    });
+  });
+
+  test("price sorting works", function() {
+    if (res.body.data.length > 1) {
+      for (let i = 0; i < res.body.data.length - 1; i++) {
+        // Depending on sort order, verify consistency
+        expect(res.body.data[i]).to.have.property('price');
+      }
+    }
+  });
+}

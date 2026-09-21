@@ -1,0 +1,58 @@
+meta {
+  name: List Menu Items (First Page)
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/v1/menu-items?limit=10&sortBy=createdAt&order=desc
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+
+  test("response has success true", function() {
+    expect(res.body.success).to.equal(true);
+  });
+
+  test("data is array", function() {
+    expect(res.body.data).to.be.an('array');
+  });
+
+  test("pagination object has required fields", function() {
+    expect(res.body.pagination).to.have.property('limit');
+    expect(res.body.pagination).to.have.property('hasMore');
+    expect(res.body.pagination).to.have.property('nextCursor');
+  });
+
+  test("each item has required fields", function() {
+    if (res.body.data.length > 0) {
+      const item = res.body.data[0];
+      expect(item).to.have.property('id');
+      expect(item).to.have.property('name');
+      expect(item).to.have.property('price');
+      expect(item).to.have.property('isAvailable');
+      expect(item).to.have.property('favoriteCount');
+      expect(item).to.have.property('isFavorited');
+      expect(item).to.have.property('category');
+    }
+  });
+
+  test("limit is respected", function() {
+    expect(res.body.data.length).to.be.lte(10);
+  });
+
+  // Store nextCursor for pagination test
+  test("save nextCursor for pagination", function() {
+    if (res.body.pagination.hasMore) {
+      bru.setVar("nextCursor", res.body.pagination.nextCursor);
+    }
+  });
+}
