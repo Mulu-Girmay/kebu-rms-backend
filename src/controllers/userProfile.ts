@@ -97,6 +97,7 @@ export const updateProfile = async (
     if (!updatedAuthUser) {
       throw new APIError('Failed to update profile in auth system', 500);
     }
+    await session.commitTransaction();
   } catch (error) {
     if (session.inTransaction()) {
       await session.abortTransaction();
