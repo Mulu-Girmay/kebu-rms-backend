@@ -48,17 +48,9 @@ export const listUsers = async (req: AuthenticatedRequest, res: Response) => {
   if (search) {
     filter.$or = [
       {
-        name: {
-          $regex: search,
-          $options: 'i',
-        },
+        name: { $regex: search, $options: 'i' },
       },
-      {
-        email: {
-          $regex: search,
-          $options: 'i',
-        },
-      },
+      { email: { $regex: search, $options: 'i' } },
     ];
   }
 
@@ -228,7 +220,7 @@ export const activateUser = async (
   if (String(user._id) === req.user!.id) {
     throw new APIError('You cannot activate your own account');
   }
-  await user.activate();
+  const updatedUser = await user.activate();
   await Audit.create({
     userId: req.user!.id,
     action: AuditAction.UPDATE,
@@ -243,7 +235,7 @@ export const activateUser = async (
     success: true,
     message: 'User activated successfully',
   });
-  sendStatusEmail(user.email, user.name, user.status);
+  sendStatusEmail(updatedUser.email, updatedUser.name, updatedUser.status);
 };
 
 /**PATCH /api/v1/users/:id/deactivate */
@@ -258,7 +250,7 @@ export const deactivateUser = async (
   if (String(user._id) === req.user!.id) {
     throw new APIError('You cannot Deactivate your own account');
   }
-  await user.deactivate();
+  const updatedUser = await user.deactivate();
   await Audit.create({
     userId: req.user!.id,
     action: AuditAction.UPDATE,
@@ -273,7 +265,7 @@ export const deactivateUser = async (
     success: true,
     message: 'User deactivated successfully',
   });
-  sendStatusEmail(user.email, user.name, user.status);
+  sendStatusEmail(updatedUser.email, updatedUser.name, updatedUser.status);
 };
 
 /**PATCH /api/v1/users/:id/suspend */
@@ -285,7 +277,7 @@ export const suspendUser = async (req: AuthenticatedRequest, res: Response) => {
   if (String(user._id) === req.user!.id) {
     throw new APIError('You cannot suspend your own account');
   }
-  await user.suspend();
+  const updatedUser = await user.suspend();
   await Audit.create({
     userId: req.user!.id,
     action: AuditAction.UPDATE,
@@ -300,7 +292,7 @@ export const suspendUser = async (req: AuthenticatedRequest, res: Response) => {
     success: true,
     message: 'User suspended successfully',
   });
-  sendStatusEmail(user.email, user.name, user.status);
+  sendStatusEmail(updatedUser.email, updatedUser.name, updatedUser.status);
 };
 
 /**PATCH /api/v1/users/:id/role */
