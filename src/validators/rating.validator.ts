@@ -61,6 +61,8 @@ export const updateRatingSchema = [
     }
     return true;
   }),
+  // .custom() check is positioned before body('comment') can sanitize the input. If a user sends a comment
+  //  best practice to put the  validation .custom()at the end of the validation chain
   body('score')
     .optional()
     .isInt({ min: 1, max: 5 })
@@ -77,4 +79,6 @@ export const ratingQuerySchema = [
     .isMongoId()
     .withMessage('Invalid Order ID format'),
   query('hasComment').optional().isBoolean().toBoolean(),
+  // what does  the hascomment hold
+  // ?hasComment=false, JavaScript evaluates the string "false" as truthy.
 ];

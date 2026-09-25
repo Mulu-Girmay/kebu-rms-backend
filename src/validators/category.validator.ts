@@ -33,6 +33,8 @@ export const updateCategorySchema = [
     }
     return true;
   }),
+  // .custom() check is positioned before body('comment') can sanitize the input. If a user sends a comment
+  //  best practice to put the  validation .custom()at the end of the validation chain
   body('name')
     .optional()
     .trim()

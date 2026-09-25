@@ -18,7 +18,7 @@ const router = Router();
 router.post(
   '/:menuItemId/toggle',
   requireAuth,
-  requirePermission(RESOURCES.MENU_ITEMS, ACTIONS.READ),
+  requirePermission(RESOURCES.MENU_ITEMS, ACTIONS.READ), //permission should be UPDATE and PATCH
   validateRequest(toggleFavoriteParamSchema),
   asyncHandler(toggleFavorite)
 );

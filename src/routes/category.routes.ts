@@ -71,7 +71,9 @@ router.patch(
   validateRequest(updateCategorySchema),
   asyncHandler(updateCategory)
 );
-
+// Duplicate Both PUT and PATCH call the same handler, but:
+// PUT = full replacement (should validate all required fields)
+// PATCH = partial update (should allow partial fields)
 router.delete(
   '/:id',
   requireAuth,

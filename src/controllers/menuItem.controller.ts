@@ -13,6 +13,7 @@ export const createMenuItem = async (
   if (!category) {
     throw new APIError('Category not found', 400);
   }
+  // status Codes 404 for not found
 
   const imageUrl = req.file
     ? `/uploads/${req.file.filename}`
@@ -49,7 +50,8 @@ export const getMenuItems = async (
     sortBy = 'createdAt',
     sortOrder = 'desc',
   } = req.query;
-
+  // as Record<string, string | undefined>;
+  //  No type annotation; all are `any`prevents runtime errors from invalid inputs.
   const filter: Record<string, unknown> = {};
 
   if (categoryId) {
@@ -164,6 +166,7 @@ export const updateMenuItem = async (
     const category = await Category.findById(categoryId);
     if (!category) {
       throw new APIError('Category not found', 400);
+      // status Codes 404 for not found
     }
     menuItem.categoryId = categoryId;
   }
@@ -230,3 +233,4 @@ export const deleteMenuItem = async (
     message: 'Menu item deleted successfully',
   });
 };
+//audit log for changes made and for that we goona need AuthenticatedRequest as a type to access userId

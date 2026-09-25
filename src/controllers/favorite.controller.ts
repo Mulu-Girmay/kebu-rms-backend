@@ -22,6 +22,8 @@ export const toggleFavorite = async (
     await MenuItem.findByIdAndUpdate(menuItemId, {
       $inc: { favoriteCount: -1 },
     });
+    // if the first operation succeed and the second one  fail their will be inconsistency
+    // to insure atomicity for the above two operations maybe use session/transaction
 
     res.status(200).json({
       success: true,

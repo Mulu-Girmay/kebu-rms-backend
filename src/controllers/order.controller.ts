@@ -34,6 +34,7 @@ export const createOrder = async (
       throw new APIError(
         `Menu item with ID "${item.menuItemId}" not found`,
         400
+        // status Codes 404 for not found
       );
     }
     if (!menuItem.isAvailable) {

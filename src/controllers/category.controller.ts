@@ -163,3 +163,5 @@ export const deleteCategory = async (
     message: 'Category deleted successfully',
   });
 };
+// Missing Cache Invalidation on Mutations to revents stale cache from being served after data changes.
+//create audit log for changes made and for that we goona need AuthenticatedRequest as a type to access userId

@@ -221,6 +221,7 @@ export const deleteRating = async (
 
 export const getMenuItemRatings = async (
   req: Request,
+  // AuthenticatedRequest,  //  Use AuthenticatedRequest type
   res: Response
 ): Promise<void> => {
   const menuItemId = req.params.menuItemId as string;
