@@ -14,18 +14,24 @@ export interface RoleMethods {
 }
 export interface RoleModel extends Model<Role, {}, RoleMethods> {
   assignPermission(
-    roleId: string | Types.ObjectId,
+    role_id: string | Types.ObjectId,
     permissionId: Types.ObjectId
   ): Promise<Role>;
   revokePermission(
-    roleId: string | Types.ObjectId,
+    role_id: string | Types.ObjectId,
     permissionId: Types.ObjectId
   ): Promise<Role>;
 
   findSystemRoles(): Promise<Role[]>;
   findCustomRoles(): Promise<Role[]>;
-  findWithPermissions(roleId: string): Promise<Role>;
+  findWithPermissions(role_id: string): Promise<Role>;
+  roleHasPermission(
+    role_id: string | Types.ObjectId,
+    permissionId: Types.ObjectId
+  ): Promise<boolean>;
+  isSystemRole(role_id: string | Types.ObjectId): Promise<boolean>;
 }
+
 export const Role = mongoose.model<Role, RoleModel>(
   MODEL_NAMES.ROLE,
   roleSchema

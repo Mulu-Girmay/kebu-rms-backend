@@ -1,0 +1,27 @@
+meta {
+  name: List Users
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/v1/users?page=1&limit=5&sortBy=created_at&order=desc
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("response has pagination", function() {
+    expect(res.body.pagination).to.have.property("page");
+    expect(res.body.pagination).to.have.property("total");
+  });
+  test("data is an array", function() {
+    expect(res.body.data).to.be.an("array");
+  });
+}

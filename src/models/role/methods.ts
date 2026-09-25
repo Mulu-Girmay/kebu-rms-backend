@@ -10,8 +10,8 @@ roleSchema.methods.hasPermission = async function (
 
   if (!permission) return false;
 
-  return this.permissions.some(
-    (p: any) => p.toString() === permission._id.toString()
+  return this.permissions.some((permissionId: Types.ObjectId) =>
+    permissionId.equals(permission._id)
   );
 };
 
