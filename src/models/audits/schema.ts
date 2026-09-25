@@ -25,7 +25,7 @@ export const auditSchema = new Schema(
     // belongs to, so it's stored as a plain string rather than a typed
     // ref (Mongoose refs can't target "whichever collection this row says").
     recordId: {
-      type: String,
+      type: Schema.Types.Mixed,
       required: true,
     },
 

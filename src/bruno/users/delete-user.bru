@@ -1,0 +1,20 @@
+meta {
+  name: Delete User (Admin)
+  type: http
+  seq: 6
+}
+
+delete {
+  url: {{baseUrl}}/api/v1/users/{{userId}}
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("status is 204", function() {
+    expect(res.status).to.equal(204);
+  });
+}
