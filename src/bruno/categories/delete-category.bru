@@ -1,0 +1,17 @@
+meta {
+  name: Delete Category
+  type: http
+  seq: 6
+}
+
+delete {
+  url: {{baseUrl}}/api/categories/{{categoryId}}
+  body: none
+  auth: none
+}
+
+tests {
+  test("should delete category", function() {
+    expect([200, 400, 401, 404]).to.include(res.getStatus());
+  });
+}

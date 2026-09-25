@@ -14,12 +14,11 @@ export interface UserTokenMethods {
 export interface UserTokenModel extends Model<UserToken, {}, UserTokenMethods> {
   findValidByTokenHash(tokenHash: string): Promise<UserToken | null>;
   findByUserId(userId: string): Promise<UserToken[]>;
-  invalidateForUser(userId: string): Promise<any>;
+  invalidateForUser(userId: string): Promise<unknown>;
 }
 
 export const UserToken = mongoose.model<UserToken, UserTokenModel>(
   MODEL_NAMES.USER_TOKEN,
-  userTokenSchema,
+  userTokenSchema
 );
 export { userTokenSchema };
-

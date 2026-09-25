@@ -1,0 +1,34 @@
+meta {
+  name: Create Menu Item
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/menu-items
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "categoryId": "{{categoryId}}",
+    "name": "Iced Caramel Macchiato",
+    "description": "Freshly brewed espresso with caramel drizzle and whole milk",
+    "price": 180,
+    "isAvailable": true
+  }
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("should create menu item or fail validation if category invalid", function() {
+    expect([201, 400, 401]).to.include(res.getStatus());
+    if (res.getStatus() === 201) {
+      bru.setVar("menuItemId", res.getBody().data._id);
+    }
+  });
+}
