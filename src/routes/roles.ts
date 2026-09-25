@@ -2,8 +2,6 @@ import { Router } from 'express';
 
 import { requireAuth } from '../middlewares/auth.js';
 import { requirePermission } from '../middlewares/authorize.js';
-import { handleValidationErrors } from '../middlewares/validation.js';
-
 import { RESOURCES, ACTIONS } from '../utils/constants.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 
@@ -15,6 +13,7 @@ import {
   validateRoleId,
   validateRolePermission,
 } from '../validators/role.validator.js';
+import { validateRequest } from '../validators/errors.parser.js';
 
 const router = Router();
 
@@ -23,7 +22,7 @@ router.post(
   requireAuth,
   requirePermission(RESOURCES.ROLES, ACTIONS.CREATE),
   validateCreateRole,
-  handleValidationErrors,
+  validateRequest,
   asyncHandler(rolesController.createRole)
 );
 
@@ -39,7 +38,7 @@ router.get(
   requireAuth,
   requirePermission(RESOURCES.ROLES, ACTIONS.READ),
   validateRoleId,
-  handleValidationErrors,
+  validateRequest,
   asyncHandler(rolesController.getRole)
 );
 
@@ -48,7 +47,7 @@ router.patch(
   requireAuth,
   requirePermission(RESOURCES.ROLES, ACTIONS.UPDATE),
   validateUpdateRole,
-  handleValidationErrors,
+  validateRequest,
   asyncHandler(rolesController.updateRole)
 );
 
@@ -57,7 +56,7 @@ router.delete(
   requireAuth,
   requirePermission(RESOURCES.ROLES, ACTIONS.DELETE),
   validateRoleId,
-  handleValidationErrors,
+  validateRequest,
   asyncHandler(rolesController.deleteRole)
 );
 
@@ -73,7 +72,7 @@ router.post(
   requireAuth,
   requirePermission(RESOURCES.ROLES, ACTIONS.UPDATE),
   validateRolePermission,
-  handleValidationErrors,
+  validateRequest,
   asyncHandler(rolesController.assignPermission)
 );
 
@@ -82,7 +81,7 @@ router.delete(
   requireAuth,
   requirePermission(RESOURCES.ROLES, ACTIONS.UPDATE),
   validateRolePermission,
-  handleValidationErrors,
+  validateRequest,
   asyncHandler(rolesController.revokePermission)
 );
 
