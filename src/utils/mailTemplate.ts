@@ -70,3 +70,31 @@ export const sendPasswordResetEmail = async (
     },
   });
 };
+
+export const sendStatusEmail = async (
+  userEmail: string,
+  fullName: string,
+  newStatus: string,
+  reason = ''
+): Promise<void> => {
+  const subject =
+    newStatus === 'suspended'
+      ? 'Important: Your account has been suspended'
+      : `Your account status has been updated to: ${newStatus}`;
+
+  try {
+    await sendEmail({
+      to: userEmail,
+      subject,
+      template: 'status_change',
+      data: {
+        fullName,
+        newStatus,
+        reason,
+        isSuspended: newStatus === 'suspended',
+      },
+    });
+  } catch (error) {
+    logger.info(`Failed to send email ${userEmail}: ${error}`);
+  }
+};

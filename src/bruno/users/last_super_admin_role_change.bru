@@ -1,0 +1,23 @@
+meta {
+  name: Attempt to Demote Last Super Admin
+  type: http
+  seq: 20
+}
+
+patch {
+  url: {{baseUrl}}/api/v1/users/{{superAdminId}}/role
+  body: json
+}
+
+body:json {
+  { "role_id": "{{customerRoleId}}" }
+}
+
+tests {
+  test("status is 403", function() {
+    expect(res.status).to.equal(403);
+  });
+  test("message mentions last super admin", function() {
+    expect(res.body.message).to.contain("last super admin");
+  });
+}

@@ -1,0 +1,23 @@
+meta {
+  name: Deactivate User
+  type: http
+  seq: 8
+}
+
+patch {
+  url: {{baseUrl}}/api/v1/users/{{userId}}/deactivate
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("message says deactivated", function() {
+    expect(res.body.message).to.contain("deactivated");
+  });
+}

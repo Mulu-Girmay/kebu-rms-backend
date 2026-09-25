@@ -1,0 +1,23 @@
+meta {
+  name: Activate User
+  type: http
+  seq: 7
+}
+
+patch {
+  url: {{baseUrl}}/api/v1/users/{{userId}}/activate
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("message says activated", function() {
+    expect(res.body.message).to.contain("activated");
+  });
+}
