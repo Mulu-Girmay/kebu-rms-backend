@@ -8,6 +8,7 @@ import orderRoutes from './order.routes.js';
 import favoriteRoutes from './favorite.routes.js';
 import ratingRoutes from './rating.routes.js';
 import rolesRouter from './roles.js';
+import walletRoutes from './wallet.js';
 
 const router = Router();
 
@@ -21,6 +22,7 @@ router.use('/favorites', favoriteRoutes);
 router.use('/ratings', ratingRoutes);
 router.use('/v1/test', rbacTest);
 router.use('/api/v1/users', userRoutes);
+router.use('/wallet', walletRoutes);
 router.use('/', rolesRouter);
 router.use('/test', rbacTest);
 router.use('/users', userRoutes);

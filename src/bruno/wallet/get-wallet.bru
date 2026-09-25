@@ -1,0 +1,20 @@
+meta {
+  name: Get Wallet
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/wallet
+  body: none
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests("status is 200", function() => {
+  expect(res.status).to.equal(200);
+})
+
