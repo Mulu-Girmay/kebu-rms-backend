@@ -1,10 +1,20 @@
 import type { Request, Response } from 'express';
+import type { AuthenticatedRequest } from '../middlewares/auth.js';
 import { Category } from '../models/categories/index.js';
 import { MenuItem } from '../models/menuItems/index.js';
+import { Audit } from '../models/audits/index.js';
 import { APIError } from '../errors/APIError.js';
+import { AuditAction, MODEL_NAMES } from '../utils/constants.js';
+
+// In-memory cache store for category queries
+const categoryCache = new Map<string, unknown>();
+
+export const clearCategoryCache = (): void => {
+  categoryCache.clear();
+};
 
 export const createCategory = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const { name, description, isActive } = req.body;
@@ -25,6 +35,24 @@ export const createCategory = async (
     isActive: isActive !== undefined ? Boolean(isActive) : true,
   });
 
+  // Invalidate stale cache on mutation
+  clearCategoryCache();
+
+  // Create audit log for category creation
+  if (req.user?.id) {
+    await Audit.create({
+      userId: req.user.id,
+      action: AuditAction.CREATE,
+      tableName: MODEL_NAMES.CATEGORY,
+      recordId: category._id.toString(),
+      meta: {
+        name: category.name,
+        description: category.description,
+        isActive: category.isActive,
+      },
+    });
+  }
+
   res.status(201).json({
     success: true,
     message: 'Category created successfully',
@@ -36,6 +64,14 @@ export const getCategories = async (
   req: Request,
   res: Response
 ): Promise<void> => {
+  const cacheKey = `categories:${req.query.isActive !== undefined ? String(req.query.isActive) : 'all'}`;
+
+  if (categoryCache.has(cacheKey)) {
+    const cachedData = categoryCache.get(cacheKey);
+    res.status(200).json(cachedData);
+    return;
+  }
+
   const filter: Record<string, unknown> = {};
 
   if (req.query.isActive !== undefined) {
@@ -44,11 +80,15 @@ export const getCategories = async (
 
   const categories = await Category.find(filter).sort({ name: 1 });
 
-  res.status(200).json({
+  const responseData = {
     success: true,
     count: categories.length,
     data: categories,
-  });
+  };
+
+  categoryCache.set(cacheKey, responseData);
+
+  res.status(200).json(responseData);
 };
 
 export const getCategoryById = async (
@@ -56,16 +96,28 @@ export const getCategoryById = async (
   res: Response
 ): Promise<void> => {
   const categoryId = req.params.id as string;
+  const cacheKey = `category:${categoryId}`;
+
+  if (categoryCache.has(cacheKey)) {
+    const cachedData = categoryCache.get(cacheKey);
+    res.status(200).json(cachedData);
+    return;
+  }
+
   const category = await Category.findById(categoryId);
 
   if (!category) {
     throw new APIError('Category not found', 404);
   }
 
-  res.status(200).json({
+  const responseData = {
     success: true,
     data: category,
-  });
+  };
+
+  categoryCache.set(cacheKey, responseData);
+
+  res.status(200).json(responseData);
 };
 
 export const getCategoryMenuItems = async (
@@ -73,18 +125,26 @@ export const getCategoryMenuItems = async (
   res: Response
 ): Promise<void> => {
   const categoryId = req.params.id as string;
+  const isAvailableOnly = req.query.available === 'true';
+  const cacheKey = `categoryMenuItems:${categoryId}:${isAvailableOnly}`;
+
+  if (categoryCache.has(cacheKey)) {
+    const cachedData = categoryCache.get(cacheKey);
+    res.status(200).json(cachedData);
+    return;
+  }
+
   const category = await Category.findById(categoryId);
 
   if (!category) {
     throw new APIError('Category not found', 404);
   }
 
-  const isAvailableOnly = req.query.available === 'true';
   const menuItems = isAvailableOnly
     ? await MenuItem.findAvailableByCategoryId(categoryId)
     : await MenuItem.findByCategoryId(categoryId);
 
-  res.status(200).json({
+  const responseData = {
     success: true,
     category: {
       id: category._id,
@@ -92,11 +152,15 @@ export const getCategoryMenuItems = async (
     },
     count: menuItems.length,
     data: menuItems,
-  });
+  };
+
+  categoryCache.set(cacheKey, responseData);
+
+  res.status(200).json(responseData);
 };
 
 export const updateCategory = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const categoryId = req.params.id as string;
@@ -127,6 +191,24 @@ export const updateCategory = async (
 
   await category.save();
 
+  // Invalidate stale cache on mutation
+  clearCategoryCache();
+
+  // Create audit log for category update
+  if (req.user?.id) {
+    await Audit.create({
+      userId: req.user.id,
+      action: AuditAction.UPDATE,
+      tableName: MODEL_NAMES.CATEGORY,
+      recordId: category._id.toString(),
+      meta: {
+        name: category.name,
+        description: category.description,
+        isActive: category.isActive,
+      },
+    });
+  }
+
   res.status(200).json({
     success: true,
     message: 'Category updated successfully',
@@ -135,7 +217,7 @@ export const updateCategory = async (
 };
 
 export const deleteCategory = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const categoryId = req.params.id as string;
@@ -158,10 +240,24 @@ export const deleteCategory = async (
 
   await category.deleteOne();
 
+  // Invalidate stale cache on mutation
+  clearCategoryCache();
+
+  // Create audit log for category deletion
+  if (req.user?.id) {
+    await Audit.create({
+      userId: req.user.id,
+      action: AuditAction.DELETE,
+      tableName: MODEL_NAMES.CATEGORY,
+      recordId: categoryId,
+      meta: {
+        name: category.name,
+      },
+    });
+  }
+
   res.status(200).json({
     success: true,
     message: 'Category deleted successfully',
   });
 };
-// Missing Cache Invalidation on Mutations to revents stale cache from being served after data changes.
-//create audit log for changes made and for that we goona need AuthenticatedRequest as a type to access userId
