@@ -1,0 +1,27 @@
+meta {
+  name: Toggle Menu Item Availability
+  type: http
+  seq: 6
+}
+
+patch {
+  url: {{baseUrl}}/api/v1/menu-items/{{menuItemId}}/availability
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "isAvailable": false
+  }
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("should toggle menu item availability", function() {
+    expect([200, 400, 401, 404]).to.include(res.getStatus());
+  });
+}

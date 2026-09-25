@@ -1,0 +1,19 @@
+meta {
+  name: Toggle Favorite Menu Item
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/v1/favorites/{{menuItemId}}/toggle
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("should toggle favorite menu item", function() {
+    expect([200, 201]).to.include(res.getStatus());
+    expect(res.getBody().success).to.be.true;
+    expect(res.getBody().isFavorite).to.be.a('boolean');
+  });
+}

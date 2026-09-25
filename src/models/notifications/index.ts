@@ -11,8 +11,11 @@ export interface NotificationMethods {
   markAsRead(): Promise<Notification>;
 }
 
-export interface NotificationModel
-  extends Model<Notification, {}, NotificationMethods> {
+export interface NotificationModel extends Model<
+  Notification,
+  {},
+  NotificationMethods
+> {
   findByUserId(userId: string): Promise<Notification[]>;
   findUnreadByUserId(userId: string): Promise<Notification[]>;
   markAllAsReadForUser(userId: string): Promise<mongoose.UpdateWriteOpResult>;
@@ -20,7 +23,6 @@ export interface NotificationModel
 
 export const Notification = mongoose.model<Notification, NotificationModel>(
   MODEL_NAMES.NOTIFICATION,
-  notificationSchema,
+  notificationSchema
 );
 export { notificationSchema };
-

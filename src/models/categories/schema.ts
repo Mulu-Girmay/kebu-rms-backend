@@ -30,5 +30,3 @@ export const categorySchema = new Schema<ICategory>(
     timestamps: true,
   }
 );
-
-categorySchema.index({ name: 1 }, { unique: true });

@@ -1,0 +1,23 @@
+meta {
+  name: Get Popular Menu Items
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/v1/menu-items/popular
+  body: none
+  auth: none
+}
+
+params:query {
+  ~limit: 5
+}
+
+tests {
+  test("should get popular menu items", function() {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().success).to.be.true;
+    expect(res.getBody().data).to.be.an('array');
+  });
+}

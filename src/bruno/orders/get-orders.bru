@@ -1,0 +1,25 @@
+meta {
+  name: Get Customer Orders
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/v1/orders
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~filter: active
+  ~page: 1
+  ~limit: 20
+}
+
+tests {
+  test("should list customer orders", function() {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().success).to.be.true;
+    expect(res.getBody().data).to.be.an('array');
+  });
+}

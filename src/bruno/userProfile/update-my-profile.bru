@@ -1,0 +1,29 @@
+meta {
+  name: Update My Profile
+  type: http
+  seq: 1
+}
+
+patch {
+  url: {{baseUrl}}/api/v1/user/me
+  body: multipartForm
+  auth: inherit
+}
+
+body:multipart-form {
+  fullName: Updated Name
+  profileImage: @file(image/avatar.PNG)
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("response has success true", function() {
+    expect(res.body.success).to.equal(true);
+  });
+  test("data contains id and email", function() {
+    expect(res.body.data).to.have.property("id");
+    expect(res.body.data).to.have.property("email");
+  });
+}

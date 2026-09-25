@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
 import { userSchema } from './schema.js';
+import type { User } from './index.js';
 
 userSchema.methods.comparePassword = async function (
   password: string
@@ -19,17 +20,17 @@ userSchema.methods.verifyEmail = async function (): Promise<void> {
   await this.save();
 };
 
-userSchema.methods.suspend = async function (): Promise<void> {
+userSchema.methods.suspend = async function (): Promise<User> {
   this.status = 'suspended';
-  await this.save();
+  return await this.save();
 };
 
 userSchema.methods.activate = async function (): Promise<void> {
   this.status = 'active';
-  await this.save();
+  return await this.save();
 };
 
 userSchema.methods.deactivate = async function (): Promise<void> {
   this.status = 'inactive';
-  await this.save();
+  return await this.save();
 };

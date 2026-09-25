@@ -1,35 +1,28 @@
-import type { NextFunction, Request, Response } from 'express';
-import { validationResult, type ValidationError } from 'express-validator';
+import type { Request, Response, NextFunction } from 'express';
+import { validationResult, type ValidationChain } from 'express-validator';
+import { APIError } from '../errors/APIError.js';
 
 export const validateRequest = (
-  req: Request,
-  res: Response,
-  next: NextFunction
+  validations: ValidationChain | ValidationChain[]
 ) => {
-  const errors = validationResult(req);
+  return async (
+    req: Request,
+    _res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    const chainList = Array.isArray(validations) ? validations : [validations];
 
-  if (!errors.isEmpty()) {
-    return res.status(400).json({
-      success: false,
-      message: 'Validation failed',
+    await Promise.all(chainList.map((validation) => validation.run(req)));
 
-      errors: errors.array().map((error: ValidationError) => {
-        if (error.type === 'field') {
-          return {
-            field: error.path,
-            location: error.location,
-            message: error.msg,
-          };
-        }
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      const errorMessage = errors
+        .array()
+        .map((err) => err.msg)
+        .join(', ');
+      return next(new APIError(errorMessage, 400));
+    }
 
-        // Fallback for generic/custom object-level errors
-        return {
-          field: 'root',
-          message: error.msg,
-        };
-      }),
-    });
-  }
-
-  return next();
+    next();
+  };
 };

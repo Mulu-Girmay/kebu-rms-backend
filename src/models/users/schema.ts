@@ -4,8 +4,9 @@ import {
   USER_STATUS_VALUES,
   UserStatus,
 } from '../../utils/constants.js';
+import type { IUser } from '../../types/types.js';
 
-export const userSchema = new Schema(
+export const userSchema = new Schema<IUser>(
   {
     _id: {
       type: String,
@@ -16,7 +17,7 @@ export const userSchema = new Schema(
       required: false,
     },
 
-    fullName: {
+    name: {
       type: String,
       required: true,
       trim: true,
@@ -31,24 +32,8 @@ export const userSchema = new Schema(
       trim: true,
       lowercase: true,
     },
-    is_email_verified: {
-      type: Boolean,
-      default: false,
-    },
 
-    email_verified_at: {
-      type: Date,
-      default: null,
-    },
-
-    password: {
-      type: String,
-      required: true,
-      minlength: 8,
-      select: false,
-    },
-
-    profileImage: {
+    image: {
       type: String,
       trim: true,
       default: null,
@@ -58,6 +43,28 @@ export const userSchema = new Schema(
       type: String,
       enum: USER_STATUS_VALUES,
       default: UserStatus.ACTIVE,
+    },
+    settings: {
+      type: {
+        orderStatusNotifications: {
+          type: String,
+          enum: ['all', 'rejected_ready_only', 'none'],
+          default: 'all',
+        },
+        promotionalNotifications: {
+          type: Boolean,
+          default: true,
+        },
+        pushNotificaitons: {
+          type: Boolean,
+          default: true,
+        },
+      },
+      default: {
+        orderStatusNotifications: 'all',
+        promotionalNotifications: true,
+        pushNotificaitons: true,
+      },
     },
     must_change_password: {
       type: Boolean,

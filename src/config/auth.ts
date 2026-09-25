@@ -3,6 +3,8 @@ import { mongodbAdapter } from 'better-auth/adapters/mongodb';
 import { MongoClient } from 'mongodb';
 import { config } from './environments.js';
 import { Role } from '../models/role/index.js';
+import { Wallet } from '../models/wallet/index.js';
+
 import {
   MODEL_NAMES,
   UserStatus,
@@ -13,6 +15,7 @@ import {
   sendPasswordResetEmail,
 } from '../utils/mailTemplate.js';
 import { Types } from 'mongoose';
+import logger from './winston.js';
 
 const client = new MongoClient(config.mongoose.url);
 const db = client.db();
@@ -40,6 +43,20 @@ export const auth = betterAuth({
               role_id: customerRole ? String(customerRole._id) : user.role_id,
             },
           };
+        },
+        after: async (user) => {
+          try {
+            await Wallet.create({
+              user: user.id,
+              balance: 0,
+              isActive: true,
+            });
+          } catch (error) {
+            logger.error(
+              `Failed to create wallet for user ${user.id} on sign-up`,
+              error
+            );
+          }
         },
       },
     },
@@ -79,10 +96,6 @@ export const auth = betterAuth({
       must_change_password: {
         type: 'boolean',
         defaultValue: false,
-        required: false,
-      },
-      profileImage: {
-        type: 'string',
         required: false,
       },
     },
