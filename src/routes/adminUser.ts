@@ -3,7 +3,6 @@ import { asyncHandler } from '../utils/asyncHandler.js';
 import {
   listUsers,
   getUser,
-  updateUser,
   deleteUser,
   activateUser,
   deactivateUser,
@@ -15,8 +14,7 @@ import { requirePermission } from '../middlewares/authorize.js';
 import { ACTIONS, RESOURCES } from '../utils/constants.js';
 import {
   validateIdParam,
-  updateSelfValidator,
-  updateUserValidator,
+  updateroleValidator,
   validateUsersQuery,
 } from '../validators/user.validator.js';
 import { validateRequest } from '../validators/errors.parser.js';
@@ -45,16 +43,6 @@ router.get(
   ...validateIdParam,
   validateRequest,
   asyncHandler(getUser)
-);
-//update user by admin
-router.patch(
-  '/:id',
-  requireAuth,
-  requirePermission(RESOURCES.USERS, ACTIONS.UPDATE),
-  ...validateIdParam,
-  ...updateUserValidator,
-  validateRequest,
-  asyncHandler(updateUser)
 );
 router.delete(
   '/:id',
@@ -97,7 +85,7 @@ router.patch(
   requireAuth,
   requirePermission(RESOURCES.ROLES, ACTIONS.UPDATE),
   ...validateIdParam,
-  ...updateUserValidator,
+  ...updateroleValidator,
   validateRequest,
   asyncHandler(updateRole)
 );

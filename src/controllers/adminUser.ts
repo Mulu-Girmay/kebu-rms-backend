@@ -7,7 +7,7 @@ import { serializeUser } from '../utils/serializers.js';
 import { Role } from '../models/role/index.js';
 import { auth } from '../config/auth.js';
 import { Audit } from '../models/audits/index.js';
-import { AuditAction } from '../utils/constants.js';
+import { AuditAction, CreditAccountStatus } from '../utils/constants.js';
 import { Order } from '../models/orders/index.js';
 import { Wallet } from '../models/wallet/index.js';
 import { WalletTransaction } from '../models/walletTransaction/index.js';
@@ -15,6 +15,8 @@ import { CreditAccount } from '../models/creditAccount/index.js';
 import { Permission } from '../models/permissions/index.js';
 import type { BetterAuthUser } from '../types/types.js';
 import { sendStatusEmail } from '../utils/mailTemplate.js';
+import mongoose, { mongo } from 'mongoose';
+import logger from '../config/winston.js';
 
 const populateRole = (query: any) =>
   query.populate('role_id', 'name description is_system_role');
@@ -48,17 +50,9 @@ export const listUsers = async (req: AuthenticatedRequest, res: Response) => {
   if (search) {
     filter.$or = [
       {
-        name: {
-          $regex: search,
-          $options: 'i',
-        },
+        name: { $regex: search, $options: 'i' },
       },
-      {
-        email: {
-          $regex: search,
-          $options: 'i',
-        },
-      },
+      { email: { $regex: search, $options: 'i' } },
     ];
   }
 
@@ -103,75 +97,9 @@ export const getUser = async (req: AuthenticatedRequest, res: Response) => {
   });
 };
 
-/** PATCH /api/v1/users/:id */
-export const updateUser = async (req: AuthenticatedRequest, res: Response) => {
-  const { status, role_id } = req.body;
-
-  const user = await User.findById(req.params.id);
-  if (!user) {
-    throw new APIError('user not found', 404);
-  }
-  if (String(user._id) === req.user!.id) {
-    if (
-      role_id !== undefined &&
-      role_id.toString() !== user.role_id?.toString()
-    ) {
-      throw new APIError(
-        'Alert: You cannot modify your own administrative role. Have another admin change it.',
-        403
-      );
-    }
-    if (status !== undefined && status !== user.status) {
-      throw new APIError(
-        'Alert: You cannot deactivate or suspend your own account.',
-        403
-      );
-    }
-  }
-  const updateData: Record<string, any> = {};
-  if (req.body.role_id) {
-    const role = await Role.findById(req.body.role_id);
-    if (!role) throw new APIError('Role not found', 404);
-  }
-
-  if (status !== undefined) {
-    updateData.status = status;
-  }
-
-  if (role_id !== undefined) {
-    updateData.role_id = role_id;
-  }
-  const updatedUser = await User.findByIdAndUpdate(
-    user._id,
-    { $set: updateData },
-    { new: true, runValidators: true }
-  ).populate('role_id');
-  if (!updatedUser) {
-    throw new APIError('Failed to execute database profile update', 500);
-  }
-  await Audit.create({
-    userId: req.user!.id,
-    action: AuditAction.UPDATE,
-    tableName: 'User',
-    recordId: user._id,
-    meta: {
-      fields: Object.keys(req.body),
-    },
-  });
-
-  res.status(200).json({
-    success: true,
-    message: 'User updated successfully',
-    data: serializeUser(updatedUser),
-  });
-  if (updatedUser.status) {
-    sendStatusEmail(user.email, user.name, user.status);
-  }
-};
-
 /** DELETE /api/v1/users/:id */
 export const deleteUser = async (req: AuthenticatedRequest, res: Response) => {
-  const targetId: any = req.params!.id;
+  const targetId = req.params.id!;
   if (targetId === req.user!.id) {
     throw new APIError('You cannot delete your own account', 400);
   }
@@ -180,42 +108,56 @@ export const deleteUser = async (req: AuthenticatedRequest, res: Response) => {
   if (!user) {
     throw new APIError('User not found', 404);
   }
+  const session = await mongoose.startSession();
 
-  const [orderCount, wallet] = await Promise.all([
-    Order.countDocuments({ userId: targetId }),
-    Wallet.findByUser(targetId),
-  ]);
-  let transactionCount = 0;
-  if (wallet) {
-    transactionCount = await WalletTransaction.countDocuments({
-      wallet: (wallet as any)._id,
-    });
-  }
-  if (orderCount > 0 || transactionCount > 0) {
-    throw new APIError(
-      'User cannot be permanently deleted because historical orders or financial transactions exist. Deactivate the account instead.',
-      409
+  try {
+    session.startTransaction();
+
+    const [orderCount, wallet] = await Promise.all([
+      Order.countDocuments({ userId: targetId }).session(session),
+      Wallet.findOne({ user: targetId }),
+    ]);
+    let transactionCount = 0;
+    if (wallet) {
+      transactionCount = await WalletTransaction.countDocuments({
+        wallet: (wallet as any)._id,
+      }).session(session);
+    }
+    if (orderCount > 0 || transactionCount > 0) {
+      throw new APIError(
+        'User cannot be permanently deleted because historical orders or financial transactions exist. Deactivate the account instead.',
+        409
+      );
+    }
+    await Promise.all([
+      CreditAccount.deleteOne({ user: targetId }).session(session),
+      Wallet.deleteOne({ user: targetId }).session(session),
+      User.deleteOne({ _id: targetId }).session(session),
+    ]);
+
+    await Audit.create(
+      [
+        {
+          userId: req.user!.id,
+          action: AuditAction.DELETE,
+          tableName: 'User',
+          recordId: targetId,
+          meta: {
+            reason: 'administrative deletion',
+          },
+        },
+      ],
+      { session }
     );
+    await session.commitTransaction();
+    res.status(204).send();
+  } catch (error) {
+    if (session.inTransaction()) await session.abortTransaction();
+    throw error;
+  } finally {
+    await session.endSession();
   }
-  await Promise.all([
-    CreditAccount.deleteOne({ user: targetId }),
-    Wallet.deleteOne({ user: targetId }),
-    User.deleteOne({ _id: targetId }),
-  ]);
-
-  await Audit.create({
-    userId: req.user!.id,
-    action: AuditAction.DELETE,
-    tableName: 'User',
-    recordId: targetId,
-    meta: {
-      reason: 'administrative deletion',
-    },
-  });
-
-  res.status(204).send();
 };
-
 /**PATCH /api/v1/users/:id/activate */
 export const activateUser = async (
   req: AuthenticatedRequest,
@@ -228,7 +170,9 @@ export const activateUser = async (
   if (String(user._id) === req.user!.id) {
     throw new APIError('You cannot activate your own account');
   }
-  await user.activate();
+  const session = await mongoose.startSession();
+
+  const updatedUser = await user.activate();
   await Audit.create({
     userId: req.user!.id,
     action: AuditAction.UPDATE,
@@ -239,11 +183,16 @@ export const activateUser = async (
     },
   });
 
+  try {
+    await sendStatusEmail(user.email, user.name, user.status);
+  } catch (err) {
+    logger.error(`Failed to send status email to ${user.email}:`, err);
+  }
+
   res.status(200).json({
     success: true,
     message: 'User activated successfully',
   });
-  sendStatusEmail(user.email, user.name, user.status);
 };
 
 /**PATCH /api/v1/users/:id/deactivate */
@@ -258,7 +207,7 @@ export const deactivateUser = async (
   if (String(user._id) === req.user!.id) {
     throw new APIError('You cannot Deactivate your own account');
   }
-  await user.deactivate();
+  const updatedUser = await user.deactivate();
   await Audit.create({
     userId: req.user!.id,
     action: AuditAction.UPDATE,
@@ -268,12 +217,15 @@ export const deactivateUser = async (
       action: 'deactivate',
     },
   });
-
+  try {
+    await sendStatusEmail(user.email, user.name, user.status);
+  } catch (err) {
+    logger.error(`Failed to send status email to ${user.email}:`, err);
+  }
   res.status(200).json({
     success: true,
     message: 'User deactivated successfully',
   });
-  sendStatusEmail(user.email, user.name, user.status);
 };
 
 /**PATCH /api/v1/users/:id/suspend */
@@ -285,7 +237,7 @@ export const suspendUser = async (req: AuthenticatedRequest, res: Response) => {
   if (String(user._id) === req.user!.id) {
     throw new APIError('You cannot suspend your own account');
   }
-  await user.suspend();
+  const updatedUser = await user.suspend();
   await Audit.create({
     userId: req.user!.id,
     action: AuditAction.UPDATE,
@@ -295,45 +247,135 @@ export const suspendUser = async (req: AuthenticatedRequest, res: Response) => {
       action: 'suspend',
     },
   });
-
+  try {
+    await sendStatusEmail(user.email, user.name, user.status);
+  } catch (err) {
+    logger.error(`Failed to send status email to ${user.email}:`, err);
+  }
   res.status(200).json({
     success: true,
     message: 'User suspended successfully',
   });
-  sendStatusEmail(user.email, user.name, user.status);
 };
 
 /**PATCH /api/v1/users/:id/role */
 export const updateRole = async (req: AuthenticatedRequest, res: Response) => {
-  const user = await User.findById(req.params.id);
-  if (!user) {
-    throw new APIError('User not found', 404);
-  }
-  if (String(user._id) === req.user!.id) {
-    throw new APIError('You cannot change your own role');
-  }
-  const role = await Role.findById(req.body.role_id);
-  if (!role) {
-    throw new APIError('Role not found', 404);
-  }
-  const oldRole = user.role_id;
-  user.role_id = role._id;
-  await user.save();
+  const targetUserId = req.params.id;
+  const { role_id } = req.body;
 
-  await Audit.create({
-    userId: req.user!.id,
-    action: AuditAction.UPDATE,
-    tableName: 'User',
-    recordId: user._id,
-    meta: {
-      action: 'role_change',
-      from: oldRole?.toString(),
-      to: role._id.toString(),
-    },
-  });
+  if (targetUserId === req.user!.id) {
+    throw new APIError('You cannot change your own role', 400);
+  }
 
-  res.status(200).json({
-    success: true,
-    message: 'User role updated successfully',
-  });
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const user = await User.findById(targetUserId).session(session);
+
+    if (!user) {
+      throw new APIError('User not found', 404);
+    }
+    if (user.role_id?.toString() === role_id.toString()) {
+      throw new APIError('User already has this role', 400);
+    }
+
+    const newRole = await Role.findById(role_id).session(session);
+    if (!newRole) {
+      throw new APIError('Role not found', 404);
+    }
+    const oldRole = user.role_id
+      ? await Role.findById(user.role_id).session(session)
+      : null;
+    const isDemotingSuperAdmin =
+      oldRole?.name === 'super_admin' &&
+      newRole.name.toLowerCase() !== 'super_admin';
+
+    if (isDemotingSuperAdmin) {
+      const remaining = await User.countDocuments({
+        role_id: oldRole!._id,
+        _id: { $ne: user._id }, //exclude this user
+      }).session(session);
+
+      if (remaining === 0) {
+        throw new APIError('Cannot demote the last super admin', 403);
+      }
+    }
+    const oldRoleId = user.role_id;
+    user.role_id = newRole._id;
+    await user.save({ session });
+
+    //  If new role is NOT a customer, deactivate financial accounts
+
+    if (newRole.name.toLowerCase() === 'customer') {
+      // Re-activate wallet and credit when becoming a customer again
+      const [wallet, creditAccount] = await Promise.all([
+        Wallet.findOne({ user: user._id }).session(session),
+        CreditAccount.findOne({ user: user._id }).session(session),
+      ]);
+
+      if (wallet) {
+        wallet.isActive = true;
+        await wallet.save({ session });
+      }
+
+      if (creditAccount) {
+        creditAccount.status = CreditAccountStatus.ACTIVE;
+        await creditAccount.save({ session });
+      }
+    } else {
+      // Non-customer role: deactivate
+      const wallet = await Wallet.findOne({ user: user._id }).session(session);
+      const creditAccount = await CreditAccount.findOne({
+        user: user._id,
+      }).session(session);
+
+      if (wallet) {
+        wallet.isActive = false;
+        await wallet.save({ session });
+      }
+
+      if (creditAccount) {
+        creditAccount.status = CreditAccountStatus.FROZEN;
+        await creditAccount.save({ session });
+      }
+    }
+    await Audit.create(
+      [
+        {
+          userId: req.user!.id,
+          action: AuditAction.UPDATE,
+          tableName: 'User',
+          recordId: user._id,
+          meta: {
+            action: 'role_change',
+            from: oldRoleId?.toString(),
+            to: newRole._id.toString(),
+          },
+        },
+      ],
+      { session }
+    );
+    const updatedUser = await User.findById(targetUserId)
+      .populate('role_id', 'name description is_system_role')
+      .session(session);
+
+    if (!updatedUser) {
+      throw new APIError('Failed to fetch updated user', 500);
+    }
+
+    await session.commitTransaction();
+    res.status(200).json({
+      success: true,
+      message: 'User role updated successfully',
+      data: serializeUser(updatedUser),
+    });
+  } catch (error) {
+    if (session.inTransaction()) {
+      await session.abortTransaction();
+    }
+    throw error;
+  } finally {
+    await session.endSession();
+  }
 };

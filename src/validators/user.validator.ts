@@ -9,35 +9,9 @@ export const validateIdParam = [
     .withMessage('Invalid user ID'),
 ];
 
-export const updateSelfValidator = [
-  body('fullName')
-    .optional()
-    .trim()
-    .isLength({ min: 2, max: 50 })
-    .withMessage('Full name must be between 2 and 50 characters'),
-
-  body().custom((_, { req }) => {
-    const hasBodyFields = Object.keys(req.body).length > 0;
-    const hasFileField = !!(
-      req.file ||
-      (req.files && Object.keys(req.files).length > 0)
-    );
-    if (!hasBodyFields && !hasFileField) {
-      throw new Error('At least one field must be provided for update');
-    }
-
-    return true;
-  }),
-];
-
 // Admin update
-export const updateUserValidator = [
-  body('role_id').optional().isString().withMessage('Invalid role ID'),
-
-  body('status')
-    .optional()
-    .isIn(USER_STATUS_VALUES)
-    .withMessage('Invalid status'),
+export const updateroleValidator = [
+  body('role_id').exists().withMessage('Invalid role ID').bail(),
 ];
 
 export const validateUsersQuery = [
@@ -71,6 +45,7 @@ export const validateUsersQuery = [
     .isIn([
       'fullName',
       'email',
+      'name',
       'status',
       'createdAt',
       'created_at',

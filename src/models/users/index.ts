@@ -10,9 +10,9 @@ export type User = InferSchemaType<typeof userSchema>;
 export interface UserMethods {
   comparePassword(password: string): Promise<boolean>;
   verifyEmail(): Promise<void>;
-  suspend(): Promise<void>;
-  activate(): Promise<void>;
-  deactivate(): Promise<void>;
+  suspend(): Promise<User>;
+  activate(): Promise<User>;
+  deactivate(): Promise<User>;
   isActive(): boolean;
 }
 
