@@ -18,7 +18,7 @@ router.use('/menu-items', menuItemRoutes);
 router.use('/orders', orderRoutes);
 router.use('/favorites', favoriteRoutes);
 router.use('/ratings', ratingRoutes);
-router.use('/v1/test', rbacTest);
-router.use('/api/v1/users', userRoutes);
+router.use('/test', rbacTest);
+router.use('/users', userRoutes);
 
 export default router;
