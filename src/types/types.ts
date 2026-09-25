@@ -3,13 +3,11 @@ import type { UserStatus } from '../utils/constants.js';
 
 export interface IUser {
   _id: string;
-  role_id?: Types.ObjectId | string;
-  fullName: string;
+  name: string;
   email: string;
-  is_email_verified?: boolean;
-  email_verified_at?: Date | null;
-  profileImage?: string | null;
-  status?: UserStatus;
+  image: string;
+  role_id?: Types.ObjectId | string;
+  status: UserStatus;
   must_change_password?: boolean;
   created_at: Date;
   updated_at: Date;
@@ -23,4 +21,14 @@ export interface IRole {
   is_system_role: boolean;
   createdAt: Date | string;
   updatedAt: Date | string;
+}
+
+export interface BetterAuthUser {
+  id: string;
+  email: string;
+  emailVerified: boolean;
+  name: string;
+  image?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }

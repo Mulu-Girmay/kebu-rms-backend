@@ -14,13 +14,6 @@ userSchema.statics.emailExists = async function (
   return !!result;
 };
 
-userSchema.statics.findByActiveId = async function (userId: string) {
-  return this.findOne({
-    _id: userId,
-    status: 'active',
-  });
-};
-
 // because password is deliberately excluded by defaulr
 userSchema.statics.findByEmailWithPassword = function (email: string) {
   return this.findOne({
@@ -28,8 +21,8 @@ userSchema.statics.findByEmailWithPassword = function (email: string) {
   }).select('+password');
 };
 
-userSchema.statics.findByRole = function (roleId: string): Promise<User[]> {
+userSchema.statics.findByRole = function (role_id: string): Promise<User[]> {
   return this.find({
-    role_id: roleId,
+    role_id: role_id,
   });
 };

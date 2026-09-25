@@ -21,7 +21,7 @@ export interface RoleMethods {
 
 export interface RoleModel extends Model<Role, {}, RoleMethods> {
   assignPermission(
-    roleId: string | Types.ObjectId,
+    role_id: string | Types.ObjectId,
     permissionId: Types.ObjectId
   ): ReturnType<Model<Role>['findByIdAndUpdate']>;
 

@@ -1,0 +1,23 @@
+meta {
+  name: Suspend User
+  type: http
+  seq: 9
+}
+
+patch {
+  url: {{baseUrl}}/api/v1/users/{{userId}}/suspend
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("message says suspended", function() {
+    expect(res.body.message).to.contain("suspended");
+  });
+}

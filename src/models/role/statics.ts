@@ -14,8 +14,8 @@ roleSchema.statics.findCustomRoles = function () {
   });
 };
 
-roleSchema.statics.findWithPermissions = function (roleId: string) {
-  return this.findById(roleId).populate('permissions');
+roleSchema.statics.findWithPermissions = function (role_id: string) {
+  return this.findById(role_id).populate('permissions');
 };
 
 roleSchema.statics.assignPermission = async function (
