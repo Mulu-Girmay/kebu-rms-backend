@@ -59,3 +59,53 @@ export const validateUsersQuery = [
     .isIn(['asc', 'desc'])
     .withMessage('Order must be asc or desc'),
 ];
+
+export const passwordValidator = [
+  body('currentPassword')
+    .notEmpty()
+    .withMessage('Current password is required'),
+
+  body('newPassword')
+    .isLength({ min: 8 })
+    .withMessage('New password must be at least 8 characters')
+    .custom((value, { req }) => {
+      if (value === req.body.currentPassword) {
+        throw new Error('New password must be different from current password');
+      }
+      return true;
+    }),
+];
+
+export const settingsValidator = [
+  body('orderStatusNotifications')
+    .optional()
+    .isIn(['all', 'rejected_ready_only', 'none'])
+    .withMessage(
+      'orderStatusNotifications must be "all", "rejected_ready_only", or "none"'
+    ),
+
+  body('promotionalNotifications')
+    .optional()
+    .isBoolean()
+    .withMessage('promotionalNotifications must be a boolean'),
+];
+export const updateSelfValidator = [
+  body('fullName')
+    .optional()
+    .trim()
+    .isLength({ min: 2, max: 50 })
+    .withMessage('Full name must be between 2 and 50 characters'),
+
+  body().custom((_, { req }) => {
+    const hasBodyFields = Object.keys(req.body).length > 0;
+    const hasFileField = !!(
+      req.file ||
+      (req.files && Object.keys(req.files).length > 0)
+    );
+    if (!hasBodyFields && !hasFileField) {
+      throw new Error('At least one field must be provided for update');
+    }
+
+    return true;
+  }),
+];
