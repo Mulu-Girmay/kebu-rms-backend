@@ -37,3 +37,45 @@ export interface BetterAuthUser {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface ICategory {
+  _id: Types.ObjectId;
+  name: string;
+  description?: string;
+  imageUrl?: string | null;
+  isActive: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface IMenuItem {
+  _id: Types.ObjectId;
+  categoryId:
+    Types.ObjectId | string | { _id: Types.ObjectId | string; name: string };
+  name: string;
+  description?: string;
+  price: number;
+  imageUrl?: string | null;
+  isAvailable: boolean;
+  favoriteCount: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface IFavorite {
+  _id: Types.ObjectId;
+  userId: Types.ObjectId | string;
+  menuItemId?: Types.ObjectId | string | IMenuItem;
+  createdAt?: Date;
+}
+
+export interface FindAvailableOptions {
+  limit?: number;
+  sort?: Record<string, 1 | -1>;
+}
+
+export interface CursorPaginationResponse<T> {
+  data: T[];
+  nextCursor: string | null;
+  hasMore: boolean;
+}

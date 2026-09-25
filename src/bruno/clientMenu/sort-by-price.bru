@@ -1,0 +1,28 @@
+meta {
+  name: Sort Menu Items by Price (Ascending)
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/api/v1/menu-items?sortBy=price&order=asc&limit=20
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+
+  test("items are sorted by price ascending", function() {
+    if (res.body.data.length > 1) {
+      for (let i = 0; i < res.body.data.length - 1; i++) {
+        expect(res.body.data[i].price).to.be.lte(res.body.data[i + 1].price);
+      }
+    }
+  });
+}
