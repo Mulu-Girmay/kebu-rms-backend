@@ -1,6 +1,10 @@
 import type { Types } from 'mongoose';
 import type { UserStatus } from '../utils/constants.js';
-
+export interface IUserSettings {
+  orderStatusNotifications: 'all' | 'rejected_ready_only' | 'none';
+  promotionalNotifications: boolean;
+  pushNotificaitons: boolean;
+}
 export interface IUser {
   _id: string;
   name: string;
@@ -8,6 +12,7 @@ export interface IUser {
   image: string;
   role_id?: Types.ObjectId | string;
   status: UserStatus;
+  settings: IUserSettings;
   must_change_password?: boolean;
   created_at: Date;
   updated_at: Date;
