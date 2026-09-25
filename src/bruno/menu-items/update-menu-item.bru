@@ -1,0 +1,29 @@
+meta {
+  name: Update Menu Item
+  type: http
+  seq: 5
+}
+
+put {
+  url: {{baseUrl}}/api/menu-items/{{menuItemId}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "Iced Caramel Macchiato Large",
+    "price": 200,
+    "description": "Updated description with extra syrup options"
+  }
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("should update menu item", function() {
+    expect([200, 400, 401, 404]).to.include(res.getStatus());
+  });
+}

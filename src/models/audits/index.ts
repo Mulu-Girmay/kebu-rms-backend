@@ -16,7 +16,6 @@ export interface AuditModel extends Model<Audit, {}, AuditMethods> {
 
 export const Audit = mongoose.model<Audit, AuditModel>(
   MODEL_NAMES.AUDIT,
-  auditSchema,
+  auditSchema
 );
 export { auditSchema };
-
