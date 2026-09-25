@@ -1,0 +1,17 @@
+meta {
+  name: Delete Menu Item
+  type: http
+  seq: 7
+}
+
+delete {
+  url: {{baseUrl}}/api/menu-items/{{menuItemId}}
+  body: none
+  auth: none
+}
+
+tests {
+  test("should delete menu item", function() {
+    expect([200, 401, 404]).to.include(res.getStatus());
+  });
+}

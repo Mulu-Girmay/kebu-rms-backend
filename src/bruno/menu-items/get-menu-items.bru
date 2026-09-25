@@ -1,0 +1,31 @@
+meta {
+  name: Get Menu Items
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/menu-items
+  body: none
+  auth: none
+}
+
+params:query {
+  ~q: burger
+  ~categoryId: {{categoryId}}
+  ~isAvailable: true
+  ~minPrice: 50
+  ~maxPrice: 500
+  ~page: 1
+  ~limit: 20
+  ~sortBy: createdAt
+  ~sortOrder: desc
+}
+
+tests {
+  test("should get menu items list", function() {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().success).to.be.true;
+    expect(res.getBody().data).to.be.an('array');
+  });
+}
