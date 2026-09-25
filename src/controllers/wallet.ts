@@ -2,7 +2,6 @@ import type { Response } from 'express';
 import { APIError } from '../errors/APIError.js';
 import { Wallet } from '../models/wallet/index.js';
 import { WalletTransaction } from '../models/walletTransaction/index.js';
-import { CreditAccount } from '../models/creditAccount/index.js';
 import { WalletTransactionType } from '../utils/constants.js';
 import type { AuthenticatedRequest } from '../middlewares/auth.js';
 import mongoose from 'mongoose';
@@ -13,10 +12,7 @@ export const getWallet = async (
 ): Promise<void> => {
   const userId = req.user!.id;
 
-  const [wallet, creditAccount] = await Promise.all([
-    Wallet.findOrCreateByUser(userId),
-    CreditAccount.findOne({ user: userId }),
-  ]);
+  const [wallet] = await Promise.all([Wallet.findOrCreateByUser(userId)]);
 
   res.status(200).json({
     wallet: {
@@ -25,16 +21,6 @@ export const getWallet = async (
       createdAt: wallet.createdAt,
       updatedAt: wallet.updatedAt,
     },
-
-    credit: creditAccount
-      ? {
-          id: creditAccount._id,
-          creditLimit: creditAccount.creditLimit,
-          usedCredit: creditAccount.usedCredit,
-          availableCredit: creditAccount.getAvailableCredit(),
-          status: creditAccount.status,
-        }
-      : null,
   });
 };
 

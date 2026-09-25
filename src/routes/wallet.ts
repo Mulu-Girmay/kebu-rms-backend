@@ -13,9 +13,12 @@ import {
   getWalletTransactions,
   topUpWallet,
 } from '../controllers/wallet.js';
-import { validateUserIdParam } from '../validators/user.validator.js';
-import { validateAmount } from '../validators/wallet.validator.js';
-import { handleValidationErrors } from '../middlewares/validation.js';
+
+import {
+  validateAmount,
+  validateUserIdParam,
+} from '../validators/wallet.validator.js';
+import { validateRequest } from '../validators/errors.parser.js';
 
 const router: Router = express.Router();
 
@@ -41,7 +44,7 @@ router.get(
     { resource: RESOURCES.WALLETS, action: ACTIONS.UPDATE },
   ]),
   validateUserIdParam,
-  handleValidationErrors,
+  validateRequest,
   asyncHandler(getUserWallet)
 );
 
@@ -51,7 +54,7 @@ router.post(
   requirePermission(RESOURCES.WALLETS, ACTIONS.UPDATE),
   validateUserIdParam,
   validateAmount,
-  handleValidationErrors,
+  validateRequest,
   asyncHandler(topUpWallet)
 );
 
