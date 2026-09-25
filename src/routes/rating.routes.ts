@@ -57,7 +57,8 @@ router.delete(
 
 router.get(
   '/menu-item/:menuItemId',
-  //  requireAuth,  // ADD THIS
+  requireAuth,
+  requirePermission(RESOURCES.RATINGS, ACTIONS.READ),
   validateRequest(menuItemIdParamSchema),
   validateRequest(ratingQuerySchema),
   asyncHandler(getMenuItemRatings)

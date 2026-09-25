@@ -21,20 +21,6 @@ export const createCategorySchema = [
 ];
 
 export const updateCategorySchema = [
-  body().custom((_, { req }) => {
-    const { name, description, imageUrl, isActive } = req.body || {};
-    if (
-      name === undefined &&
-      description === undefined &&
-      imageUrl === undefined &&
-      isActive === undefined
-    ) {
-      throw new Error('At least one field must be provided to update');
-    }
-    return true;
-  }),
-  // .custom() check is positioned before body('comment') can sanitize the input. If a user sends a comment
-  //  best practice to put the  validation .custom()at the end of the validation chain
   body('name')
     .optional()
     .trim()
@@ -47,6 +33,18 @@ export const updateCategorySchema = [
     .isBoolean()
     .withMessage('isActive must be a boolean')
     .toBoolean(),
+  body().custom((_, { req }) => {
+    const { name, description, imageUrl, isActive } = req.body || {};
+    if (
+      name === undefined &&
+      description === undefined &&
+      imageUrl === undefined &&
+      isActive === undefined
+    ) {
+      throw new Error('At least one field must be provided to update');
+    }
+    return true;
+  }),
 ];
 
 export const categoryQuerySchema = [

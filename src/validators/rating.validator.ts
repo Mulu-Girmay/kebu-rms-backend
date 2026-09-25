@@ -54,6 +54,12 @@ export const createBatchRatingSchema = [
 ];
 
 export const updateRatingSchema = [
+  body('score')
+    .optional()
+    .isInt({ min: 1, max: 5 })
+    .withMessage('Score must be an integer between 1 and 5')
+    .toInt(),
+  body('comment').optional().trim().isString(),
   body().custom((_, { req }) => {
     const { score, comment } = req.body || {};
     if (score === undefined && comment === undefined) {
@@ -61,14 +67,6 @@ export const updateRatingSchema = [
     }
     return true;
   }),
-  // .custom() check is positioned before body('comment') can sanitize the input. If a user sends a comment
-  //  best practice to put the  validation .custom()at the end of the validation chain
-  body('score')
-    .optional()
-    .isInt({ min: 1, max: 5 })
-    .withMessage('Score must be an integer between 1 and 5')
-    .toInt(),
-  body('comment').optional().trim().isString(),
 ];
 
 export const ratingQuerySchema = [

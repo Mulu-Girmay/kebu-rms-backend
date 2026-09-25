@@ -1,19 +1,21 @@
 import type { Request, Response } from 'express';
+import type { AuthenticatedRequest } from '../middlewares/auth.js';
 import { MenuItem } from '../models/menuItems/index.js';
 import { Category } from '../models/categories/index.js';
+import { Audit } from '../models/audits/index.js';
 import { APIError } from '../errors/APIError.js';
+import { AuditAction, MODEL_NAMES } from '../utils/constants.js';
 
 export const createMenuItem = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const { categoryId, name, description, price, isAvailable } = req.body;
 
   const category = await Category.findById(categoryId);
   if (!category) {
-    throw new APIError('Category not found', 400);
+    throw new APIError('Category not found', 404);
   }
-  // status Codes 404 for not found
 
   const imageUrl = req.file
     ? `/uploads/${req.file.filename}`
@@ -27,6 +29,21 @@ export const createMenuItem = async (
     imageUrl,
     isAvailable: isAvailable !== undefined ? Boolean(isAvailable) : true,
   });
+
+  if (req.user?.id) {
+    await Audit.create({
+      userId: req.user.id,
+      action: AuditAction.CREATE,
+      tableName: MODEL_NAMES.MENU_ITEM,
+      recordId: menuItem._id.toString(),
+      meta: {
+        name: menuItem.name,
+        price: menuItem.price,
+        categoryId: menuItem.categoryId,
+        isAvailable: menuItem.isAvailable,
+      },
+    });
+  }
 
   res.status(201).json({
     success: true,
@@ -150,7 +167,7 @@ export const getMenuItemById = async (
 };
 
 export const updateMenuItem = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const menuItemId = req.params.id as string;
@@ -165,8 +182,7 @@ export const updateMenuItem = async (
   if (categoryId) {
     const category = await Category.findById(categoryId);
     if (!category) {
-      throw new APIError('Category not found', 400);
-      // status Codes 404 for not found
+      throw new APIError('Category not found', 404);
     }
     menuItem.categoryId = categoryId;
   }
@@ -184,6 +200,21 @@ export const updateMenuItem = async (
 
   await menuItem.save();
 
+  if (req.user?.id) {
+    await Audit.create({
+      userId: req.user.id,
+      action: AuditAction.UPDATE,
+      tableName: MODEL_NAMES.MENU_ITEM,
+      recordId: menuItem._id.toString(),
+      meta: {
+        name: menuItem.name,
+        price: menuItem.price,
+        categoryId: menuItem.categoryId,
+        isAvailable: menuItem.isAvailable,
+      },
+    });
+  }
+
   res.status(200).json({
     success: true,
     message: 'Menu item updated successfully',
@@ -192,7 +223,7 @@ export const updateMenuItem = async (
 };
 
 export const toggleMenuItemAvailability = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const menuItemId = req.params.id as string;
@@ -208,6 +239,18 @@ export const toggleMenuItemAvailability = async (
     throw new APIError('Menu item not found', 404);
   }
 
+  if (req.user?.id) {
+    await Audit.create({
+      userId: req.user.id,
+      action: AuditAction.UPDATE,
+      tableName: MODEL_NAMES.MENU_ITEM,
+      recordId: menuItem._id.toString(),
+      meta: {
+        isAvailable: menuItem.isAvailable,
+      },
+    });
+  }
+
   res.status(200).json({
     success: true,
     message: `Menu item availability updated to ${isAvailable ? 'available' : 'unavailable'}`,
@@ -216,7 +259,7 @@ export const toggleMenuItemAvailability = async (
 };
 
 export const deleteMenuItem = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const menuItemId = req.params.id as string;
@@ -228,9 +271,20 @@ export const deleteMenuItem = async (
 
   await menuItem.deleteOne();
 
+  if (req.user?.id) {
+    await Audit.create({
+      userId: req.user.id,
+      action: AuditAction.DELETE,
+      tableName: MODEL_NAMES.MENU_ITEM,
+      recordId: menuItemId,
+      meta: {
+        name: menuItem.name,
+      },
+    });
+  }
+
   res.status(200).json({
     success: true,
     message: 'Menu item deleted successfully',
   });
 };
-//audit log for changes made and for that we goona need AuthenticatedRequest as a type to access userId

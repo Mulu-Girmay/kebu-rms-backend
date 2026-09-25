@@ -32,21 +32,6 @@ export const createMenuItemSchema = [
 ];
 
 export const updateMenuItemSchema = [
-  body().custom((_, { req }) => {
-    const { categoryId, name, description, price, imageUrl, isAvailable } =
-      req.body || {};
-    if (
-      categoryId === undefined &&
-      name === undefined &&
-      description === undefined &&
-      price === undefined &&
-      imageUrl === undefined &&
-      isAvailable === undefined
-    ) {
-      throw new Error('At least one field must be provided to update');
-    }
-    return true;
-  }),
   body('categoryId')
     .optional()
     .isMongoId()
@@ -68,6 +53,21 @@ export const updateMenuItemSchema = [
     .isBoolean()
     .withMessage('isAvailable must be a boolean')
     .toBoolean(),
+  body().custom((_, { req }) => {
+    const { categoryId, name, description, price, imageUrl, isAvailable } =
+      req.body || {};
+    if (
+      categoryId === undefined &&
+      name === undefined &&
+      description === undefined &&
+      price === undefined &&
+      imageUrl === undefined &&
+      isAvailable === undefined
+    ) {
+      throw new Error('At least one field must be provided to update');
+    }
+    return true;
+  }),
 ];
 
 export const toggleAvailabilitySchema = [
