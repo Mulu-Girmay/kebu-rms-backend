@@ -89,3 +89,23 @@ export const settingsValidator = [
     .isBoolean()
     .withMessage('promotionalNotifications must be a boolean'),
 ];
+export const updateSelfValidator = [
+  body('fullName')
+    .optional()
+    .trim()
+    .isLength({ min: 2, max: 50 })
+    .withMessage('Full name must be between 2 and 50 characters'),
+
+  body().custom((_, { req }) => {
+    const hasBodyFields = Object.keys(req.body).length > 0;
+    const hasFileField = !!(
+      req.file ||
+      (req.files && Object.keys(req.files).length > 0)
+    );
+    if (!hasBodyFields && !hasFileField) {
+      throw new Error('At least one field must be provided for update');
+    }
+
+    return true;
+  }),
+];
