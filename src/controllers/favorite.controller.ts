@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import type { Response } from 'express';
 import type { AuthenticatedRequest } from '../middlewares/auth.js';
 import { Favorite } from '../models/favorites/index.js';
@@ -15,39 +16,57 @@ export const toggleFavorite = async (
 
   const menuItemId = req.params.menuItemId as string;
 
-  const existingFavorite = await Favorite.findOne({ userId, menuItemId });
+  const session = await mongoose.startSession();
+  let isFavorite = false;
 
-  if (existingFavorite) {
-    await Favorite.deleteOne({ userId, menuItemId });
-    await MenuItem.findByIdAndUpdate(menuItemId, {
-      $inc: { favoriteCount: -1 },
+  try {
+    await session.withTransaction(async () => {
+      const existingFavorite = await Favorite.findOne({
+        userId,
+        menuItemId,
+      }).session(session);
+
+      if (existingFavorite) {
+        await Favorite.deleteOne({ userId, menuItemId }).session(session);
+        await MenuItem.findByIdAndUpdate(
+          menuItemId,
+          { $inc: { favoriteCount: -1 } },
+          { session }
+        );
+        isFavorite = false;
+        return;
+      }
+
+      const menuItem = await MenuItem.findById(menuItemId).session(session);
+      if (!menuItem) {
+        throw new APIError('Menu item not found', 404);
+      }
+
+      await Favorite.create([{ userId, menuItemId }], { session });
+      await MenuItem.findByIdAndUpdate(
+        menuItemId,
+        { $inc: { favoriteCount: 1 } },
+        { session }
+      );
+      isFavorite = true;
     });
-    // if the first operation succeed and the second one  fail their will be inconsistency
-    // to insure atomicity for the above two operations maybe use session/transaction
+  } finally {
+    await session.endSession();
+  }
 
+  if (isFavorite) {
+    res.status(201).json({
+      success: true,
+      message: 'Menu item added to favorites',
+      isFavorite: true,
+    });
+  } else {
     res.status(200).json({
       success: true,
       message: 'Menu item removed from favorites',
       isFavorite: false,
     });
-    return;
   }
-
-  const menuItem = await MenuItem.findById(menuItemId);
-  if (!menuItem) {
-    throw new APIError('Menu item not found', 404);
-  }
-
-  await Favorite.create({ userId, menuItemId });
-  await MenuItem.findByIdAndUpdate(menuItemId, {
-    $inc: { favoriteCount: 1 },
-  });
-
-  res.status(201).json({
-    success: true,
-    message: 'Menu item added to favorites',
-    isFavorite: true,
-  });
 };
 
 export const getUserFavorites = async (
