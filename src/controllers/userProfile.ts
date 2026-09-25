@@ -41,10 +41,7 @@ const updateBetterAuthProfile = async (
 
 /** GET /api/v1/user/me */
 export const getProfile = async (req: AuthenticatedRequest, res: Response) => {
-  if (!req.user) {
-    throw new APIError('Authentication required', 401);
-  }
-  const user = await populateRole(User.findById(req.user.id));
+  const user = await populateRole(User.findById(req.user!.id));
   if (!user) {
     throw new APIError('User not found', 404);
   }
