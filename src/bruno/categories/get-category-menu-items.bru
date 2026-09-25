@@ -1,0 +1,17 @@
+meta {
+  name: Get Category Menu Items
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/categories/{{categoryId}}/menu-items
+  body: none
+  auth: none
+}
+
+tests {
+  test("should get category menu items", function() {
+    expect([200, 404]).to.include(res.getStatus());
+  });
+}

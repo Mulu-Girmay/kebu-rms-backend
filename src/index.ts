@@ -7,19 +7,17 @@ import { createServer } from 'node:http';
 import { initializeSocket } from './socket/index.js';
 const startServer = async () => {
   try {
-    
-      await connectDB();
-      const server = createServer(app);
-      
-      initializeSocket(server);
+    await connectDB();
+    const server = createServer(app);
 
-      server.listen(config.port, () => {
-        logger.info(`Server is listening on port ${config.port}`);
-      });
-    }
-    catch (error) {
-      logger.error('Failed to start server:', error);
-      process.exit(1);
+    initializeSocket(server);
+
+    server.listen(config.port, () => {
+      logger.info(`Server is listening on port ${config.port}`);
+    });
+  } catch (error) {
+    logger.error('Failed to start server:', error);
+    process.exit(1);
   }
 };
 

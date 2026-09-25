@@ -24,6 +24,6 @@ export interface OrderModel extends Model<Order, {}, OrderMethods> {
 
 export const Order = mongoose.model<Order, OrderModel>(
   MODEL_NAMES.ORDER,
-  orderSchema,
+  orderSchema
 );
 export { orderSchema, orderItemSchema };

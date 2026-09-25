@@ -17,7 +17,6 @@ export interface FavoriteModel extends Model<Favorite, {}, FavoriteMethods> {
 
 export const Favorite = mongoose.model<Favorite, FavoriteModel>(
   MODEL_NAMES.FAVORITE,
-  favoriteSchema,
+  favoriteSchema
 );
 export { favoriteSchema };
-

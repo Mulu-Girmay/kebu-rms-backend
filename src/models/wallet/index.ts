@@ -20,7 +20,6 @@ export interface WalletModel extends Model<Wallet, {}, WalletMethods> {
 
 export const Wallet = mongoose.model<Wallet, WalletModel>(
   MODEL_NAMES.WALLET,
-  walletSchema,
+  walletSchema
 );
 export { walletSchema };
-

@@ -50,8 +50,8 @@ export const PasswordResetEmail: React.FC<PasswordResetEmailProps> = ({
             </Text>
             <Hr style={hrStyle} />
             <Text style={footerStyle}>
-              If you didn&apos;t request a password reset, please ignore this email.
-              Your password will remain unchanged.
+              If you didn&apos;t request a password reset, please ignore this
+              email. Your password will remain unchanged.
             </Text>
           </Section>
         </Container>
