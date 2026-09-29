@@ -1,6 +1,7 @@
 import { Schema } from 'mongoose';
+import type { ICategory } from '../../types/types.js';
 
-export const categorySchema = new Schema(
+export const categorySchema = new Schema<ICategory>(
   {
     name: {
       type: String,

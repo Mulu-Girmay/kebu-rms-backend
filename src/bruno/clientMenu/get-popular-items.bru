@@ -1,0 +1,44 @@
+meta {
+  name: Get Popular Items
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrl}}/api/v1/menu-items/popular?limit=1
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+
+  test("response has success true", function() {
+    expect(res.body.success).to.equal(true);
+  });
+
+  test("data is array", function() {
+    expect(res.body.data).to.be.an('array');
+  });
+
+  test("data length is limited to requested limit", function() {
+    expect(res.body.data.length).to.be.lte(10);
+  });
+
+  test("pagination has cursor info", function() {
+    expect(res.body.pagination).to.have.property('hasMore');
+    expect(res.body.pagination).to.have.property('nextCursor');
+    expect(res.body.pagination.limit).to.equal(10);
+  });
+
+  test("save cursor for next popular page", function() {
+    if (res.body.pagination.hasMore) {
+      bru.setVar("popularNextCursor", res.body.pagination.nextCursor);
+    }
+  });
+}

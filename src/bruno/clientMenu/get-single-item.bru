@@ -1,0 +1,40 @@
+meta {
+  name: Get Single Menu Item
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{baseUrl}}/api/v1/menu-items/{{menuItemId}}
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("status is 200 or 404", function() {
+    expect(res.status).to.be.oneOf([200, 404]);
+  });
+
+  test("response structure is valid on success", function() {
+    if (res.status === 200) {
+      expect(res.body).to.have.property('success');
+      expect(res.body.success).to.be.true;
+      expect(res.body).to.have.property('data');
+      
+      const item = res.body.data;
+      expect(item).to.have.property('id');
+      expect(item).to.have.property('name');
+      expect(item).to.have.property('price');
+      expect(item).to.have.property('isFavorited');
+    }
+  });
+
+  test("returns 404 for non-existent item", function() {
+    if (res.status === 404) {
+      expect(res.body.success).to.be.false;
+    }
+  });
+}

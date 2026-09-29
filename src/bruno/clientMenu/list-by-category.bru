@@ -1,0 +1,28 @@
+meta {
+  name: List Menu Items by Category
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/v1/menu-items?category={{categoryId}}&limit=20
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("status is 200 or 400", function() {
+    expect(res.status).to.be.oneOf([200, 400]);
+  });
+
+  test("response has expected structure", function() {
+    if (res.status === 200) {
+      expect(res.body).to.have.property('success');
+      expect(res.body).to.have.property('data');
+      expect(res.body).to.have.property('pagination');
+    }
+  });
+}

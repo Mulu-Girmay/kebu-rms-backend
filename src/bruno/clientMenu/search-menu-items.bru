@@ -1,0 +1,30 @@
+meta {
+  name: Search Menu Items
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/api/v1/menu-items?search=pizza&limit=20
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+
+  test("search results match query", function() {
+    if (res.body.data.length > 0) {
+      res.body.data.forEach((item) => {
+        const nameMatch = item.name.toLowerCase().includes('pizza');
+        const descMatch = item.description && item.description.toLowerCase().includes('pizza');
+        expect(nameMatch || descMatch).to.be.true;
+      });
+    }
+  });
+}

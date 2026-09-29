@@ -1,7 +1,8 @@
 import { Schema } from 'mongoose';
 import { MODEL_NAMES } from '../../utils/constants.js';
+import { type IFavorite } from '../../types/types.js';
 
-export const favoriteSchema = new Schema(
+export const favoriteSchema = new Schema<IFavorite>(
   {
     userId: {
       type: String,
