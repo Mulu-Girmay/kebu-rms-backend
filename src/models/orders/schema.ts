@@ -22,7 +22,7 @@ export const orderItemSchema = new Schema(
     quantity: {
       type: Number,
       required: true,
-      min: 1,
+      min: [0.01, 'Quantity must be at least 0.01'],
     },
 
     unitPrice: {

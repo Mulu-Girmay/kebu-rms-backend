@@ -57,6 +57,7 @@ export const createOrder = async (
       unitPrice,
     };
   });
+  totalAmount = Math.round(totalAmount * 100) / 100;
 
   const now = new Date();
   const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '');
