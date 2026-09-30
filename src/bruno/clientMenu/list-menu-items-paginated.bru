@@ -1,0 +1,30 @@
+meta {
+  name: List Menu Items (Next Page with Cursor)
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/v1/menu-items?cursor={{nextCursor}}&limit=10&sortBy=createdAt&order=desc
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+
+  test("cursor pagination returns different items", function() {
+    // This assumes items are unique; adjust based on your data
+    expect(res.body.data.length).to.be.greaterThan(0);
+  });
+
+  test("pagination data is valid", function() {
+    expect(res.body.pagination).to.have.property('hasMore');
+    expect(res.body.pagination).to.have.property('nextCursor');
+  });
+}

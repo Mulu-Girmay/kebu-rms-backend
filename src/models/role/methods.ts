@@ -1,40 +1,50 @@
-import type { InferSchemaType } from 'mongoose';
-import type { permissionSchema } from '../permissions/schema.js';
-import { roleSchema } from './schema.js';
 import { Types } from 'mongoose';
 
-export type Permission = InferSchemaType<typeof permissionSchema>;
+import { roleSchema } from './schema.js';
 
 roleSchema.methods.hasPermission = async function (
   resource: string,
   action: string
 ): Promise<boolean> {
   const { Permission } = await import('../permissions/index.js');
-  const permission = await Permission.findOne({ resource, action });
-  if (!permission) return false;
 
-  return this.permissions.some(
-    (p: any) => p.toString() === permission._id.toString()
+  const permission = await Permission.findOne({
+    resource,
+    action,
+  });
+
+  if (!permission) {
+    return false;
+  }
+
+  return this.permissions.some((permissionId: Types.ObjectId) =>
+    permissionId.equals(permission._id)
   );
 };
 
 roleSchema.methods.addPermission = function (
   permissionId: string | Types.ObjectId
 ): void {
-  const hasPermission = this.permissions.some((id: Types.ObjectId) =>
-    id.equals(permissionId)
+  const objectId =
+    typeof permissionId === 'string'
+      ? new Types.ObjectId(permissionId)
+      : permissionId;
+
+  const alreadyExists = this.permissions.some((id: Types.ObjectId) =>
+    id.equals(objectId)
   );
-  if (!hasPermission) {
-    this.permissions.push(permissionId);
+
+  if (!alreadyExists) {
+    this.permissions.push(objectId);
   }
 };
 
 roleSchema.methods.removePermission = function (permissionId: string): void {
-  const idString = permissionId.toString();
   this.permissions = this.permissions.filter(
-    (p: any) => p.toString() !== idString
+    (id: Types.ObjectId) => id.toString() !== permissionId
   );
 };
+
 roleSchema.methods.clearPermissions = function (): void {
   this.permissions = [];
 };

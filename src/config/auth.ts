@@ -4,6 +4,8 @@ import { mongodbAdapter } from 'better-auth/adapters/mongodb';
 import { MongoClient } from 'mongodb';
 import { config } from './environments.js';
 import { Role } from '../models/role/index.js';
+import { Wallet } from '../models/wallet/index.js';
+
 import {
   MODEL_NAMES,
   UserStatus,
@@ -14,6 +16,7 @@ import {
   sendPasswordResetEmail,
 } from '../utils/mailTemplate.js';
 import { Types } from 'mongoose';
+import logger from './winston.js';
 
 const client = new MongoClient(config.mongoose.url);
 const db = client.db();
@@ -42,6 +45,20 @@ const authOptions = {
             },
           };
         },
+        after: async (user) => {
+          try {
+            await Wallet.create({
+              user: user.id,
+              balance: 0,
+              isActive: true,
+            });
+          } catch (error) {
+            logger.error(
+              `Failed to create wallet for user ${user.id} on sign-up`,
+              error
+            );
+          }
+        },
       },
     },
   },
@@ -64,8 +81,14 @@ const authOptions = {
   user: {
     modelName: MODEL_NAMES.USER,
     additionalFields: {
-      fullName: { type: 'string', required: false },
-      role_id: { type: 'string', required: false },
+      name: {
+        type: 'string',
+        required: false,
+      },
+      role_id: {
+        type: 'string',
+        required: false,
+      },
       status: {
         type: 'string',
         defaultValue: UserStatus.ACTIVE,
@@ -76,7 +99,6 @@ const authOptions = {
         defaultValue: false,
         required: false,
       },
-      profileImage: { type: 'string', required: false },
     },
   },
 

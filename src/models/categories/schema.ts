@@ -1,6 +1,7 @@
 import { Schema } from 'mongoose';
+import type { ICategory } from '../../types/types.js';
 
-export const categorySchema = new Schema(
+export const categorySchema = new Schema<ICategory>(
   {
     name: {
       type: String,
@@ -29,5 +30,3 @@ export const categorySchema = new Schema(
     timestamps: true,
   }
 );
-
-categorySchema.index({ name: 1 }, { unique: true });

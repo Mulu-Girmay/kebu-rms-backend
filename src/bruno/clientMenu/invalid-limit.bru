@@ -1,0 +1,25 @@
+meta {
+  name: Invalid Limit Parameter Handling
+  type: http
+  seq: 12
+}
+
+get {
+  url: {{baseUrl}}/api/v1/menu-items?limit=200
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+
+  test("limit is capped at 100", function() {
+    // The validation middleware should reject this or cap it
+    expect(res.body.pagination.limit).to.be.lte(100);
+  });
+}

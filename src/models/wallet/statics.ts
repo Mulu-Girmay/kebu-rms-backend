@@ -17,3 +17,13 @@ walletSchema.statics.findActiveByUser = async function (
     isActive: true,
   });
 };
+
+walletSchema.statics.findOrCreateByUser = async function (
+  userId: string
+): Promise<Wallet> {
+  return this.findOneAndUpdate(
+    { user: userId },
+    { $setOnInsert: { user: userId, balance: 0, isActive: true } },
+    { upsert: true, new: true, setDefaultsOnInsert: true }
+  );
+};

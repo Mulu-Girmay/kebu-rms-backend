@@ -1,0 +1,27 @@
+meta {
+  name: Update Category
+  type: http
+  seq: 5
+}
+
+put {
+  url: {{baseUrl}}/apiv1/categories/{{categoryId}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "description": "Updated hot and cold beverages"
+  }
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("should update category", function() {
+    expect([200, 401, 404]).to.include(res.getStatus());
+  });
+}

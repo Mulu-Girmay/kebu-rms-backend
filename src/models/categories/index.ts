@@ -16,7 +16,6 @@ export interface CategoryModel extends Model<Category, {}, CategoryMethods> {
 
 export const Category = mongoose.model<Category, CategoryModel>(
   MODEL_NAMES.CATEGORY,
-  categorySchema,
+  categorySchema
 );
 export { categorySchema };
-

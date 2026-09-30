@@ -1,0 +1,23 @@
+meta {
+  name: Get User by ID
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/v1/users/{{userId}}
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("user id matches requested", function() {
+    expect(res.body.data.id).to.equal('user_6a9682029946bc60c4c94578');
+  });
+}

@@ -8,19 +8,19 @@ import './statics.js';
 export type Wallet = InferSchemaType<typeof walletSchema>;
 
 export interface WalletMethods {
-  hasSufficientBalance(amount: number): number;
-  canDebit(amount: number): number;
+  hasSufficientBalance(amount: number): boolean;
+  canDebit(amount: number): boolean;
   getStatus(): boolean;
 }
 
 export interface WalletModel extends Model<Wallet, {}, WalletMethods> {
   findByUser(userId: string): Promise<Wallet>;
   findActiveByUser(userId: string): Promise<Wallet>;
+  findOrCreateByUser(userId: string): Promise<Wallet>;
 }
 
 export const Wallet = mongoose.model<Wallet, WalletModel>(
   MODEL_NAMES.WALLET,
-  walletSchema,
+  walletSchema
 );
 export { walletSchema };
-

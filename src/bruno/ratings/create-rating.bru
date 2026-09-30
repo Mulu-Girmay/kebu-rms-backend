@@ -1,0 +1,27 @@
+meta {
+  name: Create Item Rating
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/v1/ratings
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "orderId": "{{orderId}}",
+    "menuItemId": "{{menuItemId}}",
+    "score": 5,
+    "comment": "Delicious dish!"
+  }
+}
+
+tests {
+  test("should create item rating", function() {
+    expect(res.getStatus()).to.equal(201);
+    expect(res.getBody().success).to.be.true;
+  });
+}

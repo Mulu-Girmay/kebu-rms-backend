@@ -1,0 +1,31 @@
+meta {
+  name: Create Customer Order
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/v1/orders
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "items": [
+      {
+        "menuItemId": "{{menuItemId}}",
+        "quantity": 2
+      }
+    ],
+    "customerNotes": "Please make it extra spicy!"
+  }
+}
+
+tests {
+  test("should create a new customer order", function() {
+    expect(res.getStatus()).to.equal(201);
+    expect(res.getBody().success).to.be.true;
+    expect(res.getBody().data.orderNumber).to.be.a('string');
+  });
+}
