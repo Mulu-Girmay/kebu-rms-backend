@@ -26,7 +26,8 @@ router.post(
   '/',
   requireAuth,
   requirePermission(RESOURCES.ORDERS, ACTIONS.CREATE),
-  validateRequest(createOrderSchema),
+  createOrderSchema,
+  validateRequest,
   asyncHandler(createOrder)
 );
 
@@ -34,7 +35,8 @@ router.get(
   '/',
   requireAuth,
   requirePermission(RESOURCES.ORDERS, ACTIONS.READ),
-  validateRequest(orderQuerySchema),
+  orderQuerySchema,
+  validateRequest,
   asyncHandler(getCustomerOrders)
 );
 
@@ -42,7 +44,8 @@ router.get(
   '/:id',
   requireAuth,
   requirePermission(RESOURCES.ORDERS, ACTIONS.READ),
-  validateRequest(orderIdParamSchema),
+  orderIdParamSchema,
+  validateRequest,
   asyncHandler(getOrderById)
 );
 
@@ -50,8 +53,9 @@ router.patch(
   '/:id/cancel',
   requireAuth,
   requirePermission(RESOURCES.ORDERS, ACTIONS.UPDATE),
-  validateRequest(orderIdParamSchema),
-  validateRequest(cancelOrderSchema),
+  orderIdParamSchema,
+  cancelOrderSchema,
+  validateRequest,
   asyncHandler(cancelOrder)
 );
 
@@ -59,7 +63,8 @@ router.post(
   '/:id/reorder',
   requireAuth,
   requirePermission(RESOURCES.ORDERS, ACTIONS.CREATE),
-  validateRequest(orderIdParamSchema),
+  orderIdParamSchema,
+  validateRequest,
   asyncHandler(reorder)
 );
 
@@ -67,8 +72,9 @@ router.patch(
   '/:id/favorite',
   requireAuth,
   requirePermission(RESOURCES.ORDERS, ACTIONS.UPDATE),
-  validateRequest(orderIdParamSchema),
-  validateRequest(favoriteOrderSchema),
+  orderIdParamSchema,
+  favoriteOrderSchema,
+  validateRequest,
   asyncHandler(toggleFavoriteOrder)
 );
 

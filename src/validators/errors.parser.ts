@@ -1,28 +1,33 @@
-import type { Request, Response, NextFunction } from 'express';
-import { validationResult, type ValidationChain } from 'express-validator';
-import { APIError } from '../errors/APIError.js';
+import type { NextFunction, Request, Response } from 'express';
+import { validationResult, type ValidationError } from 'express-validator';
 
 export const validateRequest = (
-  validations: ValidationChain | ValidationChain[]
+  req: Request,
+  res: Response,
+  next: NextFunction
 ) => {
-  return async (
-    req: Request,
-    _res: Response,
-    next: NextFunction
-  ): Promise<void> => {
-    const chainList = Array.isArray(validations) ? validations : [validations];
+  const errors = validationResult(req);
 
-    await Promise.all(chainList.map((validation) => validation.run(req)));
+  if (!errors.isEmpty()) {
+    return res.status(400).json({
+      success: false,
+      message: 'Validation failed',
 
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      const errorMessage = errors
-        .array()
-        .map((err) => err.msg)
-        .join(', ');
-      return next(new APIError(errorMessage, 400));
-    }
+      errors: errors.array().map((error: ValidationError) => {
+        if (error.type === 'field') {
+          return {
+            field: error.path,
+            location: error.location,
+            message: error.msg,
+          };
+        }
+        return {
+          field: 'root',
+          message: error.msg,
+        };
+      }),
+    });
+  }
 
-    next();
-  };
+  return next();
 };

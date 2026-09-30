@@ -34,7 +34,8 @@ router.post(
   requireAuth,
   requirePermission(RESOURCES.MENU_ITEMS, ACTIONS.CREATE),
   upload.single('image'),
-  validateRequest(createMenuItemSchema),
+  createMenuItemSchema,
+  validateRequest,
   asyncHandler(createMenuItem)
 );
 
@@ -42,7 +43,8 @@ router.get(
   '/',
   requireAuth,
   requirePermission(RESOURCES.MENU_ITEMS, ACTIONS.READ),
-  validateRequest(menuItemQuerySchema),
+  menuItemQuerySchema,
+  validateRequest,
   asyncHandler(getMenuItems)
 );
 
@@ -57,7 +59,8 @@ router.get(
   '/:id',
   requireAuth,
   requirePermission(RESOURCES.MENU_ITEMS, ACTIONS.READ),
-  validateRequest(menuItemIdParamSchema),
+  menuItemIdParamSchema,
+  validateRequest,
   asyncHandler(getMenuItemById)
 );
 
@@ -66,8 +69,9 @@ router.put(
   requireAuth,
   requirePermission(RESOURCES.MENU_ITEMS, ACTIONS.UPDATE),
   upload.single('image'),
-  validateRequest(menuItemIdParamSchema),
-  validateRequest(updateMenuItemSchema),
+  menuItemIdParamSchema,
+  updateMenuItemSchema,
+  validateRequest,
   asyncHandler(updateMenuItem)
 );
 
@@ -76,8 +80,9 @@ router.patch(
   requireAuth,
   requirePermission(RESOURCES.MENU_ITEMS, ACTIONS.UPDATE),
   upload.single('image'),
-  validateRequest(menuItemIdParamSchema),
-  validateRequest(updateMenuItemSchema),
+  menuItemIdParamSchema,
+  updateMenuItemSchema,
+  validateRequest,
   asyncHandler(updateMenuItem)
 );
 
@@ -85,7 +90,8 @@ router.delete(
   '/:id',
   requireAuth,
   requirePermission(RESOURCES.MENU_ITEMS, ACTIONS.DELETE),
-  validateRequest(menuItemIdParamSchema),
+  menuItemIdParamSchema,
+  validateRequest,
   asyncHandler(deleteMenuItem)
 );
 
@@ -93,8 +99,9 @@ router.patch(
   '/:id/availability',
   requireAuth,
   requirePermission(RESOURCES.MENU_ITEMS, ACTIONS.UPDATE),
-  validateRequest(menuItemIdParamSchema),
-  validateRequest(toggleAvailabilitySchema),
+  menuItemIdParamSchema,
+  toggleAvailabilitySchema,
+  validateRequest,
   asyncHandler(toggleMenuItemAvailability)
 );
 

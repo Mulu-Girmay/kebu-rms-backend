@@ -32,7 +32,8 @@ router.post(
   requireAuth,
   requirePermission(RESOURCES.CATEGORIES, ACTIONS.CREATE),
   upload.single('image'),
-  validateRequest(createCategorySchema),
+  createCategorySchema,
+  validateRequest,
   asyncHandler(createCategory)
 );
 
@@ -40,7 +41,8 @@ router.get(
   '/',
   requireAuth,
   requirePermission(RESOURCES.CATEGORIES, ACTIONS.READ),
-  validateRequest(categoryQuerySchema),
+  categoryQuerySchema,
+  validateRequest,
   asyncHandler(getCategories)
 );
 
@@ -48,7 +50,8 @@ router.get(
   '/:id',
   requireAuth,
   requirePermission(RESOURCES.CATEGORIES, ACTIONS.READ),
-  validateRequest(categoryIdParamSchema),
+  categoryIdParamSchema,
+  validateRequest,
   asyncHandler(getCategoryById)
 );
 
@@ -57,8 +60,9 @@ router.put(
   requireAuth,
   requirePermission(RESOURCES.CATEGORIES, ACTIONS.UPDATE),
   upload.single('image'),
-  validateRequest(categoryIdParamSchema),
-  validateRequest(updateCategorySchema),
+  categoryIdParamSchema,
+  updateCategorySchema,
+  validateRequest,
   asyncHandler(updateCategory)
 );
 
@@ -67,8 +71,9 @@ router.patch(
   requireAuth,
   requirePermission(RESOURCES.CATEGORIES, ACTIONS.UPDATE),
   upload.single('image'),
-  validateRequest(categoryIdParamSchema),
-  validateRequest(updateCategorySchema),
+  categoryIdParamSchema,
+  updateCategorySchema,
+  validateRequest,
   asyncHandler(updateCategory)
 );
 // Duplicate Both PUT and PATCH call the same handler, but:
@@ -78,7 +83,8 @@ router.delete(
   '/:id',
   requireAuth,
   requirePermission(RESOURCES.CATEGORIES, ACTIONS.DELETE),
-  validateRequest(categoryIdParamSchema),
+  categoryIdParamSchema,
+  validateRequest,
   asyncHandler(deleteCategory)
 );
 
@@ -86,7 +92,8 @@ router.get(
   '/:id/menu-items',
   requireAuth,
   requirePermission(RESOURCES.CATEGORIES, ACTIONS.READ),
-  validateRequest(categoryIdParamSchema),
+  categoryIdParamSchema,
+  validateRequest,
   asyncHandler(getCategoryMenuItems)
 );
 
