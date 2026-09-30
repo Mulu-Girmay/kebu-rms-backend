@@ -61,59 +61,45 @@ export const updateProfile = async (
 
   const payload: { name?: string; image?: string | null } = {};
 
-  if (fullName !== undefined) {
-    payload.name = fullName;
-  }
-  if (file) {
-    const imageUrl = `/uploads/${file.filename}`;
-    payload.image = imageUrl;
-  }
+  if (fullName !== undefined) payload.name = fullName;
+  if (file) payload.image = `/uploads/${file.filename}`;
 
   if (Object.keys(payload).length === 0) {
+    if (file) await fs.unlink(file.path).catch(() => {});
     throw new APIError('At least one field must be provided for update', 400);
   }
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
-  let updatedMongoUser;
-  let updatedAuthUser;
 
   try {
-    updatedMongoUser = await User.findByIdAndUpdate(
+    // 1. Update your app-specific fields or validation in Mongo
+    const updatedMongoUser = await User.findByIdAndUpdate(
       req.user!.id,
       { $set: payload },
-      { new: true, runValidators: true, session }
+      { new: true, runValidators: true } // No session here
     );
 
     if (!updatedMongoUser) {
       throw new APIError('User document not found in database', 404);
     }
 
-    updatedAuthUser = await updateBetterAuthProfile(req, payload);
+    // 2. Let Better-Auth handle its own database sync safely
+    const updatedAuthUser = await updateBetterAuthProfile(req, payload);
 
     if (!updatedAuthUser) {
       throw new APIError('Failed to update profile in auth system', 500);
     }
-    await session.commitTransaction();
-  } catch (error) {
-    if (session.inTransaction()) {
-      await session.abortTransaction();
-    }
 
+    return res.status(200).json({
+      success: true,
+      message: 'Profile updated successfully',
+      data: updatedAuthUser,
+    });
+  } catch (error) {
+    console.error(error);
     if (file) {
       await fs.unlink(file.path).catch(() => {});
     }
-
     throw error;
-  } finally {
-    await session.endSession();
   }
-
-  res.status(200).json({
-    success: true,
-    message: 'Profile updated successfully',
-    data: updatedAuthUser,
-  });
 };
 
 /** PATCH /api/v1/user/me/settings */
