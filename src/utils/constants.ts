@@ -112,6 +112,7 @@ export const ACTIONS = {
   READ: 'read',
   UPDATE: 'update',
   DELETE: 'delete',
+  READALL: 'read_all',
 } as const;
 
 export type Action = (typeof ACTIONS)[keyof typeof ACTIONS];

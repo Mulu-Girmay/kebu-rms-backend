@@ -1,13 +1,11 @@
 import express, { Router } from 'express';
 import { requireAuth } from '../middlewares/auth.js';
-import {
-  requirePermission,
-  requirePermissions,
-} from '../middlewares/authorize.js';
+import { requirePermission } from '../middlewares/authorize.js';
 import { RESOURCES, ACTIONS } from '../utils/constants.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 
 import {
+  getAllWalletTransactions,
   getUserWallet,
   getWallet,
   getWalletTransactions,
@@ -17,6 +15,7 @@ import {
 import {
   validateAmount,
   validateUserIdParam,
+  validateWalletTransactionsQuery,
 } from '../validators/wallet.validator.js';
 import { validateRequest } from '../validators/errors.parser.js';
 
@@ -37,12 +36,18 @@ router.get(
 );
 
 router.get(
+  '/transactions/all',
+  requireAuth,
+  requirePermission(RESOURCES.WALLET_TRANSACTIONS, ACTIONS.READALL),
+  ...validateWalletTransactionsQuery,
+  validateRequest,
+  asyncHandler(getAllWalletTransactions)
+);
+
+router.get(
   '/:userId',
   requireAuth,
-  requirePermissions([
-    { resource: RESOURCES.WALLETS, action: ACTIONS.READ },
-    { resource: RESOURCES.WALLETS, action: ACTIONS.UPDATE },
-  ]),
+  requirePermission(RESOURCES.WALLETS, ACTIONS.READALL),
   validateUserIdParam,
   validateRequest,
   asyncHandler(getUserWallet)

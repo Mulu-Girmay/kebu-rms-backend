@@ -1,4 +1,4 @@
-import { body, param } from 'express-validator';
+import { body, param, query } from 'express-validator';
 
 export const validateAmount = [
   body('amount')
@@ -21,4 +21,24 @@ export const validateUserIdParam = [
     .withMessage('Invalid user ID')
     .notEmpty()
     .withMessage('User ID cannot be empty'),
+];
+
+export const validateWalletTransactionsQuery = [
+  query('page')
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage('Page must be an integer >= 1')
+    .toInt(),
+
+  query('limit')
+    .optional()
+    .isInt({ min: 1, max: 20 })
+    .withMessage('Limit must be an integer between 1 and 20')
+    .toInt(),
+
+  query('dateRange')
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage('Date range must be an integer >= 1')
+    .toInt(),
 ];

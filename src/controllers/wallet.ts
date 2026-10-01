@@ -61,6 +61,42 @@ export const getWalletTransactions = async (
   });
 };
 
+export const getAllWalletTransactions = async (
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> => {
+  const {
+    page = 1,
+    limit = 10,
+    dateRange,
+  } = req.query as {
+    page?: number;
+    limit?: number;
+    dateRange?: number;
+  };
+
+  const { transactions, total } = await WalletTransaction.findAllWithDetails({
+    page,
+    limit,
+    ...(dateRange !== undefined && { dateRange }),
+  });
+
+  const totalPages = Math.ceil(total / limit);
+
+  res.status(200).json({
+    success: true,
+    data: transactions,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPreviousPage: page > 1,
+    },
+  });
+};
+
 export const topUpWallet = async (
   req: AuthenticatedRequest,
   res: Response
