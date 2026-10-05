@@ -41,3 +41,13 @@ export const creditAccountSchema = new Schema(
     timestamps: true,
   }
 );
+
+creditAccountSchema.pre('save', async function () {
+  if (this.usedCredit > this.creditLimit) {
+    throw new Error(
+      `Invariant violated: usedCredit (${this.usedCredit}) cannot exceed creditLimit (${this.creditLimit})`
+    );
+  }
+});
+
+creditAccountSchema.index({ status: 1 });
