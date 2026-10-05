@@ -77,3 +77,39 @@ export const serializeFavorite = (fav: IFavorite) => {
     menuItem: item ? serializeMenuItem(item, true) : null,
   };
 };
+
+export interface ICreditAccount {
+  _id: Types.ObjectId | string;
+  user: Types.ObjectId | string | { _id: string; name: string; email: string };
+  creditLimit: number;
+  usedCredit: number;
+  status: 'active' | 'frozen' | 'closed';
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export const serializeCreditAccount = (account: ICreditAccount) => {
+  const availableCredit = Math.max(account.creditLimit - account.usedCredit, 0);
+
+  const populatedUser =
+    typeof account.user === 'object' &&
+    account.user !== null &&
+    'name' in account.user
+      ? account.user
+      : null;
+
+  return {
+    id: account._id.toString(),
+    userId: populatedUser
+      ? populatedUser._id.toString()
+      : account.user.toString(),
+    user: populatedUser,
+    creditLimit: account.creditLimit,
+    usedCredit: account.usedCredit,
+    availableCredit,
+    status: account.status,
+    isUsable: account.status === 'active' && availableCredit > 0,
+    createdAt: account.createdAt,
+    updatedAt: account.updatedAt,
+  };
+};
