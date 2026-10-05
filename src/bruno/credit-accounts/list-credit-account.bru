@@ -1,0 +1,23 @@
+meta {
+  name: List Credit Accounts (Admin)
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/v1/admin/credit-accounts?page=1&limit=10&sortBy=createdAt&order=desc
+  auth: inherit
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("has pagination", function() {
+    expect(res.body.pagination).to.have.property("total");
+    expect(res.body.pagination).to.have.property("totalPages");
+  });
+  test("data is an array", function() {
+    expect(res.body.data).to.be.an("array");
+  });
+}
