@@ -6,6 +6,7 @@ import {
   cancelOrder,
   reorder,
   toggleFavoriteOrder,
+  updateOrderStatus,
 } from '../controllers/order.controller.js';
 import { requireAuth } from '../middlewares/auth.js';
 import { requirePermission } from '../middlewares/authorize.js';
@@ -16,6 +17,7 @@ import {
   orderQuerySchema,
   cancelOrderSchema,
   favoriteOrderSchema,
+  updateOrderStatusSchema,
 } from '../validators/order.validator.js';
 import { RESOURCES, ACTIONS } from '../utils/constants.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
@@ -76,6 +78,15 @@ router.patch(
   favoriteOrderSchema,
   validateRequest,
   asyncHandler(toggleFavoriteOrder)
+);
+
+router.patch(
+  '/:id/status',
+  requireAuth,
+  requirePermission(RESOURCES.ORDERS, ACTIONS.UPDATE),
+  validateRequest(orderIdParamSchema),
+  validateRequest(updateOrderStatusSchema),
+  asyncHandler(updateOrderStatus)
 );
 
 export default router;

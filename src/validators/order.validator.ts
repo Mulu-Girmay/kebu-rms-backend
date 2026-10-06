@@ -17,9 +17,9 @@ export const createOrderSchema = [
   body('items.*.quantity')
     .notEmpty()
     .withMessage('Quantity is required')
-    .isInt({ min: 1 })
-    .withMessage('Quantity must be an integer of at least 1')
-    .toInt(),
+    .isFloat({ gt: 0 })
+    .withMessage('Quantity must be a positive number')
+    .toFloat(),
   body('customerNotes').optional().trim().isString(),
 ];
 
@@ -50,4 +50,17 @@ export const cancelOrderSchema = [
 
 export const favoriteOrderSchema = [
   body('favoriteLabel').optional().trim().isString(),
+];
+
+export const updateOrderStatusSchema = [
+  body('status')
+    .notEmpty()
+    .withMessage('Status is required')
+    .isIn(ORDER_STATUS_VALUES)
+    .withMessage(`Status must be one of: ${ORDER_STATUS_VALUES.join(', ')}`),
+  body('rejectionReason')
+    .optional()
+    .trim()
+    .isString()
+    .withMessage('Rejection reason must be a string'),
 ];
