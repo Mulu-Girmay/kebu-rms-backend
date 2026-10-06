@@ -84,8 +84,8 @@ router.patch(
   '/:id/status',
   requireAuth,
   requirePermission(RESOURCES.ORDERS, ACTIONS.UPDATE),
-  validateRequest(orderIdParamSchema),
-  validateRequest(updateOrderStatusSchema),
+  orderIdParamSchema,
+  updateOrderStatusSchema,
   asyncHandler(updateOrderStatus)
 );
 
