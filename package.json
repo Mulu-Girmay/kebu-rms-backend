@@ -20,7 +20,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky",
-    "seed": "tsx src/seed/index.ts"
+    "seed": "tsx src/seed/index.ts",
+    "seed:test": "tsx src/seed/testData.ts"
   },
   "lint-staged": {
     "*.{json,md,yml,yaml,ts,js}": [
