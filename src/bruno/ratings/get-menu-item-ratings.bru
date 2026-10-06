@@ -1,0 +1,29 @@
+meta {
+  name: Get Menu Item Ratings & Comments
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/v1/ratings/menu-item/{{menuItemId}}
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~page: 1
+  ~limit: 20
+  ~hasComment: true
+}
+
+tests {
+  test("should get ratings and comments for a menu item", function() {
+    expect([200, 404]).to.include(res.getStatus());
+    if (res.getStatus() === 200) {
+      expect(res.getBody().success).to.be.true;
+      expect(res.getBody().stats).to.have.property('averageScore');
+      expect(res.getBody().stats).to.have.property('totalRatings');
+      expect(res.getBody().data).to.be.an('array');
+    }
+  });
+}
