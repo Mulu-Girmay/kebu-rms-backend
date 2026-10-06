@@ -1,0 +1,27 @@
+meta {
+  name: Get Kitchen Orders (Order Desk)
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{baseUrl}}/api/v1/orders/kitchen
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~stage: pending
+  ~status: placed
+}
+
+tests {
+  test("should get kitchen board orders grouped by column", function() {
+    expect([200, 403]).to.include(res.getStatus());
+    if (res.getStatus() === 200) {
+      expect(res.getBody().success).to.be.true;
+      expect(res.getBody().data.columns).to.be.an('object');
+      expect(res.getBody().data.counts).to.be.an('object');
+    }
+  });
+}
