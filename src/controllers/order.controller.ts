@@ -359,6 +359,29 @@ export const updateOrderStatus = async (
     );
   }
 
+  const allowedTransitions: Partial<Record<OrderStatus, OrderStatus[]>> = {
+    [OrderStatus.PLACED]: [
+      OrderStatus.ACCEPTED,
+      OrderStatus.REJECTED,
+      OrderStatus.CANCELLED,
+    ],
+
+    [OrderStatus.ACCEPTED]: [OrderStatus.PREPARING, OrderStatus.CANCELLED],
+
+    [OrderStatus.PREPARING]: [OrderStatus.READY, OrderStatus.CANCELLED],
+
+    [OrderStatus.READY]: [OrderStatus.COMPLETED, OrderStatus.CANCELLED],
+  };
+
+  const currentStatus = order.status as OrderStatus;
+
+  if (!allowedTransitions[currentStatus]?.includes(status)) {
+    throw new APIError(
+      `Invalid order status transition from "${currentStatus}" to "${status}"`,
+      400
+    );
+  }
+
   const now = new Date();
   order.status = status;
 
