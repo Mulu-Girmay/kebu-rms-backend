@@ -1,0 +1,17 @@
+meta {
+  name: Reorder Order
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/api/v1/orders/{{orderId}}/reorder
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("should check reorder availability", function() {
+    expect([200, 403, 404]).to.include(res.getStatus());
+  });
+}

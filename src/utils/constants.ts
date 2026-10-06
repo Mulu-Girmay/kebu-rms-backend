@@ -14,6 +14,7 @@ export const MODEL_NAMES = {
   WALLET_TRANSACTION: 'WalletTransaction',
   CREDIT_ACCOUNT: 'CreditAccount',
   FILE: 'File',
+  KITCHEN_SERVICE: 'KitchenService',
 } as const;
 
 export type ModelName = (typeof MODEL_NAMES)[keyof typeof MODEL_NAMES];

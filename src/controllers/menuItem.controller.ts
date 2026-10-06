@@ -2,6 +2,7 @@ import type { Request, Response } from 'express';
 import type { AuthenticatedRequest } from '../middlewares/auth.js';
 import { MenuItem } from '../models/menuItems/index.js';
 import { Category } from '../models/categories/index.js';
+import { Rating } from '../models/ratings/index.js';
 import { Audit } from '../models/audits/index.js';
 import { APIError } from '../errors/APIError.js';
 import { AuditAction, MODEL_NAMES } from '../utils/constants.js';
@@ -160,9 +161,34 @@ export const getMenuItemById = async (
     throw new APIError('Menu item not found', 404);
   }
 
+  const aggResult = await Rating.aggregate([
+    { $match: { menuItemId: menuItem._id } },
+    {
+      $group: {
+        _id: '$menuItemId',
+        averageScore: { $avg: '$score' },
+        totalRatings: { $sum: 1 },
+      },
+    },
+  ]);
+
+  const ratingStats =
+    aggResult.length > 0
+      ? {
+          averageScore: Number(aggResult[0].averageScore.toFixed(2)),
+          totalRatings: aggResult[0].totalRatings,
+        }
+      : {
+          averageScore: 0,
+          totalRatings: 0,
+        };
+
   res.status(200).json({
     success: true,
-    data: menuItem,
+    data: {
+      ...menuItem.toObject(),
+      ratingStats,
+    },
   });
 };
 

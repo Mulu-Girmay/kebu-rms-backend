@@ -16,6 +16,7 @@ import {
   creditAccountAdminRouter,
   creditAccountSelfRouter,
 } from './creditAccount.js';
+import dashboardRoutes from './dashboard.routes.js';
 
 const router = Router();
 
@@ -24,6 +25,7 @@ router.use('/test', rbacTest);
 router.use('/users', userRoutes);
 router.use('/user/me', userProfileRoutes);
 
+router.use('/admin/dashboard', dashboardRoutes);
 router.use('/admin/roles', rolesRouter);
 router.use('/admin/categories', categoryRoutes);
 router.use('/admin/menu-items', menuItemRoutes);

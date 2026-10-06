@@ -23,13 +23,24 @@ export const orderItemSchema = new Schema(
     quantity: {
       type: Number,
       required: true,
-      min: 0.5,
+      min: [0.5, 'Quantity must be at least 0.5'],
     },
 
     unitPrice: {
       type: Number,
       required: true,
       min: 0,
+    },
+
+    notes: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+
+    customizations: {
+      type: [String],
+      default: [],
     },
   },
   { _id: false }
@@ -49,6 +60,12 @@ export const orderSchema = new Schema(
       required: true,
       unique: true,
       trim: true,
+    },
+
+    displayNumber: {
+      type: String,
+      trim: true,
+      default: null,
     },
 
     status: {
@@ -110,6 +127,16 @@ export const orderSchema = new Schema(
     },
 
     cancelledAt: {
+      type: Date,
+      default: null,
+    },
+
+    rejectedAt: {
+      type: Date,
+      default: null,
+    },
+
+    completedAt: {
       type: Date,
       default: null,
     },

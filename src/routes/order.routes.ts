@@ -6,6 +6,10 @@ import {
   cancelOrder,
   reorder,
   toggleFavoriteOrder,
+  updateOrderStatus,
+  getKitchenOrders,
+  togglePauseOrders,
+  getServiceStatus,
 } from '../controllers/order.controller.js';
 import { requireAuth } from '../middlewares/auth.js';
 import { requirePermission } from '../middlewares/authorize.js';
@@ -16,6 +20,9 @@ import {
   orderQuerySchema,
   cancelOrderSchema,
   favoriteOrderSchema,
+  updateOrderStatusSchema,
+  pauseOrdersSchema,
+  kitchenOrderQuerySchema,
 } from '../validators/order.validator.js';
 import { RESOURCES, ACTIONS } from '../utils/constants.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
@@ -38,6 +45,27 @@ router.get(
   orderQuerySchema,
   validateRequest,
   asyncHandler(getCustomerOrders)
+);
+
+/** Kitchen Service / Order Desk routes (placed before /:id) */
+router.get(
+  '/kitchen',
+  requireAuth,
+  requirePermission(RESOURCES.ORDERS, ACTIONS.READ),
+  kitchenOrderQuerySchema,
+  validateRequest,
+  asyncHandler(getKitchenOrders)
+);
+
+router.get('/service/status', requireAuth, asyncHandler(getServiceStatus));
+
+router.patch(
+  '/service/pause',
+  requireAuth,
+  requirePermission(RESOURCES.ORDERS, ACTIONS.UPDATE),
+  pauseOrdersSchema,
+  validateRequest,
+  asyncHandler(togglePauseOrders)
 );
 
 router.get(
@@ -76,6 +104,15 @@ router.patch(
   favoriteOrderSchema,
   validateRequest,
   asyncHandler(toggleFavoriteOrder)
+);
+
+router.patch(
+  '/:id/status',
+  requireAuth,
+  requirePermission(RESOURCES.ORDERS, ACTIONS.UPDATE),
+  orderIdParamSchema,
+  updateOrderStatusSchema,
+  asyncHandler(updateOrderStatus)
 );
 
 export default router;

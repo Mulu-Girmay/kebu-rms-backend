@@ -11,6 +11,7 @@
     "test:api:users": "cd src/bruno/users && bru run --env development",
     "test:api:categories": "cd src/bruno/categories && bru run --env development",
     "test:api:menu-items": "cd src/bruno/menu-items && bru run --env development",
+    "test:api:orders": "cd src/bruno/orders && bru run --env development",
     "test:api": "npm run test:api:auth",
     "test:api:health": "cd src/bruno/healthCheck && bru run --env development  --output reports/health-report.xml",
     "typecheck": "tsc --noEmit",
@@ -21,6 +22,7 @@
     "format:check": "prettier --check .",
     "prepare": "husky",
     "seed": "tsx src/seed/index.ts",
+    "seed:admin": "tsx src/seed/superadmin.ts",
     "seed:test": "tsx src/seed/testData.ts"
   },
   "lint-staged": {

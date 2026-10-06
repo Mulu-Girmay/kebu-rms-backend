@@ -1,0 +1,54 @@
+meta {
+  name: Get Admin Dashboard Stats
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/v1/admin/dashboard/stats?period=today
+  auth: inherit
+}
+
+params:query {
+  period: today
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("response has success and data", function() {
+    expect(res.body.success).to.be.true;
+    expect(res.body.data).to.be.an("object");
+  });
+  test("contains period, finance, orders, menu, users, recentActivity", function() {
+    expect(res.body.data).to.have.property("period");
+    expect(res.body.data).to.have.property("finance");
+    expect(res.body.data).to.have.property("orders");
+    expect(res.body.data).to.have.property("menu");
+    expect(res.body.data).to.have.property("users");
+    expect(res.body.data).to.have.property("recentActivity");
+  });
+  test("finance has required fields", function() {
+    expect(res.body.data.finance).to.have.property("totalRevenue");
+    expect(res.body.data.finance).to.have.property("revenueTrendPct");
+    expect(res.body.data.finance).to.have.property("totalDeposits");
+    expect(res.body.data.finance).to.have.property("totalDebits");
+    expect(res.body.data.finance).to.have.property("avgOrderValue");
+    expect(res.body.data.finance.chartData).to.be.an("array");
+  });
+  test("orders has queue counts and metrics", function() {
+    expect(res.body.data.orders).to.have.property("totalOrders");
+    expect(res.body.data.orders).to.have.property("ordersTrendPct");
+    expect(res.body.data.orders).to.have.property("pendingCount");
+    expect(res.body.data.orders).to.have.property("preparingCount");
+    expect(res.body.data.orders).to.have.property("readyCount");
+    expect(res.body.data.orders).to.have.property("completedCount");
+    expect(res.body.data.orders).to.have.property("avgPrepTimeMin");
+    expect(res.body.data.orders.hourlyRush).to.be.an("array");
+  });
+}

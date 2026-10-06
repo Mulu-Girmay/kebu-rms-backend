@@ -17,9 +17,23 @@ export const createOrderSchema = [
   body('items.*.quantity')
     .notEmpty()
     .withMessage('Quantity is required')
-    .isInt({ min: 1 })
-    .withMessage('Quantity must be an integer of at least 1')
-    .toInt(),
+    .isFloat({ gt: 0 })
+    .withMessage('Quantity must be a positive number')
+    .toFloat(),
+  body('items.*.notes')
+    .optional()
+    .trim()
+    .isString()
+    .withMessage('Item notes must be a string'),
+  body('items.*.customizations')
+    .optional()
+    .isArray()
+    .withMessage('Customizations must be an array of strings'),
+  body('items.*.customizations.*')
+    .optional()
+    .trim()
+    .isString()
+    .withMessage('Each customization must be a string'),
   body('customerNotes').optional().trim().isString(),
 ];
 
@@ -50,4 +64,41 @@ export const cancelOrderSchema = [
 
 export const favoriteOrderSchema = [
   body('favoriteLabel').optional().trim().isString(),
+];
+
+export const updateOrderStatusSchema = [
+  body('status')
+    .notEmpty()
+    .withMessage('Status is required')
+    .isIn(ORDER_STATUS_VALUES)
+    .withMessage(`Status must be one of: ${ORDER_STATUS_VALUES.join(', ')}`),
+  body('rejectionReason')
+    .optional()
+    .trim()
+    .isString()
+    .withMessage('Rejection reason must be a string'),
+];
+
+export const pauseOrdersSchema = [
+  body('isOrdersPaused')
+    .notEmpty()
+    .withMessage('isOrdersPaused is required')
+    .isBoolean()
+    .withMessage('isOrdersPaused must be a boolean'),
+  body('pauseReason')
+    .optional()
+    .trim()
+    .isString()
+    .withMessage('pauseReason must be a string'),
+];
+
+export const kitchenOrderQuerySchema = [
+  query('status')
+    .optional()
+    .isIn(ORDER_STATUS_VALUES)
+    .withMessage('Invalid order status'),
+  query('stage')
+    .optional()
+    .isIn(['pending', 'preparing', 'ready', 'all'])
+    .withMessage('Stage must be "pending", "preparing", "ready", or "all"'),
 ];

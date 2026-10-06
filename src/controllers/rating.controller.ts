@@ -16,47 +16,79 @@ export const createRating = async (
   }
 
   const { orderId, menuItemId, score, comment } = req.body as {
-    orderId: string;
+    orderId?: string;
     menuItemId: string;
     score: number;
     comment?: string;
   };
 
-  const order = await Order.findById(orderId);
-  if (!order) {
-    throw new APIError('Order not found', 404);
+  const menuItem = await MenuItem.findById(menuItemId);
+  if (!menuItem) {
+    throw new APIError('Menu item not found', 404);
   }
 
-  if (order.userId !== userId) {
-    throw new APIError('Forbidden: Access to this order is denied', 403);
-  }
+  let isVerifiedPurchase = false;
 
-  if (order.status !== OrderStatus.COMPLETED) {
-    throw new APIError('Ratings are only allowed for completed orders', 400);
-  }
+  if (orderId) {
+    const order = await Order.findById(orderId);
+    if (!order) {
+      throw new APIError('Order not found', 404);
+    }
 
-  const itemInOrder = order.items.some(
-    (i) => i.menuItemId.toString() === menuItemId
-  );
-  if (!itemInOrder) {
-    throw new APIError('Specified menu item was not part of this order', 400);
-  }
+    if (order.userId !== userId) {
+      throw new APIError('Forbidden: Access to this order is denied', 403);
+    }
 
-  const existingRating = await Rating.findOne({
-    orderId,
-    menuItemId,
-    userId,
-  });
+    if (order.status !== OrderStatus.COMPLETED) {
+      throw new APIError(
+        'Ratings tied to an order are only allowed for completed orders',
+        400
+      );
+    }
 
-  if (existingRating) {
-    throw new APIError('You have already rated this item for this order', 400);
+    const itemInOrder = order.items.some(
+      (i) => i.menuItemId.toString() === menuItemId
+    );
+    if (!itemInOrder) {
+      throw new APIError('Specified menu item was not part of this order', 400);
+    }
+
+    const existingRating = await Rating.findOne({
+      orderId,
+      menuItemId,
+      userId,
+    });
+
+    if (existingRating) {
+      throw new APIError(
+        'You have already rated this item for this order',
+        400
+      );
+    }
+
+    isVerifiedPurchase = true;
+  } else {
+    // Direct rating without an order
+    const existingDirectRating = await Rating.findOne({
+      orderId: null,
+      menuItemId,
+      userId,
+    });
+
+    if (existingDirectRating) {
+      throw new APIError(
+        'You have already reviewed this menu item. You can update your existing review.',
+        400
+      );
+    }
   }
 
   const ratingData: Record<string, unknown> = {
     userId,
-    orderId,
+    orderId: orderId ?? null,
     menuItemId,
     score,
+    isVerifiedPurchase,
   };
   if (comment?.trim()) {
     ratingData.comment = comment.trim();
@@ -81,32 +113,39 @@ export const createBatchRatings = async (
   }
 
   const { orderId, ratings } = req.body as {
-    orderId: string;
+    orderId?: string;
     ratings: Array<{ menuItemId: string; score: number; comment?: string }>;
   };
 
-  const order = await Order.findById(orderId);
-  if (!order) {
-    throw new APIError('Order not found', 404);
-  }
+  let orderMenuItemIds: Set<string> | null = null;
+  let isVerifiedPurchase = false;
 
-  if (order.userId !== userId) {
-    throw new APIError('Forbidden: Access to this order is denied', 403);
-  }
+  if (orderId) {
+    const order = await Order.findById(orderId);
+    if (!order) {
+      throw new APIError('Order not found', 404);
+    }
 
-  if (order.status !== OrderStatus.COMPLETED) {
-    throw new APIError('Ratings are only allowed for completed orders', 400);
-  }
+    if (order.userId !== userId) {
+      throw new APIError('Forbidden: Access to this order is denied', 403);
+    }
 
-  const orderMenuItemIds = new Set(
-    order.items.map((i) => i.menuItemId.toString())
-  );
+    if (order.status !== OrderStatus.COMPLETED) {
+      throw new APIError(
+        'Ratings tied to an order are only allowed for completed orders',
+        400
+      );
+    }
+
+    orderMenuItemIds = new Set(order.items.map((i) => i.menuItemId.toString()));
+    isVerifiedPurchase = true;
+  }
 
   const createdRatings: unknown[] = [];
   const errors: string[] = [];
 
   for (const itemRating of ratings) {
-    if (!orderMenuItemIds.has(itemRating.menuItemId)) {
+    if (orderMenuItemIds && !orderMenuItemIds.has(itemRating.menuItemId)) {
       errors.push(
         `Menu item ID "${itemRating.menuItemId}" was not part of this order`
       );
@@ -114,30 +153,32 @@ export const createBatchRatings = async (
     }
 
     const existing = await Rating.findOne({
-      orderId,
+      orderId: orderId ?? null,
       menuItemId: itemRating.menuItemId,
       userId,
     });
 
     if (existing) {
       errors.push(
-        `Item "${itemRating.menuItemId}" has already been rated for this order`
+        orderId
+          ? `Item "${itemRating.menuItemId}" has already been rated for this order`
+          : `Item "${itemRating.menuItemId}" has already been reviewed by you`
       );
       continue;
     }
 
     const ratingData: Record<string, unknown> = {
       userId,
-      orderId,
+      orderId: orderId ?? null,
       menuItemId: itemRating.menuItemId,
       score: itemRating.score,
+      isVerifiedPurchase,
     };
     if (itemRating.comment?.trim()) {
       ratingData.comment = itemRating.comment.trim();
     }
 
     const newRating = await Rating.create(ratingData);
-
     createdRatings.push(newRating);
   }
 
@@ -247,7 +288,7 @@ export const getMenuItemRatings = async (
   const [total, ratings, aggResult] = await Promise.all([
     Rating.countDocuments(filter),
     Rating.find(filter)
-      .populate('userId', 'fullName profileImage email')
+      .populate('userId', 'name image email')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limitNum),
