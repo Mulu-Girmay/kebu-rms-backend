@@ -6,15 +6,14 @@ import { APIError } from '../errors/APIError.js';
 import { OrderStatus } from '../utils/constants.js';
 import { socketManager } from '../socket/manager.js';
 import logger from '../config/winston.js';
+import mongoose from 'mongoose';
+import { PaymentService } from '../services/payment.js';
 
 export const createOrder = async (
   req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
-  const userId = req.user?.id;
-  if (!userId) {
-    throw new APIError('Unauthorized: User ID not found', 401);
-  }
+  const userId = req.user!.id;
 
   const { items, customerNotes } = req.body as {
     items: Array<{ menuItemId: string; quantity: number }>;
@@ -63,16 +62,48 @@ export const createOrder = async (
   const randomStr = Math.floor(1000 + Math.random() * 9000).toString();
   const orderNumber = `ORD-${dateStr}-${randomStr}`;
 
-  const order = await Order.create({
-    userId,
-    orderNumber,
-    items: orderItems,
-    totalAmount,
-    customerNotes: customerNotes ? customerNotes.trim() : null,
-    status: OrderStatus.PLACED,
-    placedAt: now,
-  });
+  const session = await mongoose.startSession();
+  let order;
+  try {
+    await session.withTransaction(async () => {
+      const [created] = await Order.create(
+        [
+          {
+            userId,
+            orderNumber,
+            items: orderItems,
+            totalAmount,
+            customerNotes: customerNotes?.trim() || null,
+            status: OrderStatus.PLACED,
+            placedAt: now,
+            paymentStatus: 'pending',
+            paymentBreakdown: { walletAmount: 0, creditAmount: 0 },
+          },
+        ],
+        { session }
+      );
+      order = created;
+      if (!order) throw new APIError('unable to create order', 400);
+      const breakdown = await PaymentService.chargeOrder(
+        userId,
+        order._id.toString(),
+        totalAmount,
+        session
+      );
 
+      order.paymentBreakdown = breakdown;
+      order.paymentStatus = 'paid';
+      await order.save({ session });
+    });
+  } catch (error) {
+    logger.warn(`Order creation/payment failed for user ${userId}:`, error);
+    if (session.inTransaction()) {
+      await session.abortTransaction();
+    }
+    throw error;
+  } finally {
+    await session.endSession();
+  }
   try {
     socketManager.emitToRoom('orders', 'order:placed', order);
   } catch (error) {
@@ -81,7 +112,7 @@ export const createOrder = async (
 
   res.status(201).json({
     success: true,
-    message: 'Order placed successfully',
+    message: 'Order placed and paid successfully',
     data: order,
   });
 };
@@ -192,29 +223,44 @@ export const cancelOrder = async (
   const { rejectionReason } = req.body || {};
 
   const order = await Order.findById(orderId);
-
-  if (!order) {
-    throw new APIError('Order not found', 404);
-  }
-
+  if (!order) throw new APIError('Order not found', 404);
   if (order.userId !== userId) {
     throw new APIError('Forbidden: Access to this order is denied', 403);
   }
-
   if (order.status !== OrderStatus.PLACED) {
     throw new APIError(
-      `Order cannot be cancelled because its current status is "${order.status}". Only orders with status "placed" can be cancelled by customer.`,
+      `Order cannot be cancelled because its current status is "${order.status}". Only "placed" orders can be cancelled by customer.`,
       400
     );
   }
-
-  order.status = OrderStatus.CANCELLED;
-  order.cancelledAt = new Date();
-  if (rejectionReason) {
-    order.rejectionReason = rejectionReason;
+  if (order.paymentStatus !== 'paid') {
+    throw new APIError('Cannot cancel an order that has not been paid', 400);
   }
 
-  await order.save();
+  const session = await mongoose.startSession();
+
+  try {
+    await session.withTransaction(async () => {
+      // Refund the exact split
+      await PaymentService.refundOrder(
+        userId,
+        {
+          _id: order._id.toString(),
+          paymentBreakdown: order.paymentBreakdown!,
+        },
+        session
+      );
+
+      // Update order
+      order.status = OrderStatus.CANCELLED;
+      order.cancelledAt = new Date();
+      order.paymentStatus = 'refunded';
+      if (rejectionReason) order.rejectionReason = rejectionReason;
+      await order.save({ session });
+    });
+  } finally {
+    await session.endSession();
+  }
 
   try {
     socketManager.emitToRoom('orders', 'order:cancelled', order);
@@ -224,7 +270,7 @@ export const cancelOrder = async (
 
   res.status(200).json({
     success: true,
-    message: 'Order cancelled successfully',
+    message: 'Order cancelled and refunded successfully',
     data: order,
   });
 };
