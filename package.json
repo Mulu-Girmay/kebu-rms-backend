@@ -22,7 +22,8 @@
     "format:check": "prettier --check .",
     "prepare": "husky",
     "seed": "tsx src/seed/index.ts",
-    "seed:admin": "tsx src/seed/superadmin.ts"
+    "seed:admin": "tsx src/seed/superadmin.ts",
+    "seed:test": "tsx src/seed/testData.ts"
   },
   "lint-staged": {
     "*.{json,md,yml,yaml,ts,js}": [

@@ -10,6 +10,7 @@ import {
   MODEL_NAMES,
   UserStatus,
   TOKEN_EXPIRATION,
+  CreditAccountStatus,
 } from '../utils/constants.js';
 import {
   sendVerificationEmail,
@@ -17,6 +18,7 @@ import {
 } from '../utils/mailTemplate.js';
 import { Types } from 'mongoose';
 import logger from './winston.js';
+import { CreditAccount } from '../models/creditAccount/index.js';
 
 const client = new MongoClient(config.mongoose.url);
 const db = client.db();
@@ -51,6 +53,12 @@ const authOptions = {
               user: user.id,
               balance: 0,
               isActive: true,
+            });
+            await CreditAccount.create({
+              user: user.id,
+              usedCredit: 0,
+              creditLimit: 0,
+              status: CreditAccountStatus.ACTIVE,
             });
           } catch (error) {
             logger.error(

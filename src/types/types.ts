@@ -79,3 +79,15 @@ export interface CursorPaginationResponse<T> {
   nextCursor: string | null;
   hasMore: boolean;
 }
+
+export interface PaymentBreakdown {
+  walletAmount: number;
+  creditAmount: number;
+}
+
+export interface TopUpResult {
+  walletCredited: number;
+  creditRepaid: number;
+  walletBalanceAfter: number;
+  creditUsedAfter: number;
+}

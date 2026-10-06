@@ -2,6 +2,7 @@ import { Schema } from 'mongoose';
 import {
   MODEL_NAMES,
   ORDER_STATUS_VALUES,
+  PAYMENT_STATUS,
   OrderStatus,
 } from '../../utils/constants.js';
 
@@ -22,7 +23,7 @@ export const orderItemSchema = new Schema(
     quantity: {
       type: Number,
       required: true,
-      min: [0.01, 'Quantity must be at least 0.01'],
+      min: [0.5, 'Quantity must be at least 0.5'],
     },
 
     unitPrice: {
@@ -100,7 +101,16 @@ export const orderSchema = new Schema(
       required: true,
       min: 0,
     },
-
+    paymentBreakdown: {
+      walletAmount: { type: Number, default: 0, min: 0 },
+      creditAmount: { type: Number, default: 0, min: 0 },
+    },
+    paymentStatus: {
+      type: String,
+      enum: PAYMENT_STATUS,
+      default: PAYMENT_STATUS.PENDING,
+      index: true,
+    },
     placedAt: {
       type: Date,
       default: Date.now,

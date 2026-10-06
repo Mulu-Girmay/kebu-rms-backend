@@ -1,0 +1,24 @@
+meta {
+  name: Freeze Credit Account
+  type: http
+  seq: 12
+}
+
+patch {
+  url: {{baseUrl}}/api/v1/admin/credit-accounts/{{customerUserId}}/freeze
+  body: json
+  auth: inherit
+}
+
+body:json {
+  { "reason": "Customer under investigation" }
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("status is frozen", function() {
+    expect(res.body.data.status).to.equal("frozen");
+  });
+}   

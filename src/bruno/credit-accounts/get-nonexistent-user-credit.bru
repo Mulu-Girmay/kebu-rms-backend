@@ -1,0 +1,16 @@
+meta {
+  name: Get Nonexistent User Credit (404)
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/api/v1/admin/credit-accounts/{{nonExistentUserId}}
+  auth: inherit
+}
+
+tests {
+  test("status is 404", function() {
+    expect(res.status).to.equal(404);
+  });
+}

@@ -1,0 +1,21 @@
+meta {
+  name: List Credit Accounts with Usage
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/v1/admin/credit-accounts?hasUsage=true&status=active
+  auth: inherit
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("all returned accounts have usedCredit > 0", function() {
+    res.body.data.forEach((a) => {
+      expect(a.usedCredit).to.be.greaterThan(0);
+    });
+  });
+}

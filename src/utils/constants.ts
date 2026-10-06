@@ -37,7 +37,9 @@ export enum WalletTransactionType {
   CREDIT = 'credit',
   REFUND = 'refund',
   DEBIT = 'debit',
+  WALLET = 'wallet',
 }
+
 export const WALLET_TRANSACTION_TYPE_VALUES = Object.values(
   WalletTransactionType
 );
@@ -116,3 +118,10 @@ export const ACTIONS = {
 } as const;
 
 export type Action = (typeof ACTIONS)[keyof typeof ACTIONS];
+
+export const PAYMENT_STATUS = {
+  PENDING: 'pending',
+  PAID: 'paid',
+  REFUNDED: 'refunded',
+  FAILED: 'failed',
+} as const;

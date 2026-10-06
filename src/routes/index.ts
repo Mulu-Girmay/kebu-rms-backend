@@ -12,6 +12,10 @@ import favoriteRoutes from './favorite.routes.js';
 import ratingRoutes from './rating.routes.js';
 import rolesRouter from './roles.js';
 import walletRoutes from './wallet.js';
+import {
+  creditAccountAdminRouter,
+  creditAccountSelfRouter,
+} from './creditAccount.js';
 import dashboardRoutes from './dashboard.routes.js';
 
 const router = Router();
@@ -34,4 +38,6 @@ router.use('/favorites', favoriteRoutes);
 router.use('/ratings', ratingRoutes);
 router.use('/wallet', walletRoutes);
 
+router.use('/credit-account', creditAccountSelfRouter);
+router.use('/admin/credit-accounts', creditAccountAdminRouter);
 export default router;

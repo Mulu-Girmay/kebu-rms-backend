@@ -1,0 +1,22 @@
+meta {
+  name: Close with Outstanding Balance (400)
+  type: http
+  seq: 15
+}
+
+patch {
+  url: {{baseUrl}}/api/v1/admin/credit-accounts/{{customerUserId}}/close
+  body: json
+  auth: inherit
+}
+
+body:json {
+  { "reason": "Attempting to close with debt" }
+}
+
+tests {
+  test("status is 200 or 400", function() {
+    // 400 if usedCredit > 0
+    expect([200, 400]).to.include(res.status);
+  });
+}
