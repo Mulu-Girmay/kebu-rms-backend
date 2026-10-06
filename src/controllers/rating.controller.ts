@@ -288,7 +288,7 @@ export const getMenuItemRatings = async (
   const [total, ratings, aggResult] = await Promise.all([
     Rating.countDocuments(filter),
     Rating.find(filter)
-      .populate('userId', 'fullName profileImage email')
+      .populate('userId', 'name image email')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limitNum),
