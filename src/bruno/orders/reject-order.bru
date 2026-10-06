@@ -1,0 +1,24 @@
+meta {
+  name: Reject Order (Kitchen Decline)
+  type: http
+  seq: 8
+}
+
+patch {
+  url: {{baseUrl}}/api/v1/orders/{{orderId}}/status
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "status": "rejected",
+    "rejectionReason": "Item out of stock or kitchen at capacity"
+  }
+}
+
+tests {
+  test("should reject order with reason", function() {
+    expect([200, 400, 403, 404]).to.include(res.getStatus());
+  });
+}

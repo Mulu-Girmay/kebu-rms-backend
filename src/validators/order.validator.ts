@@ -51,3 +51,16 @@ export const cancelOrderSchema = [
 export const favoriteOrderSchema = [
   body('favoriteLabel').optional().trim().isString(),
 ];
+
+export const updateOrderStatusSchema = [
+  body('status')
+    .notEmpty()
+    .withMessage('Status is required')
+    .isIn(ORDER_STATUS_VALUES)
+    .withMessage(`Status must be one of: ${ORDER_STATUS_VALUES.join(', ')}`),
+  body('rejectionReason')
+    .optional()
+    .trim()
+    .isString()
+    .withMessage('Rejection reason must be a string'),
+];

@@ -104,6 +104,16 @@ export const orderSchema = new Schema(
       default: null,
     },
 
+    rejectedAt: {
+      type: Date,
+      default: null,
+    },
+
+    completedAt: {
+      type: Date,
+      default: null,
+    },
+
     isFavorite: {
       type: Boolean,
       default: false,

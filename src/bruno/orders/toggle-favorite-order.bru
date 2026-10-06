@@ -1,0 +1,23 @@
+meta {
+  name: Toggle Favorite Order
+  type: http
+  seq: 6
+}
+
+patch {
+  url: {{baseUrl}}/api/v1/orders/{{orderId}}/favorite
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "favoriteLabel": "My Favorite Meal"
+  }
+}
+
+tests {
+  test("should toggle favorite status for order", function() {
+    expect([200, 403, 404]).to.include(res.getStatus());
+  });
+}

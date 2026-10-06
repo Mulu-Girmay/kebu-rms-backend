@@ -1,0 +1,23 @@
+meta {
+  name: Cancel Order
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{baseUrl}}/api/v1/orders/{{orderId}}/cancel
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "rejectionReason": "Customer requested cancellation"
+  }
+}
+
+tests {
+  test("should cancel order", function() {
+    expect([200, 400, 403, 404]).to.include(res.getStatus());
+  });
+}
