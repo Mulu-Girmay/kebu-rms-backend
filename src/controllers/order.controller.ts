@@ -3,6 +3,10 @@ import type { AuthenticatedRequest } from '../middlewares/auth.js';
 import { Order } from '../models/orders/index.js';
 import { MenuItem } from '../models/menuItems/index.js';
 import { User } from '../models/users/index.js';
+import {
+  KitchenService,
+  getKitchenServiceStatus,
+} from '../models/kitchenService/index.js';
 import { APIError } from '../errors/APIError.js';
 import { OrderStatus } from '../utils/constants.js';
 import { socketManager } from '../socket/manager.js';
@@ -18,8 +22,23 @@ export const createOrder = async (
     throw new APIError('Unauthorized: User ID not found', 401);
   }
 
+  // Check if kitchen is currently paused from accepting orders
+  const serviceStatus = await getKitchenServiceStatus();
+  if (serviceStatus.isOrdersPaused) {
+    throw new APIError(
+      serviceStatus.pauseReason ||
+        'The kitchen is currently paused and not accepting new orders. Please try again shortly.',
+      400
+    );
+  }
+
   const { items, customerNotes } = req.body as {
-    items: Array<{ menuItemId: string; quantity: number }>;
+    items: Array<{
+      menuItemId: string;
+      quantity: number;
+      notes?: string;
+      customizations?: string[];
+    }>;
     customerNotes?: string;
   };
 
@@ -57,6 +76,10 @@ export const createOrder = async (
       name: menuItem.name,
       quantity: item.quantity,
       unitPrice,
+      notes: item.notes ? item.notes.trim() : null,
+      customizations: Array.isArray(item.customizations)
+        ? item.customizations.filter((c) => typeof c === 'string' && c.trim())
+        : [],
     };
   });
   totalAmount = Math.round(totalAmount * 100) / 100;
@@ -66,9 +89,18 @@ export const createOrder = async (
   const randomStr = Math.floor(1000 + Math.random() * 9000).toString();
   const orderNumber = `ORD-${dateStr}-${randomStr}`;
 
+  // Generate short sequential display number for KDS (e.g. #104)
+  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const dailyCount = await Order.countDocuments({
+    createdAt: { $gte: startOfDay },
+  });
+  const seqNumber = dailyCount + 1;
+  const displayNumber = `#${seqNumber.toString().padStart(3, '0')}`;
+
   const order = await Order.create({
     userId,
     orderNumber,
+    displayNumber,
     items: orderItems,
     totalAmount,
     customerNotes: customerNotes ? customerNotes.trim() : null,
@@ -362,15 +394,30 @@ export const updateOrderStatus = async (
   const allowedTransitions: Partial<Record<OrderStatus, OrderStatus[]>> = {
     [OrderStatus.PLACED]: [
       OrderStatus.ACCEPTED,
+      OrderStatus.PREPARING,
       OrderStatus.REJECTED,
       OrderStatus.CANCELLED,
     ],
 
-    [OrderStatus.ACCEPTED]: [OrderStatus.PREPARING, OrderStatus.CANCELLED],
+    [OrderStatus.ACCEPTED]: [
+      OrderStatus.PREPARING,
+      OrderStatus.PLACED,
+      OrderStatus.REJECTED,
+      OrderStatus.CANCELLED,
+    ],
 
-    [OrderStatus.PREPARING]: [OrderStatus.READY, OrderStatus.CANCELLED],
+    [OrderStatus.PREPARING]: [
+      OrderStatus.READY,
+      OrderStatus.ACCEPTED,
+      OrderStatus.PLACED,
+      OrderStatus.CANCELLED,
+    ],
 
-    [OrderStatus.READY]: [OrderStatus.COMPLETED, OrderStatus.CANCELLED],
+    [OrderStatus.READY]: [
+      OrderStatus.COMPLETED,
+      OrderStatus.PREPARING,
+      OrderStatus.CANCELLED,
+    ],
   };
 
   const currentStatus = order.status as OrderStatus;
@@ -428,5 +475,151 @@ export const updateOrderStatus = async (
     success: true,
     message: `Order status updated to "${status}" successfully`,
     data: order,
+  });
+};
+
+export const getKitchenOrders = async (
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> => {
+  const userId = req.user?.id;
+  const user = await User.findById(userId).populate<{ role_id: any }>(
+    'role_id'
+  );
+  const roleName = user?.role_id?.name;
+  if (roleName === 'customer') {
+    throw new APIError(
+      'Forbidden: Only kitchen staff or administrators can access the kitchen order desk',
+      403
+    );
+  }
+
+  const { stage, status } = req.query as {
+    stage?: 'pending' | 'preparing' | 'ready' | 'all';
+    status?: OrderStatus;
+  };
+
+  const service = await getKitchenServiceStatus();
+
+  const activeStatuses = [
+    OrderStatus.PLACED,
+    OrderStatus.ACCEPTED,
+    OrderStatus.PREPARING,
+    OrderStatus.READY,
+  ];
+
+  const queryFilter: Record<string, unknown> = {
+    status: { $in: activeStatuses },
+  };
+
+  if (status) {
+    queryFilter.status = status;
+  } else if (stage === 'pending') {
+    queryFilter.status = {
+      $in: [OrderStatus.PLACED, OrderStatus.ACCEPTED],
+    };
+  } else if (stage === 'preparing') {
+    queryFilter.status = OrderStatus.PREPARING;
+  } else if (stage === 'ready') {
+    queryFilter.status = OrderStatus.READY;
+  }
+
+  const orders = await Order.find(queryFilter)
+    .populate('items.menuItemId', 'name imageUrl price isAvailable')
+    .sort({ placedAt: 1 });
+
+  const pendingOrders = orders.filter(
+    (o) => o.status === OrderStatus.PLACED || o.status === OrderStatus.ACCEPTED
+  );
+  const preparingOrders = orders.filter(
+    (o) => o.status === OrderStatus.PREPARING
+  );
+  const readyOrders = orders.filter((o) => o.status === OrderStatus.READY);
+
+  res.status(200).json({
+    success: true,
+    data: {
+      service: {
+        isOrdersPaused: service.isOrdersPaused,
+        pausedAt: service.pausedAt,
+        pauseReason: service.pauseReason,
+      },
+      counts: {
+        pending: pendingOrders.length,
+        preparing: preparingOrders.length,
+        ready: readyOrders.length,
+        total: orders.length,
+      },
+      columns: {
+        pending: pendingOrders,
+        preparing: preparingOrders,
+        ready: readyOrders,
+      },
+      all: orders,
+    },
+  });
+};
+
+export const togglePauseOrders = async (
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> => {
+  const userId = req.user?.id;
+  const user = await User.findById(userId).populate<{ role_id: any }>(
+    'role_id'
+  );
+  const roleName = user?.role_id?.name;
+  if (roleName === 'customer') {
+    throw new APIError(
+      'Forbidden: Only kitchen staff or administrators can pause/resume order service',
+      403
+    );
+  }
+
+  const { isOrdersPaused, pauseReason } = req.body as {
+    isOrdersPaused: boolean;
+    pauseReason?: string;
+  };
+
+  let service = await KitchenService.findOne();
+  if (!service) {
+    service = new KitchenService();
+  }
+
+  service.isOrdersPaused = isOrdersPaused;
+  service.pausedAt = isOrdersPaused ? new Date() : null;
+  service.pausedBy = isOrdersPaused ? (userId ?? null) : null;
+  service.pauseReason =
+    isOrdersPaused && pauseReason ? pauseReason.trim() : null;
+
+  await service.save();
+
+  try {
+    socketManager.emitToRoom('orders', 'service:pause_toggled', {
+      isOrdersPaused: service.isOrdersPaused,
+      pausedAt: service.pausedAt,
+      pauseReason: service.pauseReason,
+    });
+  } catch (error) {
+    logger.warn('Failed to emit socket event for service:pause_toggled', error);
+  }
+
+  res.status(200).json({
+    success: true,
+    message: service.isOrdersPaused
+      ? 'Kitchen service has been paused. Incoming customer orders will be blocked.'
+      : 'Kitchen service has resumed. New customer orders are now accepted.',
+    data: service,
+  });
+};
+
+export const getServiceStatus = async (
+  _req: AuthenticatedRequest,
+  res: Response
+): Promise<void> => {
+  const service = await getKitchenServiceStatus();
+  res.status(200).json({
+    success: true,
+    data: service,
   });
 };

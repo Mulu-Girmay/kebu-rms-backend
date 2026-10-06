@@ -30,6 +30,17 @@ export const orderItemSchema = new Schema(
       required: true,
       min: 0,
     },
+
+    notes: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+
+    customizations: {
+      type: [String],
+      default: [],
+    },
   },
   { _id: false }
 );
@@ -48,6 +59,12 @@ export const orderSchema = new Schema(
       required: true,
       unique: true,
       trim: true,
+    },
+
+    displayNumber: {
+      type: String,
+      trim: true,
+      default: null,
     },
 
     status: {
