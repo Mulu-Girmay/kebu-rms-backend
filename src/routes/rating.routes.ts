@@ -26,7 +26,8 @@ router.post(
   '/',
   requireAuth,
   requirePermission(RESOURCES.RATINGS, ACTIONS.CREATE),
-  validateRequest(createRatingSchema),
+  createRatingSchema,
+  validateRequest,
   asyncHandler(createRating)
 );
 
@@ -34,7 +35,8 @@ router.post(
   '/batch',
   requireAuth,
   requirePermission(RESOURCES.RATINGS, ACTIONS.CREATE),
-  validateRequest(createBatchRatingSchema),
+  createBatchRatingSchema,
+  validateRequest,
   asyncHandler(createBatchRatings)
 );
 
@@ -42,8 +44,9 @@ router.patch(
   '/:id',
   requireAuth,
   requirePermission(RESOURCES.RATINGS, ACTIONS.UPDATE),
-  validateRequest(ratingIdParamSchema),
-  validateRequest(updateRatingSchema),
+  ratingIdParamSchema,
+  updateRatingSchema,
+  validateRequest,
   asyncHandler(updateRating)
 );
 
@@ -51,7 +54,8 @@ router.delete(
   '/:id',
   requireAuth,
   requirePermission(RESOURCES.RATINGS, ACTIONS.DELETE),
-  validateRequest(ratingIdParamSchema),
+  ratingIdParamSchema,
+  validateRequest,
   asyncHandler(deleteRating)
 );
 
@@ -59,8 +63,9 @@ router.get(
   '/menu-item/:menuItemId',
   requireAuth,
   requirePermission(RESOURCES.RATINGS, ACTIONS.READ),
-  validateRequest(menuItemIdParamSchema),
-  validateRequest(ratingQuerySchema),
+  menuItemIdParamSchema,
+  ratingQuerySchema,
+  validateRequest,
   asyncHandler(getMenuItemRatings)
 );
 

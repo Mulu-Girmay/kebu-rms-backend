@@ -19,7 +19,8 @@ router.post(
   '/:menuItemId/toggle',
   requireAuth,
   requirePermission(RESOURCES.MENU_ITEMS, ACTIONS.UPDATE),
-  validateRequest(toggleFavoriteParamSchema),
+  toggleFavoriteParamSchema,
+  validateRequest,
   asyncHandler(toggleFavorite)
 );
 
@@ -27,7 +28,8 @@ router.get(
   '/',
   requireAuth,
   requirePermission(RESOURCES.MENU_ITEMS, ACTIONS.READ),
-  validateRequest(favoriteQuerySchema),
+  favoriteQuerySchema,
+  validateRequest,
   asyncHandler(getUserFavorites)
 );
 

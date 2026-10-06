@@ -1,4 +1,5 @@
-import { betterAuth } from 'better-auth';
+import { betterAuth, type BetterAuthOptions } from 'better-auth';
+import { customSession } from 'better-auth/plugins';
 import { mongodbAdapter } from 'better-auth/adapters/mongodb';
 import { MongoClient } from 'mongodb';
 import { config } from './environments.js';
@@ -19,8 +20,7 @@ import logger from './winston.js';
 
 const client = new MongoClient(config.mongoose.url);
 const db = client.db();
-
-export const auth = betterAuth({
+const authOptions = {
   database: mongodbAdapter(db, { client, transaction: false }),
 
   advanced: {
@@ -29,6 +29,7 @@ export const auth = betterAuth({
   },
   baseURL: config.auth.baseUrl,
   secret: config.jwt.secret,
+
   databaseHooks: {
     user: {
       create: {
@@ -38,7 +39,7 @@ export const auth = betterAuth({
           return {
             data: {
               ...user,
-              id: userId, // Better Auth’s internal identifier
+              id: userId,
               _id: userId,
               role_id: customerRole ? String(customerRole._id) : user.role_id,
             },
@@ -105,6 +106,33 @@ export const auth = betterAuth({
     expiresIn: TOKEN_EXPIRATION.REFRESH_TOKEN_SECONDS,
     updateAge: TOKEN_EXPIRATION.ACCESS_TOKEN_SECONDS,
   },
+} satisfies BetterAuthOptions;
+
+export const auth = betterAuth({
+  ...authOptions,
+  plugins: [
+    customSession(async ({ user, session }) => {
+      let populatedRole = null;
+
+      if (user.role_id) {
+        const roleDoc = await Role.findById(user.role_id).lean();
+        if (roleDoc) {
+          populatedRole = {
+            ...roleDoc,
+            id: String(roleDoc._id),
+          };
+        }
+      }
+
+      return {
+        session,
+        user: {
+          ...user,
+          role: populatedRole,
+        },
+      };
+    }, authOptions),
+  ],
 });
 
 export type Auth = typeof auth;
