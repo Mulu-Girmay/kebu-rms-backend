@@ -12,14 +12,18 @@ import {
   StatusChangeEmail,
   type StatusChangeEmailProps,
 } from './StatusChangeEmail.js';
+import WelcomeStaffEmail, {
+  type WelcomeStaffEmailProps,
+} from './WelcomeStaffEmail.js';
 
 export type EmailTemplateType =
-  'verification' | 'password_reset' | 'status_change';
+  'verification' | 'password_reset' | 'status_change' | 'welcome_staff';
 
 export interface EmailTemplateData {
   verification: VerificationEmailProps;
   password_reset: PasswordResetEmailProps;
   status_change: StatusChangeEmailProps;
+  welcome_staff: WelcomeStaffEmailProps;
 }
 
 export const createMail = async <T extends EmailTemplateType>(
@@ -38,6 +42,10 @@ export const createMail = async <T extends EmailTemplateType>(
     case 'status_change':
       return render(
         React.createElement(StatusChangeEmail, data as StatusChangeEmailProps)
+      );
+    case 'welcome_staff':
+      return render(
+        React.createElement(WelcomeStaffEmail, data as WelcomeStaffEmailProps)
       );
     default:
       throw new Error(`Unknown email template: ${template}`);

@@ -8,6 +8,7 @@ import {
   deactivateUser,
   suspendUser,
   updateRole,
+  createStaffaccount,
 } from '../controllers/adminUser.js';
 import { requireAuth } from '../middlewares/auth.js';
 import { requirePermission } from '../middlewares/authorize.js';
@@ -16,6 +17,7 @@ import {
   validateIdParam,
   updateroleValidator,
   validateUsersQuery,
+  createUserValidator,
 } from '../validators/user.validator.js';
 import { validateRequest } from '../validators/errors.parser.js';
 import { createUploadMiddleware } from '../middlewares/upload.js';
@@ -53,6 +55,14 @@ router.delete(
   asyncHandler(deleteUser)
 );
 
+router.post(
+  '/',
+  requireAuth,
+  requirePermission(RESOURCES.USERS, ACTIONS.CREATE),
+  createUserValidator,
+  validateRequest,
+  asyncHandler(createStaffaccount)
+);
 /** Account state management */
 router.patch(
   '/:id/activate',

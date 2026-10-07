@@ -109,3 +109,32 @@ export const updateSelfValidator = [
     return true;
   }),
 ];
+
+export const createUserValidator = [
+  body('fullName')
+    .trim()
+    .notEmpty()
+    .withMessage('Name cannot be empty')
+    .isLength({ min: 2, max: 50 })
+    .withMessage('Full name must be between 2 and 50 characters'),
+
+  body('email')
+    .trim()
+    .notEmpty()
+    .withMessage('Email cannot be empty')
+    .isEmail()
+    .withMessage('Please enter a valid email address'),
+
+  body('password')
+    .notEmpty()
+    .withMessage('Password cannot be empty')
+    .isLength({ min: 8 })
+    .withMessage('New password must be at least 8 characters'),
+
+  body('role_id')
+    .trim()
+    .notEmpty()
+    .withMessage('Role Id cannot be empty')
+    .isString()
+    .withMessage('Invalid Id format'),
+];

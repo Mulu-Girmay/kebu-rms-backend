@@ -98,3 +98,24 @@ export const sendStatusEmail = async (
     logger.info(`Failed to send email ${userEmail}: ${error}`);
   }
 };
+
+export const sendWelcomeStaffEmail = async (
+  email: string,
+  fullName: string,
+  temporaryPassword: string,
+  roleName: string
+): Promise<void> => {
+  const loginUrl = `${config.clientUrl}/login`;
+  await sendEmail({
+    to: email,
+    subject: 'Your Kebu RMS staff account',
+    template: 'welcome_staff',
+    data: {
+      fullName,
+      email,
+      temporaryPassword,
+      roleName,
+      loginUrl,
+    },
+  });
+};
