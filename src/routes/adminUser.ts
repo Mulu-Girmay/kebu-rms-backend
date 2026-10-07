@@ -7,7 +7,7 @@ import {
   activateUser,
   deactivateUser,
   suspendUser,
-  updateRole,
+  changeUserRole,
   createStaffaccount,
 } from '../controllers/adminUser.js';
 import { requireAuth } from '../middlewares/auth.js';
@@ -97,7 +97,7 @@ router.patch(
   ...validateIdParam,
   ...updateroleValidator,
   validateRequest,
-  asyncHandler(updateRole)
+  asyncHandler(changeUserRole)
 );
 
 export default router;

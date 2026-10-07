@@ -7,7 +7,11 @@ import { serializeUser } from '../utils/serializers.js';
 import { Role } from '../models/role/index.js';
 import { auth } from '../config/auth.js';
 import { Audit } from '../models/audits/index.js';
-import { AuditAction, CreditAccountStatus } from '../utils/constants.js';
+import {
+  AuditAction,
+  CreditAccountStatus,
+  MODEL_NAMES,
+} from '../utils/constants.js';
 import { Order } from '../models/orders/index.js';
 import { Wallet } from '../models/wallet/index.js';
 import { WalletTransaction } from '../models/walletTransaction/index.js';
@@ -380,123 +384,69 @@ export const suspendUser = async (req: AuthenticatedRequest, res: Response) => {
 };
 
 /**PATCH /api/v1/users/:id/role */
-export const updateRole = async (req: AuthenticatedRequest, res: Response) => {
-  const targetUserId = req.params.id;
-  const { role_id } = req.body;
-
+export const changeUserRole = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  const targetUserId = req.params.id!;
+  const { role_id } = req.body as { role_id: string };
   if (targetUserId === req.user!.id) {
     throw new APIError('You cannot change your own role', 400);
   }
 
-  const session = await mongoose.startSession();
-  session.startTransaction();
+  const user = await User.findById(targetUserId);
+  if (!user) throw new APIError('User not found', 404);
 
-  try {
-    const user = await User.findById(targetUserId).session(session);
+  const newRole = await Role.findById(role_id);
+  if (!newRole) throw new APIError('ROle not found', 404);
 
-    if (!user) {
-      throw new APIError('User not found', 404);
-    }
-    if (user.role_id?.toString() === role_id.toString()) {
-      throw new APIError('User already has this role', 400);
-    }
-
-    const newRole = await Role.findById(role_id).session(session);
-    if (!newRole) {
-      throw new APIError('Role not found', 404);
-    }
-    const oldRole = user.role_id
-      ? await Role.findById(user.role_id).session(session)
-      : null;
-    const isDemotingSuperAdmin =
-      oldRole?.name === 'super_admin' &&
-      newRole.name.toLowerCase() !== 'super_admin';
-
-    if (isDemotingSuperAdmin) {
-      const remaining = await User.countDocuments({
-        role_id: oldRole!._id,
-        _id: { $ne: user._id }, //exclude this user
-      }).session(session);
-
-      if (remaining === 0) {
-        throw new APIError('Cannot demote the last super admin', 403);
-      }
-    }
-    const oldRoleId = user.role_id;
-    user.role_id = newRole._id;
-    await user.save({ session });
-
-    //  If new role is NOT a customer, deactivate financial accounts
-
-    if (newRole.name.toLowerCase() === 'customer') {
-      // Re-activate wallet and credit when becoming a customer again
-      const [wallet, creditAccount] = await Promise.all([
-        Wallet.findOne({ user: user._id }).session(session),
-        CreditAccount.findOne({ user: user._id }).session(session),
-      ]);
-
-      if (wallet) {
-        wallet.isActive = true;
-        await wallet.save({ session });
-      }
-
-      if (creditAccount) {
-        creditAccount.status = CreditAccountStatus.ACTIVE;
-        await creditAccount.save({ session });
-      }
-    } else {
-      // Non-customer role: deactivate
-      const wallet = await Wallet.findOne({ user: user._id }).session(session);
-      const creditAccount = await CreditAccount.findOne({
-        user: user._id,
-      }).session(session);
-
-      if (wallet) {
-        wallet.isActive = false;
-        await wallet.save({ session });
-      }
-
-      if (creditAccount) {
-        creditAccount.status = CreditAccountStatus.FROZEN;
-        await creditAccount.save({ session });
-      }
-    }
-    await Audit.create(
-      [
-        {
-          userId: req.user!.id,
-          action: AuditAction.UPDATE,
-          tableName: 'User',
-          recordId: user._id,
-          meta: {
-            action: 'role_change',
-            from: oldRoleId?.toString(),
-            to: newRole._id.toString(),
-          },
-        },
-      ],
-      { session }
+  if (user.role_id?.toString() == role_id.toString())
+    throw new APIError('User already has this role', 400);
+  const oldRole = user.role_id ? await Role.findById(user.role_id) : null;
+  if (oldRole?.name === 'customer')
+    throw new APIError(
+      `Cannot change customere role to admin (user is ${oldRole.name})`
     );
-    const updatedUser = await User.findById(targetUserId)
-      .populate('role_id', 'name description is_system_role')
-      .session(session);
 
-    if (!updatedUser) {
-      throw new APIError('Failed to fetch updated user', 500);
-    }
+  const isDemotingSuperAdmin =
+    oldRole?.name === 'super_admin' && newRole.name !== 'super_admin';
 
-    await session.commitTransaction();
-    res.status(200).json({
-      success: true,
-      message: 'User role updated successfully',
-      data: serializeUser(updatedUser),
+  if (isDemotingSuperAdmin) {
+    const remaining = await User.countDocuments({
+      role_id: oldRole!._id,
+      _id: { $ne: user._id },
     });
-  } catch (error) {
-    if (session.inTransaction()) {
-      await session.abortTransaction();
+
+    if (remaining === 0) {
+      throw new APIError('Cannot demote the last super admin', 403);
     }
-    throw error;
-  } finally {
-    await session.endSession();
   }
+
+  const oldRoleId = user.role_id;
+  user.role_id = newRole._id;
+  await user.save();
+  await Audit.create({
+    userId: req.user!.id,
+    action: AuditAction.UPDATE,
+    tableName: MODEL_NAMES.USER,
+    recordId: user._id.toString(),
+    meta: {
+      action: 'role_change',
+      from: { id: oldRoleId?.toString(), name: oldRole?.name },
+      to: { id: newRole._id.toString(), name: newRole.name },
+    },
+  });
+  const updatedUser = await User.findById(targetUserId).populate(
+    'role_id',
+    'name description category is_system_role'
+  );
+
+  if (!updatedUser) {
+    throw new APIError('Failed to fetch updated user', 500);
+  }
+  res.status(200).json({
+    success: true,
+    message: `User role changed from '${oldRole?.name ?? 'unknown'}' to '${newRole.name}' successfully`,
+    data: serializeUser(updatedUser),
+  });
 };
