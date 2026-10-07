@@ -43,6 +43,10 @@ export const walletTransactionSchema = new Schema(
       required: true,
       min: 0,
     },
+    meta: {
+      type: Schema.Types.Mixed,
+      default: {},
+    },
   },
   {
     timestamps: {

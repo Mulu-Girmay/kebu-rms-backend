@@ -14,6 +14,7 @@ export const MODEL_NAMES = {
   WALLET_TRANSACTION: 'WalletTransaction',
   CREDIT_ACCOUNT: 'CreditAccount',
   FILE: 'File',
+  KITCHEN_SERVICE: 'KitchenService',
 } as const;
 
 export type ModelName = (typeof MODEL_NAMES)[keyof typeof MODEL_NAMES];
@@ -36,7 +37,9 @@ export enum WalletTransactionType {
   CREDIT = 'credit',
   REFUND = 'refund',
   DEBIT = 'debit',
+  WALLET = 'wallet',
 }
+
 export const WALLET_TRANSACTION_TYPE_VALUES = Object.values(
   WalletTransactionType
 );
@@ -116,3 +119,10 @@ export const ACTIONS = {
 } as const;
 
 export type Action = (typeof ACTIONS)[keyof typeof ACTIONS];
+
+export const PAYMENT_STATUS = {
+  PENDING: 'pending',
+  PAID: 'paid',
+  REFUNDED: 'refunded',
+  FAILED: 'failed',
+} as const;

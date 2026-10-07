@@ -2,9 +2,15 @@ import type { Response } from 'express';
 import { APIError } from '../errors/APIError.js';
 import { Wallet } from '../models/wallet/index.js';
 import { WalletTransaction } from '../models/walletTransaction/index.js';
-import { WalletTransactionType } from '../utils/constants.js';
+import {
+  AuditAction,
+  MODEL_NAMES,
+  WalletTransactionType,
+} from '../utils/constants.js';
 import type { AuthenticatedRequest } from '../middlewares/auth.js';
 import mongoose from 'mongoose';
+import { PaymentService } from '../services/payment.js';
+import { Audit } from '../models/audits/index.js';
 
 export const getWallet = async (
   req: AuthenticatedRequest,
@@ -105,62 +111,48 @@ export const topUpWallet = async (
   const { amount } = req.body;
 
   const session = await mongoose.startSession();
-  let wallet;
-  let transaction;
-
+  let result;
+  console.log('fREAXCH HERE');
   try {
     await session.withTransaction(async () => {
-      wallet = await Wallet.findOneAndUpdate(
-        { user: userId, isActive: true },
-        { $inc: { balance: amount } },
-        { new: true, session }
-      );
-
-      if (!wallet) {
-        const exists = await Wallet.exists({ user: userId }).session(session);
-        if (!exists) {
-          throw new APIError('Customer wallet not found', 404);
-        }
-        throw new APIError('Customer wallet is inactive', 400);
-      }
-
-      const balanceAfter = wallet.balance;
-      const balanceBefore = balanceAfter - amount;
-
-      const [created] = await WalletTransaction.create(
+      result = await PaymentService.topUp(userId, amount, session);
+      await Audit.create(
         [
           {
-            wallet: wallet._id,
-            amount,
-            type: WalletTransactionType.CREDIT,
-            balanceBefore,
-            balanceAfter,
+            userId: req.user!.id,
+            action: AuditAction.UPDATE,
+            tableName: MODEL_NAMES.WALLET,
+            recordId: userId,
+            meta: {
+              action: 'top_up_with_credit_repayment',
+              amount,
+              creditRepaid: result.creditRepaid,
+              walletCredited: result.walletCredited,
+              walletBalanceAfter: result.walletBalanceAfter,
+              creditUsedAfter: result.creditUsedAfter,
+            },
           },
         ],
         { session }
       );
-
-      transaction = created;
     });
+  } catch (error) {
+    if (session.inTransaction()) {
+      await session.abortTransaction();
+    }
+    throw error;
   } finally {
     await session.endSession();
   }
+  console.log('fREfH HERE');
+  console.log('fREvHERE');
 
   res.status(200).json({
-    message: 'Wallet topped up successfully',
-    wallet: {
-      id: wallet!._id,
-      userId: wallet!.user,
-      balance: wallet!.balance,
-      isActive: wallet!.isActive,
-    },
-    transaction: {
-      id: transaction!._id,
-      amount: transaction!.amount,
-      type: transaction!.type,
-      balanceBefore: transaction!.balanceBefore,
-      balanceAfter: transaction!.balanceAfter,
-      createdAt: transaction!.createdAt,
-    },
+    success: true,
+    message:
+      result!.creditRepaid > 0
+        ? `Wallet topped up. ${result!.creditRepaid} applied to outstanding credit.`
+        : 'Wallet topped up successfully',
+    data: result,
   });
 };

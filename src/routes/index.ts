@@ -13,6 +13,11 @@ import ratingRoutes from './rating.routes.js';
 import rolesRouter from './roles.js';
 import { walletAdminRouter, walletSelfRouter } from './wallet.js';
 import {
+  creditAccountAdminRouter,
+  creditAccountSelfRouter,
+} from './creditAccount.js';
+import dashboardRoutes from './dashboard.routes.js';
+import {
   transactionAdminRouter,
   transactionSelfRouter,
 } from './transaction.js';
@@ -23,6 +28,7 @@ router.use('/test', rbacTest);
 
 router.use('/admin/users', userRoutes);
 
+router.use('/admin/dashboard', dashboardRoutes);
 router.use('/admin/roles', rolesRouter);
 router.use('/admin/categories', categoryRoutes);
 router.use('/admin/menu-items', menuItemRoutes);
@@ -42,4 +48,6 @@ router.use('/ratings', ratingRoutes);
 router.use('/wallet', walletSelfRouter);
 router.use('/transactions', transactionSelfRouter);
 
+router.use('/credit-account', creditAccountSelfRouter);
+router.use('/admin/credit-accounts', creditAccountAdminRouter);
 export default router;

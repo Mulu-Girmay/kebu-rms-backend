@@ -28,6 +28,14 @@ cp .env.example .env
 
 Open `.env` and update the values with your local configuration (e.g., `MONGO_URI`, `JWT_SECRET`).
 
+### Role and Permission seed
+
+Populate the database with initial SYSTME ROlE and PERMISSIONS :
+
+```bash
+npm run seed
+```
+
 ### 3. Available Scripts
 
 Run these scripts from the project root using npm:
@@ -64,6 +72,18 @@ Run your custom CLI tool scripts for migrations or backups:
 # Run the migration CLI tool
 npm run script -- --help
 ```
+
+#### API Test Data
+
+Populate the database with sample categories, and menu items without
+running the role and permission seed:
+
+```bash
+npm run seed:test
+```
+
+This command uses the `MONGO_URI` from `.env`. It can be run repeatedly to
+update the same namespaced test records.
 
 ## API Health Check
 

@@ -4,7 +4,7 @@ import { body, param, query } from 'express-validator';
 export const validateIdParam = [
   param('id')
     .exists()
-    .withMessage('ID is required')
+    .withMessage('ID  required')
     .isString()
     .withMessage('Invalid user ID'),
 ];

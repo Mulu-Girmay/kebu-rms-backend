@@ -129,6 +129,9 @@ export const seedRoles = async (): Promise<void> => {
             ACTIONS.READ,
             ACTIONS.UPDATE,
           ]),
+          ...getPermissions(permissions, RESOURCES.CREDIT_ACCOUNTS, [
+            ACTIONS.READ,
+          ]),
           ...getPermissions(permissions, RESOURCES.WALLETS, [ACTIONS.READ]),
           ...getPermissions(permissions, RESOURCES.WALLET_TRANSACTIONS, [
             ACTIONS.READ,

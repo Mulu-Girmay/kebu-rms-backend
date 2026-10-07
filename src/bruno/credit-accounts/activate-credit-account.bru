@@ -1,0 +1,19 @@
+meta {
+  name: Unfreeze Credit Account
+  type: http
+  seq: 14
+}
+
+patch {
+  url: {{baseUrl}}/api/v1/admin/credit-accounts/{{customerUserId}}/activate
+  auth: inherit
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("status is active", function() {
+    expect(res.body.data.status).to.equal("active");
+  });
+}

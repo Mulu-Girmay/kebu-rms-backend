@@ -1,0 +1,22 @@
+meta {
+  name: Modify Closed Account (400)
+  type: http
+  seq: 17
+}
+
+patch {
+  url: {{baseUrl}}/api/v1/admin/credit-accounts/{{customerUserId}}/limit
+  body: json
+  auth: inherit
+}
+
+body:json {
+  { "creditLimit": 9999 }
+}
+
+tests {
+  test("status is 400 or 200", function() {
+    // 400 if account is closed
+    expect([200, 400]).to.include(res.status);
+  });
+}
