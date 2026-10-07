@@ -20,18 +20,10 @@ import {
 import { RESOURCES, ACTIONS } from '../utils/constants.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 
-const router = Router();
+export const orderAdminRouter = Router();
+export const orderCustomerRouter = Router();
 
-router.post(
-  '/',
-  requireAuth,
-  requirePermission(RESOURCES.ORDERS, ACTIONS.CREATE),
-  createOrderSchema,
-  validateRequest,
-  asyncHandler(createOrder)
-);
-
-router.get(
+orderAdminRouter.get(
   '/',
   requireAuth,
   requirePermission(RESOURCES.ORDERS, ACTIONS.READ),
@@ -40,7 +32,16 @@ router.get(
   asyncHandler(getCustomerOrders)
 );
 
-router.get(
+orderCustomerRouter.post(
+  '/',
+  requireAuth,
+  requirePermission(RESOURCES.ORDERS, ACTIONS.CREATE),
+  createOrderSchema,
+  validateRequest,
+  asyncHandler(createOrder)
+);
+
+orderAdminRouter.get(
   '/:id',
   requireAuth,
   requirePermission(RESOURCES.ORDERS, ACTIONS.READ),
@@ -49,7 +50,16 @@ router.get(
   asyncHandler(getOrderById)
 );
 
-router.patch(
+orderCustomerRouter.get(
+  '/:id',
+  requireAuth,
+  requirePermission(RESOURCES.ORDERS, ACTIONS.READ),
+  orderIdParamSchema,
+  validateRequest,
+  asyncHandler(getOrderById)
+);
+
+orderCustomerRouter.patch(
   '/:id/cancel',
   requireAuth,
   requirePermission(RESOURCES.ORDERS, ACTIONS.UPDATE),
@@ -59,7 +69,7 @@ router.patch(
   asyncHandler(cancelOrder)
 );
 
-router.post(
+orderCustomerRouter.post(
   '/:id/reorder',
   requireAuth,
   requirePermission(RESOURCES.ORDERS, ACTIONS.CREATE),
@@ -68,7 +78,7 @@ router.post(
   asyncHandler(reorder)
 );
 
-router.patch(
+orderCustomerRouter.patch(
   '/:id/favorite',
   requireAuth,
   requirePermission(RESOURCES.ORDERS, ACTIONS.UPDATE),
@@ -77,5 +87,3 @@ router.patch(
   validateRequest,
   asyncHandler(toggleFavoriteOrder)
 );
-
-export default router;
