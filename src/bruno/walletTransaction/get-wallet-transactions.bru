@@ -1,11 +1,11 @@
 meta {
-  name: Get all Wallet Transactions
+  name: Get Wallet Transactions
   type: http
   seq: 2
 }
 
 get {
-  url: {{baseUrl}}/api/v1/wallet/transactions/all
+  url: {{baseUrl}}/api/v1/admin/transactions
   body: none
   auth: inherit
 }

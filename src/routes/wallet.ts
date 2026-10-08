@@ -1,4 +1,4 @@
-import express, { Router } from 'express';
+import { Router } from 'express';
 import { requireAuth } from '../middlewares/auth.js';
 import { requirePermission } from '../middlewares/authorize.js';
 import { RESOURCES, ACTIONS } from '../utils/constants.js';

@@ -15,13 +15,17 @@ const permissionDefinitions = [
   RESOURCES.NOTIFICATIONS,
   RESOURCES.AUDITS,
 ].flatMap((resource) =>
-  [ACTIONS.CREATE, ACTIONS.READ, ACTIONS.UPDATE, ACTIONS.DELETE].map(
-    (action) => ({
-      name: `${resource}_${action}`,
-      resource,
-      action,
-    })
-  )
+  [
+    ACTIONS.CREATE,
+    ACTIONS.READ,
+    ACTIONS.READALL,
+    ACTIONS.UPDATE,
+    ACTIONS.DELETE,
+  ].map((action) => ({
+    name: `${resource}_${action}`,
+    resource,
+    action,
+  }))
 );
 
 export const seedPermissions = async (): Promise<void> => {

@@ -4,6 +4,10 @@ import { walletTransactionSchema } from './schema.js';
 import { MODEL_NAMES } from '../../utils/constants.js';
 import './methods.js';
 import './statics.js';
+import type {
+  WalletTransactionQueryOptions,
+  WalletTransactionResult,
+} from '../../types/types.js';
 
 export type WalletTransaction = InferSchemaType<typeof walletTransactionSchema>;
 
@@ -16,34 +20,14 @@ export interface WalletTransactionModel extends Model<
 > {
   findByUserId(userId: string): Promise<WalletTransaction[]>;
   findByOrderId(orderId: string): Promise<WalletTransaction[]>;
-  findAllWithDetails(options: {
-    page: number;
-    limit: number;
-    dateRange?: number;
-  }): Promise<{
-    transactions: {
-      id: unknown;
-      date: Date;
-      amount: number;
-      type: string;
-      balanceBefore: number;
-      balanceAfter: number;
-      user: {
-        id: string;
-        name: string;
-        email: string;
-        image: string;
-      };
-      order: {
-        id: unknown;
-        orderNumber: string;
-        status: string;
-        items: unknown[];
-        totalAmount: number;
-        placedAt: Date;
-      } | null;
-    }[];
+  findAllWithDetails(options: WalletTransactionQueryOptions): Promise<{
+    transactions: WalletTransactionResult[];
     total: number;
+    stats: {
+      totalAmount: number;
+      successfulDepositsCount: number;
+      pendingCount: number;
+    };
   }>;
 }
 
