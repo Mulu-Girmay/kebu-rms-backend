@@ -3,6 +3,12 @@ import { Wallet } from '../wallet/index.js';
 import { User } from '../users/index.js';
 import { Order } from '../orders/index.js';
 import { type PipelineStage } from 'mongoose';
+import type {
+  WalletTransactionDateRange,
+  WalletTransactionSortBy,
+  WalletTransactionSortOrder,
+  WalletTransactionType,
+} from '../../types/types.js';
 
 walletTransactionSchema.statics.findByUserId = async function (userId: string) {
   const wallet = await Wallet.findOne({
@@ -29,24 +35,101 @@ walletTransactionSchema.statics.findByOrderId = async function (
 walletTransactionSchema.statics.findAllWithDetails = async function ({
   page,
   limit,
+  search,
+  type,
   dateRange,
+  startDate,
+  endDate,
+  userId,
+  sortBy,
+  sortOrder,
 }: {
   page: number;
   limit: number;
-  dateRange?: number;
+  search?: string;
+  type?: WalletTransactionType;
+  dateRange?: WalletTransactionDateRange;
+  startDate?: string;
+  endDate?: string;
+  userId?: string;
+  sortBy?: WalletTransactionSortBy;
+  sortOrder?: WalletTransactionSortOrder;
 }) {
   const skip = (page - 1) * limit;
 
   const match: Record<string, any> = {};
 
-  if (dateRange) {
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - dateRange);
+  if (type && type !== 'all') {
+    switch (type) {
+      case 'credit':
+      case 'top_up':
+        match.type = {
+          $in: ['credit', 'top_up', 'topup'],
+        };
+        break;
 
-    match.createdAt = {
-      $gte: startDate,
-    };
+      case 'debit':
+        match.type = {
+          $in: ['debit', 'payment'],
+        };
+        break;
+
+      case 'refund':
+        match.type = 'refund';
+        break;
+
+      case 'mixed':
+        match.type = 'mixed';
+        break;
+    }
   }
+
+  if (startDate || endDate) {
+    match.createdAt = {};
+
+    if (startDate) {
+      match.createdAt.$gte = new Date(startDate);
+    }
+
+    if (endDate) {
+      match.createdAt.$lte = new Date(endDate);
+    }
+  } else if (dateRange && dateRange !== 'all') {
+    const now = new Date();
+
+    if (dateRange === 'today') {
+      const startOfToday = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate()
+      );
+
+      match.createdAt = {
+        $gte: startOfToday,
+      };
+    }
+
+    if (dateRange === '7days') {
+      const sevenDaysAgo = new Date(now);
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+      match.createdAt = {
+        $gte: sevenDaysAgo,
+      };
+    }
+
+    if (dateRange === '30days') {
+      const thirtyDaysAgo = new Date(now);
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+      match.createdAt = {
+        $gte: thirtyDaysAgo,
+      };
+    }
+  }
+
+  const sortField = sortBy === 'amount' ? 'amount' : 'createdAt';
+  const sortDirection = sortOrder === 'asc' ? 1 : -1;
 
   const pipeline: PipelineStage[] = [
     {
@@ -65,6 +148,16 @@ walletTransactionSchema.statics.findAllWithDetails = async function ({
     {
       $unwind: '$wallet',
     },
+
+    ...(userId
+      ? [
+          {
+            $match: {
+              'wallet.user': userId,
+            },
+          },
+        ]
+      : []),
 
     {
       $lookup: {
@@ -95,14 +188,44 @@ walletTransactionSchema.statics.findAllWithDetails = async function ({
       },
     },
 
+    ...(search
+      ? [
+          {
+            $match: {
+              $or: [
+                {
+                  'user.name': {
+                    $regex: search.trim(),
+                    $options: 'i',
+                  },
+                },
+                {
+                  'user.email': {
+                    $regex: search.trim(),
+                    $options: 'i',
+                  },
+                },
+                {
+                  'order.orderNumber': {
+                    $regex: search.trim(),
+                    $options: 'i',
+                  },
+                },
+              ],
+            },
+          },
+        ]
+      : []),
+
     {
       $facet: {
         transactions: [
           {
             $sort: {
-              createdAt: -1,
+              [sortField]: sortDirection,
             },
           },
+
           {
             $skip: skip,
           },
@@ -151,6 +274,39 @@ walletTransactionSchema.statics.findAllWithDetails = async function ({
             $count: 'count',
           },
         ],
+
+        stats: [
+          {
+            $group: {
+              _id: null,
+              totalAmount: {
+                $sum: '$amount',
+              },
+              successfulDepositsCount: {
+                $sum: {
+                  $cond: [
+                    {
+                      $in: ['$type', ['credit', 'top_up', 'topup']],
+                    },
+                    1,
+                    0,
+                  ],
+                },
+              },
+              pendingCount: {
+                $sum: {
+                  $cond: [
+                    {
+                      $eq: ['$order.status', 'placed'],
+                    },
+                    1,
+                    0,
+                  ],
+                },
+              },
+            },
+          },
+        ],
       },
     },
   ];
@@ -160,5 +316,10 @@ walletTransactionSchema.statics.findAllWithDetails = async function ({
   return {
     transactions: result?.transactions ?? [],
     total: result?.total[0]?.count ?? 0,
+    stats: {
+      totalAmount: result?.stats[0]?.totalAmount ?? 0,
+      successfulDepositsCount: result?.stats[0]?.successfulDepositsCount ?? 0,
+      pendingCount: result?.stats[0]?.pendingCount ?? 0,
+    },
   };
 };
