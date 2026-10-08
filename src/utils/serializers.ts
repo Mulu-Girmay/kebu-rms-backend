@@ -20,6 +20,7 @@ export const serializeUser = (user: any) => {
     email: user.email,
     image: user.image ?? user.image ?? null,
     status: user.status,
+    must_change_password: user.must_change_password,
     settings: {
       orderStatusNotifications:
         user.settings?.orderStatusNotifications ?? 'all',
