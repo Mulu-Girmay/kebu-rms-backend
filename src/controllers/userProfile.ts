@@ -155,6 +155,10 @@ export const changePassword = async (
         revokeOtherSessions: true,
       },
     });
+    const user = await User.findById(req.user!.id);
+    if (!user) throw new APIError('Unable to find the user ', 404);
+    user.must_change_password = false;
+    user.save();
     res.status(200).json({
       success: true,
       message: 'Password changed successfully',
