@@ -111,7 +111,7 @@ export const updateSelfValidator = [
 ];
 
 export const createUserValidator = [
-  body('fullName')
+  body('name')
     .trim()
     .notEmpty()
     .withMessage('Name cannot be empty')
