@@ -1,4 +1,5 @@
 import { transporter } from '../config/nodemailer.js';
+import nodemailer, { type Transporter } from 'nodemailer';
 import { config } from '../config/environments.js';
 import logger from '../config/winston.js';
 import {
@@ -31,8 +32,48 @@ export const sendEmail = async <T extends EmailTemplateType>({
     });
 
     logger.info(`Email sent to ${to}: ${info.messageId}`);
-  } catch (error) {
-    logger.error(`Failed to send email to ${to}:`, error);
+  } catch (error: any) {
+    const errorString = error?.message || '';
+
+    if (
+      errorString.includes('invalid_grant') ||
+      errorString.includes('Invalid Credentials')
+    ) {
+      logger.warn(
+        'OAuth2 token expired or invalid during sendMail. Hot-swapping to App Password fallback...'
+      );
+
+      const baseSmtpConfig = {
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
+        tls: { rejectUnauthorized: false },
+        connectionTimeout: 30000,
+        greetingTimeout: 30000,
+        socketTimeout: 30000,
+      };
+
+      // Force change the global transporter
+      const newTransporter: Transporter = nodemailer.createTransport({
+        ...baseSmtpConfig,
+        auth: {
+          user: config.email.user,
+          pass: config.email.pass, // Your 16-character Google App Password
+        },
+      });
+
+      logger.info('Transporter hot-swapped. Retrying email delivery...');
+      const html = await createMail(template, data);
+      return await newTransporter.sendMail({
+        from: `"Kebu RMS" <${config.email.user}>`,
+        to,
+        subject,
+        html,
+      });
+    }
+
+    // If it's a completely different error (e.g. network issue), throw it normally
+    logger.error('Failed to send email:', error);
     throw error;
   }
 };
