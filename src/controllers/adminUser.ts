@@ -110,8 +110,8 @@ export const createStaffaccount = async (
   req: AuthenticatedRequest,
   res: Response
 ) => {
-  const { fullName, email, password, role_id } = req.body as {
-    fullName: string;
+  const { name, email, password, role_id } = req.body as {
+    name: string;
     email: string;
     password: string;
     role_id: string;
@@ -135,13 +135,12 @@ export const createStaffaccount = async (
   const hashedPassword = await ctx.password.hash(password);
 
   let createdUserId: string | null = null;
-
   try {
     const user = await ctx.internalAdapter.createUser(
       {
         id: userId,
         _id: userId,
-        name: fullName,
+        name,
         email: email.toLowerCase(),
         emailVerified: true,
         role_id: role._id.toString(),
@@ -179,7 +178,7 @@ export const createStaffaccount = async (
     });
 
     try {
-      await sendWelcomeStaffEmail(email, fullName, password, role.name);
+      await sendWelcomeStaffEmail(email, name, password, role.name);
     } catch (err) {
       logger.error('Failed to send welcome staff email', err);
     }

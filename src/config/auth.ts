@@ -36,6 +36,7 @@ const authOptions = {
     user: {
       create: {
         before: async (user) => {
+          if (user.must_change_password) return;
           const userId = `user_${new Types.ObjectId().toString()}`;
           const customerRole = await Role.findOne({ name: 'customer' });
           return {
