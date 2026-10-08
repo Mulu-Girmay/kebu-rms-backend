@@ -159,7 +159,7 @@ export const createStaffaccount = async (
     await ctx.internalAdapter.createAccount({
       userId: user.id,
       accountId: user.id,
-      issuer: 'local-credential',
+      issuer: 'local:credential',
       providerId: 'credential',
       password: hashedPassword,
     });
