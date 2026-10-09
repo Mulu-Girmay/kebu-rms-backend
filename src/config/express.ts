@@ -14,7 +14,7 @@ ensureUploadDirectory();
 
 app.use(
   cors({
-    origin: config.clientUrl,
+    origin: true,
     credentials: true,
   })
 );

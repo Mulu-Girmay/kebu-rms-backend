@@ -11,6 +11,7 @@ import { APIError } from '../errors/APIError.js';
 import { OrderStatus } from '../utils/constants.js';
 import { socketManager } from '../socket/manager.js';
 import { SOCKET_EVENTS } from '../socket/events.js';
+import { KITCHEN_ROOM } from '../socket/rooms.js';
 import logger from '../config/winston.js';
 import mongoose from 'mongoose';
 import { PaymentService } from '../services/payment.js';
@@ -139,9 +140,10 @@ export const createOrder = async (
     await session.endSession();
   }
   try {
-    socketManager.emitToRoom('orders', 'order:placed', order);
+    socketManager.emitToRoom(KITCHEN_ROOM, SOCKET_EVENTS.ORDER_CREATED, order);
+    socketManager.emitToUser(userId, SOCKET_EVENTS.ORDER_CREATED, order);
   } catch (error) {
-    logger.warn('Failed to emit socket event for order:placed', error);
+    logger.warn('Failed to emit socket event for order.created', error);
   }
 
   res.status(201).json({
@@ -297,9 +299,14 @@ export const cancelOrder = async (
   }
 
   try {
-    socketManager.emitToRoom('orders', 'order:cancelled', order);
+    socketManager.emitToRoom(
+      KITCHEN_ROOM,
+      SOCKET_EVENTS.ORDER_STATUS_CHANGED,
+      order
+    );
+    socketManager.emitToUser(userId, SOCKET_EVENTS.ORDER_STATUS_CHANGED, order);
   } catch (error) {
-    logger.warn('Failed to emit socket event for order:cancelled', error);
+    logger.warn('Failed to emit socket event for cancelled order', error);
   }
 
   res.status(200).json({
@@ -498,14 +505,12 @@ export const updateOrderStatus = async (
   await order.save();
 
   try {
-    socketManager.emitToRoom('orders', 'order:status_changed', order);
     socketManager.emitToRoom(
-      'orders',
+      KITCHEN_ROOM,
       SOCKET_EVENTS.ORDER_STATUS_CHANGED,
       order
     );
     if (order.userId) {
-      socketManager.emitToUser(order.userId, 'order:status_changed', order);
       socketManager.emitToUser(
         order.userId,
         SOCKET_EVENTS.ORDER_STATUS_CHANGED,
@@ -513,7 +518,7 @@ export const updateOrderStatus = async (
       );
     }
   } catch (error) {
-    logger.warn('Failed to emit socket event for order:status_changed', error);
+    logger.warn('Failed to emit socket event for order.status_changed', error);
   }
 
   res.status(200).json({
@@ -640,13 +645,17 @@ export const togglePauseOrders = async (
   await service.save();
 
   try {
-    socketManager.emitToRoom('orders', 'service:pause_toggled', {
-      isOrdersPaused: service.isOrdersPaused,
-      pausedAt: service.pausedAt,
-      pauseReason: service.pauseReason,
-    });
+    socketManager.emitToRoom(
+      KITCHEN_ROOM,
+      SOCKET_EVENTS.SERVICE_PAUSE_TOGGLED,
+      {
+        isOrdersPaused: service.isOrdersPaused,
+        pausedAt: service.pausedAt,
+        pauseReason: service.pauseReason,
+      }
+    );
   } catch (error) {
-    logger.warn('Failed to emit socket event for service:pause_toggled', error);
+    logger.warn('Failed to emit socket event for service.pause_toggled', error);
   }
 
   res.status(200).json({
