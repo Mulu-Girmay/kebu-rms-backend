@@ -5,12 +5,14 @@ import { MenuItem } from '../models/menuItems/index.js';
 import { Audit } from '../models/audits/index.js';
 import { APIError } from '../errors/APIError.js';
 import { AuditAction, MODEL_NAMES } from '../utils/constants.js';
+import { cache, CACHE_KEYS } from '../utils/cache.js';
 
 // In-memory cache store for category queries
 const categoryCache = new Map<string, unknown>();
 
 export const clearCategoryCache = (): void => {
   categoryCache.clear();
+  cache.del(CACHE_KEYS.CATEGORIES);
 };
 
 export const createCategory = async (

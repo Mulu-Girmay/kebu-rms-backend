@@ -23,7 +23,7 @@ export const validateUsersQuery = [
 
   query('limit')
     .optional()
-    .isInt({ min: 1, max: 20 })
+    .isInt({ min: 1, max: 100 })
     .withMessage('Limit must be an integer between 1 and 20')
     .toInt(),
 

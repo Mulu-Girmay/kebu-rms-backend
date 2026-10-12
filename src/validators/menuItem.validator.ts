@@ -81,6 +81,7 @@ export const toggleAvailabilitySchema = [
 
 export const menuItemQuerySchema = [
   query('q').optional().trim(),
+  query('search').optional().trim(),
   query('categoryId')
     .optional()
     .isMongoId()

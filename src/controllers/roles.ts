@@ -148,6 +148,14 @@ export const deleteRole = async (
     throw new APIError('Cannot delete system role', 403);
   }
 
+  const assignedUsersCount = await User.countDocuments({ role_id: id });
+  if (assignedUsersCount > 0) {
+    throw new APIError(
+      `Cannot delete role: ${assignedUsersCount} users currently have this role assigned. Reassign them first.`,
+      400
+    );
+  }
+
   await Role.deleteOne({
     _id: id,
   });

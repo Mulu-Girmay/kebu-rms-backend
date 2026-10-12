@@ -3,6 +3,8 @@ import {
   CreditAccountStatus,
   WalletTransactionType,
 } from '../utils/constants.js';
+import { CreditAccount } from '../models/creditAccount/index.js';
+import { Wallet } from '../models/wallet/index.js';
 import { WalletTransaction } from '../models/walletTransaction/index.js';
 import logger from '../config/winston.js';
 import { APIError } from '../errors/APIError.js';
@@ -44,17 +46,45 @@ export const PaymentService = {
       }
     }
 
-    const walletBefore = wallet.balance;
-    const creditBefore = creditAccount ? creditAccount.usedCredit : 0;
-
-    // Deduct balances
-    wallet.balance -= walletAmount;
-    await wallet.save({ session });
-
-    if (creditAmount > 0 && creditAccount) {
-      creditAccount.usedCredit += creditAmount;
-      await creditAccount.save({ session });
+    const updatedWallet = await Wallet.findOneAndUpdate(
+      {
+        _id: wallet._id,
+        isActive: true,
+        balance: { $gte: walletAmount },
+      },
+      { $inc: { balance: -walletAmount } },
+      { session, new: true }
+    );
+    if (!updatedWallet) {
+      throw new APIError(
+        'Wallet balance changed during checkout. Please retry your order.',
+        409
+      );
     }
+    const walletBefore = updatedWallet.balance + walletAmount;
+
+    let updatedCreditAccount = creditAccount;
+    if (creditAmount > 0 && creditAccount) {
+      const creditAccountAfterCharge = await CreditAccount.findOneAndUpdate(
+        {
+          _id: creditAccount._id,
+          status: CreditAccountStatus.ACTIVE,
+          $expr: {
+            $lte: [{ $add: ['$usedCredit', creditAmount] }, '$creditLimit'],
+          },
+        },
+        { $inc: { usedCredit: creditAmount } },
+        { session, new: true }
+      );
+      if (!creditAccountAfterCharge) {
+        throw new APIError(
+          'Available credit changed during checkout. Please retry your order.',
+          409
+        );
+      }
+      updatedCreditAccount = creditAccountAfterCharge;
+    }
+    const creditBefore = updatedCreditAccount.usedCredit - creditAmount;
 
     const txnType =
       creditAmount === 0
@@ -71,12 +101,12 @@ export const PaymentService = {
           amount: total,
           type: txnType,
           balanceBefore: walletBefore,
-          balanceAfter: wallet.balance,
+          balanceAfter: updatedWallet.balance,
           meta: {
             walletAmount,
             creditAmount,
             creditUsedBefore: creditBefore,
-            creditUsedAfter: creditAccount ? creditAccount.usedCredit : 0,
+            creditUsedAfter: updatedCreditAccount.usedCredit,
             reason: 'order_payment',
           },
         },
@@ -103,13 +133,6 @@ export const PaymentService = {
     }
 
     const { wallet, creditAccount } = await fetchAccounts(userId, session);
-
-    if (creditAmount > 0) {
-      throw new APIError(
-        `Credit account missing for required credit refund of ${creditAmount}`,
-        500
-      );
-    }
 
     const walletBefore = wallet.balance;
     const creditBefore = creditAccount ? creditAccount.usedCredit : 0;
