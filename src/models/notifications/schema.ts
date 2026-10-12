@@ -30,12 +30,16 @@ export const notificationSchema = new Schema(
     },
 
     redirectParams: {
-      type: String,
+      type: Schema.Types.Mixed,
       default: null,
     },
 
     redirectRoute: {
       type: String,
+      default: null,
+    },
+    meta: {
+      type: Schema.Types.Mixed,
       default: null,
     },
   },

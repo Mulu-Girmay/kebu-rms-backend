@@ -8,6 +8,9 @@ import type { BetterAuthUser } from '../types/types.js';
 import { serializeUser } from '../utils/serializers.js';
 import type { Response } from 'express';
 import mongoose from 'mongoose';
+import { NotificationService } from '../services/notification.js';
+import { NotificationTemplates } from '../utils/templates/notification.templates.js';
+import logger from '../config/winston.js';
 
 const populateRole = (query: any) =>
   query.populate('role_id', 'name description is_system_arole');
@@ -158,7 +161,18 @@ export const changePassword = async (
     const user = await User.findById(req.user!.id);
     if (!user) throw new APIError('Unable to find the user ', 404);
     user.must_change_password = false;
-    user.save();
+    await user.save();
+    try {
+      await NotificationService.notifyUser({
+        userId: user._id.toString(),
+        ...NotificationTemplates.passwordChanged(),
+      });
+    } catch (notificationError) {
+      logger.warn(
+        'Failed to send password change notification',
+        notificationError
+      );
+    }
     res.status(200).json({
       success: true,
       message: 'Password changed successfully',

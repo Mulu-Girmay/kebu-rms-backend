@@ -7,6 +7,9 @@ import type { AuthenticatedRequest } from '../middlewares/auth.js';
 import mongoose from 'mongoose';
 import { PaymentService } from '../services/payment.js';
 import { Audit } from '../models/audits/index.js';
+import { NotificationService } from '../services/notification.js';
+import { NotificationTemplates } from '../utils/templates/notification.templates.js';
+import logger from '../config/winston.js';
 
 export const getWallet = async (
   req: AuthenticatedRequest,
@@ -92,6 +95,18 @@ export const topUpWallet = async (
     throw error;
   } finally {
     await session.endSession();
+  }
+  try {
+    await NotificationService.notifyUser({
+      userId,
+      ...NotificationTemplates.walletTopUp(
+        amount,
+        result!.walletCredited,
+        result!.creditRepaid
+      ),
+    });
+  } catch (error) {
+    logger.warn(`Failed to notify user ${userId} about wallet top-up`, error);
   }
   console.log('fREfH HERE');
   console.log('fREvHERE');

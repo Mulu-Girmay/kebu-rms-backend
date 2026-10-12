@@ -52,8 +52,17 @@ export enum CreditAccountStatus {
 export const CREDIT_ACCOUNT_STATUS_VALUES = Object.values(CreditAccountStatus);
 
 export enum NotificationType {
+  // Customer-facing
   ORDER_UPDATE = 'order_update',
   TRANSACTION = 'transaction',
+  PROMOTION = 'promotion',
+  STATUS_UPDATE = 'status_update',
+
+  // Staff-facing
+  STAFF_ALERT = 'staff_alert',
+  EMAIL_FAILURE = 'email_failure',
+  NEW_ORDER = 'new_order',
+  PAYMENT_ISSUE = 'payment_issue',
   SYSTEM = 'system',
 }
 export const NOTIFICATION_TYPE_VALUES = Object.values(NotificationType);
