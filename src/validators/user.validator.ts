@@ -88,6 +88,16 @@ export const settingsValidator = [
     .optional()
     .isBoolean()
     .withMessage('promotionalNotifications must be a boolean'),
+
+  body('pushNotifications')
+    .optional()
+    .isBoolean()
+    .withMessage('pushNotifications must be a boolean'),
+
+  body('pushNotificaitons')
+    .optional()
+    .isBoolean()
+    .withMessage('pushNotificaitons must be a boolean'),
 ];
 export const updateSelfValidator = [
   body('fullName')

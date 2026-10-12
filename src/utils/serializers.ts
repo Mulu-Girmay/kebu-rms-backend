@@ -25,6 +25,7 @@ export const serializeUser = (user: any) => {
       orderStatusNotifications:
         user.settings?.orderStatusNotifications ?? 'all',
       promotionalNotifications: user.settings?.promotionalNotifications ?? true,
+      pushNotifications: user.settings?.pushNotificaitons ?? true,
     },
     role,
     createdAt: user.created_at ?? user.createdAt,

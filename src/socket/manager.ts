@@ -1,5 +1,6 @@
 import type { Server, Socket } from 'socket.io';
 import logger from '../config/winston.js';
+import { userRoom } from './rooms.js';
 
 class SocketManager {
   private io: Server | null = null;
@@ -51,28 +52,28 @@ class SocketManager {
     );
   }
 
-  emitToUser(userId: string, event: string, paylod: unknown): void {
-    this.ensureInitialized();
-
-    this.io!.to(`user:${userId}`).emit(event, paylod);
+  emitToUser(userId: string, event: string, payload: unknown): void {
+    this.getServer().to(userRoom(userId)).emit(event, payload);
   }
 
-  emitToRoom(room: string, event: string, paylod: unknown): void {
-    this.ensureInitialized();
-    this.io!.to(room).emit(event, paylod);
+  emitToRoom(room: string, event: string, payload: unknown): void {
+    this.getServer().to(room).emit(event, payload);
   }
 
   joinRoom(socket: Socket, room: string): void {
     socket.join(room);
   }
 
-  leavRoom(socket: Socket, room: string): void {
+  leaveRoom(socket: Socket, room: string): void {
     socket.leave(room);
   }
-  private ensureInitialized(): void {
+  private getServer(): Server {
     if (!this.io) {
-      logger.error('SocketManager has not been initialized');
+      const error = new Error('SocketManager has not been initialized');
+      logger.error(error.message);
+      throw error;
     }
+    return this.io;
   }
 }
 

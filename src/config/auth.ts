@@ -29,8 +29,16 @@ const authOptions = {
     disableOriginCheck: true,
     disableCSRFCheck: true,
   },
+  trustedOrigins: [new URL(config.clientUrl).origin],
   baseURL: config.auth.baseUrl,
   secret: config.jwt.secret,
+  account: {
+    accountLinking: {
+      enabled: true,
+      trustedProviders: ['google'],
+      requireLocalEmailVerified: true,
+    },
+  },
 
   databaseHooks: {
     user: {
@@ -86,6 +94,17 @@ const authOptions = {
       await sendVerificationEmail(user.email, user.name || 'User', token);
     },
   },
+
+  ...(config.googleOAuth.clientId && config.googleOAuth.clientSecret
+    ? {
+        socialProviders: {
+          google: {
+            clientId: config.googleOAuth.clientId,
+            clientSecret: config.googleOAuth.clientSecret,
+          },
+        },
+      }
+    : {}),
 
   user: {
     modelName: MODEL_NAMES.USER,

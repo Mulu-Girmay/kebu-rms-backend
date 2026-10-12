@@ -33,6 +33,8 @@ const envVarSchema = Joi.object({
   OAUTH_REFRESH_TOKEN: Joi.string()
     .required()
     .description('Google OAuth2 Refresh Token'),
+  GOOGLE_CLIENT_ID: Joi.string().allow('').default(''),
+  GOOGLE_CLIENT_SECRET: Joi.string().allow('').default(''),
   APP_CLIENT_URL: Joi.string().default('http://localhost:3000'),
 }).unknown(true);
 
@@ -41,6 +43,9 @@ const { value: envVars, error } = envVarSchema.validate(process.env, {
   stripUnknown: true,
 });
 if (error) throw new Error(`Config validation error: ${error.message}`);
+
+const mongoUri = new URL(envVars.MONGO_URI);
+mongoUri.searchParams.set('retryWrites', 'false');
 
 export interface AppConfig {
   env: string;
@@ -69,6 +74,10 @@ export interface AppConfig {
       refreshToken: string;
     };
   };
+  googleOAuth: {
+    clientId: string;
+    clientSecret: string;
+  };
   clientUrl: string;
 }
 
@@ -79,7 +88,7 @@ export const config: AppConfig = {
   auth: {
     baseUrl: envVars.API_URL,
   },
-  mongoose: { url: envVars.MONGO_URI },
+  mongoose: { url: mongoUri.toString() },
   jwt: { secret: envVars.JWT_SECRET, expiresIn: envVars.JWT_EXPIRES_IN },
   verification: { expiresIn: envVars.EMAIL_VERIFICATION_EXPIRES_IN },
   email: {
@@ -91,6 +100,10 @@ export const config: AppConfig = {
       clientSecret: envVars.OAUTH_CLIENT_SECRET,
       refreshToken: envVars.OAUTH_REFRESH_TOKEN,
     },
+  },
+  googleOAuth: {
+    clientId: envVars.GOOGLE_CLIENT_ID,
+    clientSecret: envVars.GOOGLE_CLIENT_SECRET,
   },
   clientUrl: envVars.APP_CLIENT_URL,
 };

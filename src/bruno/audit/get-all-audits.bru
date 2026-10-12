@@ -1,0 +1,36 @@
+```bru
+meta {
+  name: Get All Audits
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/v1/admin/audits?page=1&limit=10&sortBy=createdAt&order=desc
+  auth: inherit
+}
+
+params:query {
+  page: 1
+  limit: 10
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("status is 200 or 204", function() {
+    expect([200, 204]).to.include(res.status);
+  });
+  test("response has pagination and data array when 200", function() {
+    if (res.status === 200) {
+      expect(res.body.success).to.be.true;
+      expect(res.body.data).to.be.an("array");
+      expect(res.body.pagination).to.have.property("page");
+      expect(res.body.pagination).to.have.property("total");
+    }
+  });
+}
+
+```
