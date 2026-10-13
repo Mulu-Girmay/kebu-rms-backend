@@ -1,8 +1,5 @@
-import { param, body, query } from 'express-validator';
-import {
-  CREDIT_ACCOUNT_STATUS_VALUES,
-  CreditAccountStatus,
-} from '../utils/constants.js';
+import { body, query } from 'express-validator';
+import { CREDIT_ACCOUNT_STATUS_VALUES } from '../utils/constants.js';
 import { validateIdParam } from './user.validator.js';
 
 export const validateUpdateLimit = [
@@ -14,6 +11,53 @@ export const validateUpdateLimit = [
     .isFloat({ min: 0 })
     .withMessage('creditLimit must be a non-negative number')
     .toFloat(),
+];
+
+export const validateBatchUpdateLimit = [
+  body().custom((_, { req }) => {
+    const list = Array.isArray(req.body)
+      ? req.body
+      : req.body?.updates ||
+        req.body?.items ||
+        req.body?.accounts ||
+        req.body?.data;
+
+    if (!Array.isArray(list) || list.length === 0) {
+      throw new Error(
+        'An array of credit limit updates is required and cannot be empty'
+      );
+    }
+
+    for (let i = 0; i < list.length; i++) {
+      const item = list[i];
+      if (!item || typeof item !== 'object') {
+        throw new Error(`Item at index ${i} must be an object`);
+      }
+      const userId = item.userId ?? item.id;
+      const creditLimit = item.creditLimit ?? item.limit;
+
+      if (!userId || typeof userId !== 'string' || !userId.trim()) {
+        throw new Error(
+          `Item at index ${i}: userId is required and must be a non-empty string`
+        );
+      }
+
+      const num =
+        typeof creditLimit === 'number' ? creditLimit : Number(creditLimit);
+      if (
+        creditLimit === undefined ||
+        creditLimit === null ||
+        isNaN(num) ||
+        num < 0
+      ) {
+        throw new Error(
+          `Item at index ${i}: creditLimit must be a non-negative number`
+        );
+      }
+    }
+
+    return true;
+  }),
 ];
 
 export const validateAdjustUsercredit = [
