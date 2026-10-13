@@ -5,10 +5,7 @@ import type { AuthenticatedRequest } from '../middlewares/auth.js';
 import mongoose from 'mongoose';
 import logger from '../config/winston.js';
 
-/**
- * GET /api/v1/notifications
- */
-
+//   GET /api/v1/notifications
 export const listNotifications = async (
   req: AuthenticatedRequest,
   res: Response
