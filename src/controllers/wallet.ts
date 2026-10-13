@@ -64,7 +64,7 @@ export const topUpWallet = async (
 
   const session = await mongoose.startSession();
   let result;
-  console.log('fREAXCH HERE');
+
   try {
     await session.withTransaction(async () => {
       result = await PaymentService.topUp(userId, amount, session);

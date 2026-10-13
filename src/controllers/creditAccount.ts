@@ -105,7 +105,7 @@ export const getUserCreditAccount = async (
   res: Response
 ) => {
   const userId = req.params.id!;
-  const account = await CreditAccount.findOne({ userid: userId })
+  const account = await CreditAccount.findOne({ user: userId })
     .populate('user', 'name image email status')
     .lean<ICreditAccount | null>();
 

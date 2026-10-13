@@ -26,11 +26,13 @@ export const NotificationService = {
       return null;
     }
 
-    if (!shouldNotify(user.settings as any, params.type, params.meta)) {
-      return null;
-    }
+    const shouldPushNotif = !shouldNotify(
+      user.settings as any,
+      params.type,
+      params.meta
+    );
 
-    await persistAndEmit(params.userId, params);
+    await persistAndEmit(params.userId, params, shouldPushNotif);
 
     const latest = await Notification.findOne({ userId: params.userId })
       .sort({ createdAt: -1 })

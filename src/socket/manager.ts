@@ -1,13 +1,18 @@
-import type { Server, Socket } from 'socket.io';
 import logger from '../config/winston.js';
+import { USER_ROOM } from './rooms.js';
+import type {
+  AppSocket,
+  ServerToClientEvents,
+  SocketServer,
+} from '../types/socket.types.js';
 
 class SocketManager {
-  private io: Server | null = null;
+  private io: SocketServer | null = null;
 
   private readonly userSockets = new Map<string, Set<string>>();
   private readonly socketUsers = new Map<string, string>();
 
-  initialize(io: Server): void {
+  initialize(io: SocketServer): void {
     this.io = io;
   }
   addUserSocket(userId: string, socketId: string): void {
@@ -51,28 +56,42 @@ class SocketManager {
     );
   }
 
-  emitToUser(userId: string, event: string, paylod: unknown): void {
-    this.ensureInitialized();
-
-    this.io!.to(`user:${userId}`).emit(event, paylod);
+  emitToUser<E extends keyof ServerToClientEvents>(
+    userId: string,
+    event: E,
+    ...args: Parameters<ServerToClientEvents[E]>
+  ): void {
+    logger.info(`Socket emit: ${String(event)} to user ${userId}`);
+    this.getServer()
+      .to(USER_ROOM(userId))
+      .emit(event, ...args);
   }
 
-  emitToRoom(room: string, event: string, paylod: unknown): void {
-    this.ensureInitialized();
-    this.io!.to(room).emit(event, paylod);
+  emitToRoom<E extends keyof ServerToClientEvents>(
+    room: string,
+    event: E,
+    ...args: Parameters<ServerToClientEvents[E]>
+  ): void {
+    logger.info(`Socket emit: ${String(event)} to room ${room}`);
+    this.getServer()
+      .to(room)
+      .emit(event, ...args);
   }
 
-  joinRoom(socket: Socket, room: string): void {
+  joinRoom(socket: AppSocket, room: string): void {
     socket.join(room);
   }
 
-  leavRoom(socket: Socket, room: string): void {
+  leaveRoom(socket: AppSocket, room: string): void {
     socket.leave(room);
   }
-  private ensureInitialized(): void {
+  private getServer(): SocketServer {
     if (!this.io) {
-      logger.error('SocketManager has not been initialized');
+      const error = new Error('SocketManager has not been initialized');
+      logger.error(error.message);
+      throw error;
     }
+    return this.io;
   }
 }
 

@@ -1,0 +1,30 @@
+```bru
+meta {
+  name: Get Audit Stats
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/api/v1/admin/audits/stats
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("response includes total and breakdowns", function() {
+    expect(res.body.success).to.be.true;
+    expect(res.body.data).to.have.property('total');
+    expect(res.body.data).to.have.property('byAction');
+    expect(res.body.data).to.have.property('byTable');
+    expect(res.body.data).to.have.property('byUser');
+  });
+}
+
+```

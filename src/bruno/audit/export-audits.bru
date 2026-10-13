@@ -1,0 +1,28 @@
+```bru
+meta {
+  name: Export Audits
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/v1/admin/audits/export
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("status is 200 or 204", function() {
+    expect([200, 204]).to.include(res.status);
+  });
+  test("when 200 response is CSV string", function() {
+    if (res.status === 200) {
+      expect(res.getBody()).to.be.a('string');
+    }
+  });
+}
+
+```

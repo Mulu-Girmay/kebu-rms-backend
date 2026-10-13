@@ -23,7 +23,7 @@ export const validateUsersQuery = [
 
   query('limit')
     .optional()
-    .isInt({ min: 1, max: 20 })
+    .isInt({ min: 1, max: 100 })
     .withMessage('Limit must be an integer between 1 and 20')
     .toInt(),
 
@@ -88,6 +88,16 @@ export const settingsValidator = [
     .optional()
     .isBoolean()
     .withMessage('promotionalNotifications must be a boolean'),
+
+  body('pushNotifications')
+    .optional()
+    .isBoolean()
+    .withMessage('pushNotifications must be a boolean'),
+
+  body('pushNotificaitons')
+    .optional()
+    .isBoolean()
+    .withMessage('pushNotificaitons must be a boolean'),
 ];
 export const updateSelfValidator = [
   body('fullName')

@@ -57,7 +57,6 @@ export enum NotificationType {
   TRANSACTION = 'transaction',
   PROMOTION = 'promotion',
   STATUS_UPDATE = 'status_update',
-
   // Staff-facing
   STAFF_ALERT = 'staff_alert',
   EMAIL_FAILURE = 'email_failure',

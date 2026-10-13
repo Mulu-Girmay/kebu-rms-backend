@@ -247,11 +247,11 @@ export const deleteRating = async (
   if (!rating) {
     throw new APIError('Rating not found', 404);
   }
-
-  if (rating.userId !== userId) {
-    throw new APIError('Forbidden: Access to this rating is denied', 403);
+  const isAuthor = rating.userId === userId;
+  const isAdmin = ['super_admin'].includes(req.user!.role!.name);
+  if (!isAuthor && !isAdmin) {
+    throw new APIError('Forbidden: You can only delete your own reviews', 403);
   }
-
   await Rating.deleteOne({ _id: rating._id });
 
   res.status(200).json({

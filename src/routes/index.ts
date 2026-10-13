@@ -22,6 +22,7 @@ import {
   transactionAdminRouter,
   transactionSelfRouter,
 } from './transaction.js';
+import { auditAdminRouter } from './audit.js';
 
 const router = Router();
 
@@ -37,6 +38,7 @@ router.use('/admin/menu-items', menuItemRoutes);
 router.use('/admin/orders', orderAdminRouter);
 router.use('/admin/wallet', walletAdminRouter);
 router.use('/admin/transactions', transactionAdminRouter);
+router.use('/admin/audit', auditAdminRouter);
 
 router.use('/user/me', userProfileRoutes);
 router.use('/categories', clientCategoryRoutes);

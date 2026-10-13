@@ -20,13 +20,12 @@ export const listMenuItems = async (
     cursor,
     limit = 20,
     category,
-    search,
+    search = (req.query.q || req.query.search) as string | undefined,
     minPrice,
     maxPrice,
     sortBy = 'createdAt',
     order = 'desc',
   } = req.query as Record<string, string | undefined>;
-
   const limitNum = Math.min(
     Math.max(parseInt(String(limit), 10) || 20, 1),
     100

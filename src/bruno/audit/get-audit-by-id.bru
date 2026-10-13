@@ -1,0 +1,29 @@
+```bru
+meta {
+  name: Get Audit By Id
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/v1/admin/audits/{{auditId}}
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("status is 200 or 404", function() {
+    expect([200, 404]).to.include(res.status);
+  });
+  test("when 200 response has audit data", function() {
+    if (res.status === 200) {
+      expect(res.body.success).to.be.true;
+      expect(res.body.data).to.have.property('_id');
+    }
+  });
+}
+
+```
