@@ -182,3 +182,72 @@ export const changePassword = async (
     throw new APIError(error.message || 'Failed to change password', 400);
   }
 };
+
+/** DELETE /api/v1/user/image */
+export const deleteProfileImage = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  if (!req.user) {
+    throw new APIError('Authentication required', 401);
+  }
+
+  const user = await User.findById(req.user.id);
+  if (!user) {
+    throw new APIError('User not found', 404);
+  }
+
+  const previousImage = user.image;
+  if (!previousImage) {
+    throw new APIError('No profile image to delete', 400);
+  }
+
+  let betterAuthUpdated = false;
+  let mongoUpdated = false;
+
+  try {
+    await auth.api.updateUser({
+      headers: fromNodeHeaders(req.headers),
+      body: { image: null },
+    });
+    betterAuthUpdated = true;
+
+    const updatedMongoUser = await User.findByIdAndUpdate(
+      req.user.id,
+      { $unset: { image: '' } },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedMongoUser) {
+      throw new APIError('User document not found in database', 404);
+    }
+
+    mongoUpdated = true;
+
+    return res.status(200).json({
+      success: true,
+      message: 'Profile image deleted successfully',
+      data: { image: null },
+    });
+  } catch (error) {
+    if (betterAuthUpdated && !mongoUpdated) {
+      try {
+        await auth.api.updateUser({
+          headers: fromNodeHeaders(req.headers),
+          body: { image: previousImage },
+        });
+      } catch (rollbackError) {
+        logger.error(
+          'Failed to rollback Better Auth image after deletion failure',
+          rollbackError
+        );
+      }
+    }
+
+    if (error instanceof APIError) {
+      throw error;
+    }
+
+    throw new APIError('Failed to delete profile image', 500);
+  }
+};
