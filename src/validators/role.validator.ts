@@ -68,3 +68,17 @@ export const validateRolePermission = [
   ...validateRoleId,
   ...validatePermissionId,
 ];
+
+export const validateRoleChange = [
+  param('id')
+    .exists()
+    .withMessage('Target user ID is required')
+    .isString()
+    .withMessage('Invalid target user ID'),
+
+  body('role_id')
+    .exists()
+    .withMessage('Role ID is required')
+    .isString()
+    .withMessage('Invalid role ID'),
+];

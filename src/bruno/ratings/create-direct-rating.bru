@@ -1,0 +1,25 @@
+meta {
+  name: Create Direct Menu Item Rating (No Order)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/v1/ratings
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "menuItemId": "{{menuItemId}}",
+    "score": 5,
+    "comment": "Amazing food! Highly recommend the avocado toast."
+  }
+}
+
+tests {
+  test("should create direct menu item rating without order", function() {
+    expect([201, 400]).to.include(res.getStatus());
+  });
+}

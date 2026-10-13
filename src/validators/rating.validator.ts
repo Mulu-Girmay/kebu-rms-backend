@@ -9,11 +9,7 @@ export const menuItemIdParamSchema = [
 ];
 
 export const createRatingSchema = [
-  body('orderId')
-    .notEmpty()
-    .withMessage('Order ID is required')
-    .isMongoId()
-    .withMessage('Invalid Order ID format'),
+  body('orderId').optional().isMongoId().withMessage('Invalid Order ID format'),
   body('menuItemId')
     .notEmpty()
     .withMessage('Menu item ID is required')
@@ -29,11 +25,7 @@ export const createRatingSchema = [
 ];
 
 export const createBatchRatingSchema = [
-  body('orderId')
-    .notEmpty()
-    .withMessage('Order ID is required')
-    .isMongoId()
-    .withMessage('Invalid Order ID format'),
+  body('orderId').optional().isMongoId().withMessage('Invalid Order ID format'),
   body('ratings')
     .isArray({ min: 1 })
     .withMessage(

@@ -7,29 +7,50 @@ import menuItemRoutes from './menuItem.routes.js';
 
 import clientMenuRoutes from './menuItem.js';
 import clientCategoryRoutes from './category.js';
-import orderRoutes from './order.routes.js';
+import { orderAdminRouter, orderCustomerRouter } from './order.routes.js';
 import favoriteRoutes from './favorite.routes.js';
 import ratingRoutes from './rating.routes.js';
 import rolesRouter from './roles.js';
-import walletRoutes from './wallet.js';
+import notificationRouter from './notification.js';
+import { walletAdminRouter, walletSelfRouter } from './wallet.js';
+import {
+  creditAccountAdminRouter,
+  creditAccountSelfRouter,
+} from './creditAccount.js';
+import dashboardRoutes from './dashboard.routes.js';
+import {
+  transactionAdminRouter,
+  transactionSelfRouter,
+} from './transaction.js';
 
 const router = Router();
 
 router.use('/test', rbacTest);
 
-router.use('/users', userRoutes);
-router.use('/user/me', userProfileRoutes);
+router.use('/admin/users', userRoutes);
 
+router.use('/admin/dashboard', dashboardRoutes);
 router.use('/admin/roles', rolesRouter);
 router.use('/admin/categories', categoryRoutes);
 router.use('/admin/menu-items', menuItemRoutes);
 
+router.use('/admin/orders', orderAdminRouter);
+router.use('/admin/wallet', walletAdminRouter);
+router.use('/admin/transactions', transactionAdminRouter);
+
+router.use('/user/me', userProfileRoutes);
 router.use('/categories', clientCategoryRoutes);
 router.use('/menu-items', clientMenuRoutes);
 
-router.use('/orders', orderRoutes);
+router.use('/orders', orderCustomerRouter);
 router.use('/favorites', favoriteRoutes);
 router.use('/ratings', ratingRoutes);
-router.use('/wallet', walletRoutes);
 
+router.use('/wallet', walletSelfRouter);
+router.use('/transactions', transactionSelfRouter);
+
+router.use('/credit-account', creditAccountSelfRouter);
+router.use('/admin/credit-accounts', creditAccountAdminRouter);
+
+router.use('/notifications', notificationRouter);
 export default router;

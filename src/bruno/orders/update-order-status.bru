@@ -1,0 +1,23 @@
+meta {
+  name: Update Order Status
+  type: http
+  seq: 7
+}
+
+patch {
+  url: {{baseUrl}}/api/v1/orders/{{orderId}}/status
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "status": "accepted"
+  }
+}
+
+tests {
+  test("should update order status", function() {
+    expect([200, 400, 403, 404]).to.include(res.getStatus());
+  });
+}

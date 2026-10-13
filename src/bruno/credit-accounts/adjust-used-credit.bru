@@ -1,0 +1,27 @@
+meta {
+  name: Adjust Used Credit
+  type: http
+  seq: 10
+}
+
+patch {
+  url: {{baseUrl}}/api/v1/admin/credit-accounts/{{customerUserId}}/used-credit
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "usedCredit": 100,
+    "reason": "Manual adjustment for testing"
+  }
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("usedCredit is updated", function() {
+    expect(res.body.data.usedCredit).to.equal(100);
+  });
+}

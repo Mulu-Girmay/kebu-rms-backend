@@ -21,6 +21,9 @@ const envVarSchema = Joi.object({
     .email()
     .required()
     .description('Gmail sender address'),
+  EMAIL_PASSWORD: Joi.string().description(
+    'email  password nodmailer fallback '
+  ),
   OAUTH_CLIENT_ID: Joi.string()
     .required()
     .description('Google OAuth2 Client ID'),
@@ -59,6 +62,7 @@ export interface AppConfig {
   email: {
     from: string;
     user: string;
+    pass: string;
     oauth: {
       clientId: string;
       clientSecret: string;
@@ -81,6 +85,7 @@ export const config: AppConfig = {
   email: {
     from: envVars.EMAIL_FROM,
     user: envVars.EMAIL_USER,
+    pass: envVars.EMAIL_PASSWORD,
     oauth: {
       clientId: envVars.OAUTH_CLIENT_ID,
       clientSecret: envVars.OAUTH_CLIENT_SECRET,

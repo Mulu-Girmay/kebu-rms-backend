@@ -3,6 +3,10 @@ import { Permission } from '../models/permissions/index.js';
 import { Role } from '../models/role/index.js';
 import type { AuthenticatedRequest } from '../middlewares/auth.js';
 import { APIError } from '../errors/APIError.js';
+import { User } from '../models/users/index.js';
+import { Audit } from '../models/audits/index.js';
+import { AuditAction, MODEL_NAMES } from '../utils/constants.js';
+import { serializeUser } from '../utils/serializers.js';
 
 const getRouteParam = (param: string | string[] | undefined): string => {
   const value = Array.isArray(param) ? param[0] : param;

@@ -13,7 +13,13 @@ export const ratingSchema = new Schema(
     orderId: {
       type: Schema.Types.ObjectId,
       ref: MODEL_NAMES.ORDER,
-      required: true,
+      default: null,
+      index: true,
+    },
+
+    isVerifiedPurchase: {
+      type: Boolean,
+      default: false,
       index: true,
     },
 

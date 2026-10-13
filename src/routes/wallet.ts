@@ -1,16 +1,12 @@
-import express, { Router } from 'express';
+import { Router } from 'express';
 import { requireAuth } from '../middlewares/auth.js';
-import {
-  requirePermission,
-  requirePermissions,
-} from '../middlewares/authorize.js';
+import { requirePermission } from '../middlewares/authorize.js';
 import { RESOURCES, ACTIONS } from '../utils/constants.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 
 import {
   getUserWallet,
   getWallet,
-  getWalletTransactions,
   topUpWallet,
 } from '../controllers/wallet.js';
 
@@ -20,35 +16,26 @@ import {
 } from '../validators/wallet.validator.js';
 import { validateRequest } from '../validators/errors.parser.js';
 
-const router: Router = express.Router();
+export const walletAdminRouter = Router();
+export const walletSelfRouter = Router();
 
-router.get(
+walletSelfRouter.get(
   '/',
   requireAuth,
   requirePermission(RESOURCES.WALLETS, ACTIONS.READ),
   asyncHandler(getWallet)
 );
 
-router.get(
-  '/transactions',
-  requireAuth,
-  requirePermission(RESOURCES.WALLET_TRANSACTIONS, ACTIONS.READ),
-  asyncHandler(getWalletTransactions)
-);
-
-router.get(
+walletAdminRouter.get(
   '/:userId',
   requireAuth,
-  requirePermissions([
-    { resource: RESOURCES.WALLETS, action: ACTIONS.READ },
-    { resource: RESOURCES.WALLETS, action: ACTIONS.UPDATE },
-  ]),
+  requirePermission(RESOURCES.WALLETS, ACTIONS.READALL),
   validateUserIdParam,
   validateRequest,
   asyncHandler(getUserWallet)
 );
 
-router.post(
+walletAdminRouter.post(
   '/:userId/top-up',
   requireAuth,
   requirePermission(RESOURCES.WALLETS, ACTIONS.UPDATE),
@@ -57,5 +44,3 @@ router.post(
   validateRequest,
   asyncHandler(topUpWallet)
 );
-
-export default router;

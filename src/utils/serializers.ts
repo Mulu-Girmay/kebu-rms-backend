@@ -20,6 +20,7 @@ export const serializeUser = (user: any) => {
     email: user.email,
     image: user.image ?? user.image ?? null,
     status: user.status,
+    must_change_password: user.must_change_password,
     settings: {
       orderStatusNotifications:
         user.settings?.orderStatusNotifications ?? 'all',
@@ -75,5 +76,41 @@ export const serializeFavorite = (fav: IFavorite) => {
     menuItemId: item ? item._id.toString() : fav.menuItemId?.toString(),
     createdAt: fav.createdAt,
     menuItem: item ? serializeMenuItem(item, true) : null,
+  };
+};
+
+export interface ICreditAccount {
+  _id: Types.ObjectId | string;
+  user: Types.ObjectId | string | { _id: string; name: string; email: string };
+  creditLimit: number;
+  usedCredit: number;
+  status: 'active' | 'frozen' | 'closed';
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export const serializeCreditAccount = (account: ICreditAccount) => {
+  const availableCredit = Math.max(account.creditLimit - account.usedCredit, 0);
+
+  const populatedUser =
+    typeof account.user === 'object' &&
+    account.user !== null &&
+    'name' in account.user
+      ? account.user
+      : null;
+
+  return {
+    id: account._id.toString(),
+    userId: populatedUser
+      ? populatedUser._id.toString()
+      : account.user.toString(),
+    user: populatedUser,
+    creditLimit: account.creditLimit,
+    usedCredit: account.usedCredit,
+    availableCredit,
+    status: account.status,
+    isUsable: account.status === 'active' && availableCredit > 0,
+    createdAt: account.createdAt,
+    updatedAt: account.updatedAt,
   };
 };

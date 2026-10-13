@@ -16,9 +16,8 @@ import {
 import { validateRequest } from '../validators/errors.parser.js';
 
 const router = Router();
-
 router.post(
-  '/roles',
+  '/',
   requireAuth,
   requirePermission(RESOURCES.ROLES, ACTIONS.CREATE),
   validateCreateRole,
@@ -27,37 +26,10 @@ router.post(
 );
 
 router.get(
-  '/roles',
+  '/',
   requireAuth,
   requirePermission(RESOURCES.ROLES, ACTIONS.READ),
   asyncHandler(rolesController.listRoles)
-);
-
-router.get(
-  '/roles/:id',
-  requireAuth,
-  requirePermission(RESOURCES.ROLES, ACTIONS.READ),
-  validateRoleId,
-  validateRequest,
-  asyncHandler(rolesController.getRole)
-);
-
-router.patch(
-  '/roles/:id',
-  requireAuth,
-  requirePermission(RESOURCES.ROLES, ACTIONS.UPDATE),
-  validateUpdateRole,
-  validateRequest,
-  asyncHandler(rolesController.updateRole)
-);
-
-router.delete(
-  '/roles/:id',
-  requireAuth,
-  requirePermission(RESOURCES.ROLES, ACTIONS.DELETE),
-  validateRoleId,
-  validateRequest,
-  asyncHandler(rolesController.deleteRole)
 );
 
 router.get(
@@ -67,8 +39,17 @@ router.get(
   asyncHandler(rolesController.listPermissions)
 );
 
+router.delete(
+  '/:id/permissions/:permissionId',
+  requireAuth,
+  requirePermission(RESOURCES.ROLES, ACTIONS.UPDATE),
+  validateRolePermission,
+  validateRequest,
+  asyncHandler(rolesController.revokePermission)
+);
+
 router.post(
-  '/roles/:id/permissions/:permissionId',
+  '/:id/permissions/:permissionId',
   requireAuth,
   requirePermission(RESOURCES.ROLES, ACTIONS.UPDATE),
   validateRolePermission,
@@ -76,13 +57,31 @@ router.post(
   asyncHandler(rolesController.assignPermission)
 );
 
-router.delete(
-  '/roles/:id/permissions/:permissionId',
+router.get(
+  '/:id',
+  requireAuth,
+  requirePermission(RESOURCES.ROLES, ACTIONS.READ),
+  validateRoleId,
+  validateRequest,
+  asyncHandler(rolesController.getRole)
+);
+
+router.patch(
+  '/:id',
   requireAuth,
   requirePermission(RESOURCES.ROLES, ACTIONS.UPDATE),
-  validateRolePermission,
+  validateUpdateRole,
   validateRequest,
-  asyncHandler(rolesController.revokePermission)
+  asyncHandler(rolesController.updateRole)
+);
+
+router.delete(
+  '/:id',
+  requireAuth,
+  requirePermission(RESOURCES.ROLES, ACTIONS.DELETE),
+  validateRoleId,
+  validateRequest,
+  asyncHandler(rolesController.deleteRole)
 );
 
 export default router;

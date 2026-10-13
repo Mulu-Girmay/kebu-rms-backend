@@ -79,3 +79,60 @@ export interface CursorPaginationResponse<T> {
   nextCursor: string | null;
   hasMore: boolean;
 }
+
+export interface PaymentBreakdown {
+  walletAmount: number;
+  creditAmount: number;
+}
+
+export interface TopUpResult {
+  walletCredited: number;
+  creditRepaid: number;
+  walletBalanceAfter: number;
+  creditUsedAfter: number;
+}
+
+export type WalletTransactionType =
+  'all' | 'credit' | 'top_up' | 'debit' | 'refund' | 'mixed';
+
+export type WalletTransactionDateRange = 'today' | '7days' | '30days' | 'all';
+
+export type WalletTransactionSortBy = 'date' | 'amount' | 'createdAt';
+
+export type WalletTransactionSortOrder = 'asc' | 'desc';
+
+export interface WalletTransactionQueryOptions {
+  page: number;
+  limit: number;
+  search?: string;
+  type?: WalletTransactionType;
+  dateRange?: WalletTransactionDateRange;
+  startDate?: string;
+  endDate?: string;
+  userId?: string;
+  sortBy?: WalletTransactionSortBy;
+  sortOrder?: WalletTransactionSortOrder;
+}
+
+export interface WalletTransactionResult {
+  id: Types.ObjectId;
+  date: Date;
+  amount: number;
+  type: string;
+  balanceBefore: number;
+  balanceAfter: number;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    image?: string;
+  };
+  order: {
+    id: Types.ObjectId;
+    orderNumber: string;
+    status: string;
+    items: IMenuItem[];
+    totalAmount: number;
+    placedAt: Date;
+  } | null;
+}

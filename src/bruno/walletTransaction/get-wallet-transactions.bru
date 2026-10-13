@@ -1,0 +1,22 @@
+meta {
+  name: Get Wallet Transactions
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/v1/admin/transactions
+  body: none
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+
+tests("status is 200", function() => {
+  expect(res.status).to.equal(200);
+})
+
+

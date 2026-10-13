@@ -1,0 +1,26 @@
+meta {
+  name: Get My Credit Account
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/v1/credit-account
+  auth: inherit
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("has creditLimit and usedCredit", function() {
+    expect(res.body.data).to.have.property("creditLimit");
+    expect(res.body.data).to.have.property("usedCredit");
+    expect(res.body.data).to.have.property("availableCredit");
+    expect(res.body.data).to.have.property("status");
+  });
+  test("availableCredit = creditLimit - usedCredit", function() {
+    const d = res.body.data;
+    expect(d.availableCredit).to.equal(Math.max(d.creditLimit - d.usedCredit, 0));
+  });
+}

@@ -4,7 +4,7 @@ import { body, param, query } from 'express-validator';
 export const validateIdParam = [
   param('id')
     .exists()
-    .withMessage('ID is required')
+    .withMessage('ID  required')
     .isString()
     .withMessage('Invalid user ID'),
 ];
@@ -108,4 +108,33 @@ export const updateSelfValidator = [
 
     return true;
   }),
+];
+
+export const createUserValidator = [
+  body('name')
+    .trim()
+    .notEmpty()
+    .withMessage('Name cannot be empty')
+    .isLength({ min: 2, max: 50 })
+    .withMessage('Full name must be between 2 and 50 characters'),
+
+  body('email')
+    .trim()
+    .notEmpty()
+    .withMessage('Email cannot be empty')
+    .isEmail()
+    .withMessage('Please enter a valid email address'),
+
+  body('password')
+    .notEmpty()
+    .withMessage('Password cannot be empty')
+    .isLength({ min: 8 })
+    .withMessage('New password must be at least 8 characters'),
+
+  body('role_id')
+    .trim()
+    .notEmpty()
+    .withMessage('Role Id cannot be empty')
+    .isString()
+    .withMessage('Invalid Id format'),
 ];

@@ -60,7 +60,6 @@ export const listMenuItems = async (
     if (minPrice) priceFilter.$gte = Number(minPrice);
     if (maxPrice) priceFilter.$lte = Number(maxPrice);
     filter.price = priceFilter;
-    console.log('MIN and MAX IS SET55555555555555');
   }
 
   const allowedSort = ['price', 'name', 'favoriteCount', 'createdAt'];
