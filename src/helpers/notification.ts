@@ -32,7 +32,8 @@ export function shouldNotify(
 
 export async function persistAndEmit(
   userId: string,
-  params: Omit<NotifyUserParams, 'userId'>
+  params: Omit<NotifyUserParams, 'userId'>,
+  PushNotification: boolean
 ): Promise<void> {
   const notification = await Notification.create({
     userId,
@@ -45,14 +46,19 @@ export async function persistAndEmit(
   });
 
   // Emit socket event (best-effort — don't fail if user is offline)
-  try {
-    socketManager.emitToUser(
-      userId,
-      SOCKET_EVENTS.NOTIFICATION_CREATED,
-      notification.toObject()
-    );
-  } catch (error) {
-    logger.warn(`Failed to emit socket notification to user ${userId}:`, error);
+  if (PushNotification) {
+    try {
+      socketManager.emitToUser(
+        userId,
+        SOCKET_EVENTS.NOTIFICATION_CREATED,
+        notification.toObject()
+      );
+    } catch (error) {
+      logger.warn(
+        `Failed to emit socket notification to user ${userId}:`,
+        error
+      );
+    }
   }
 }
 

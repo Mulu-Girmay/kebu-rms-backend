@@ -114,7 +114,6 @@ export const updateSettings = async (
     orderStatusNotifications,
     promotionalNotifications,
     pushNotifications,
-    pushNotificaitons,
   } = req.body;
   const updateData: any = {};
   if (orderStatusNotifications !== undefined) {
@@ -123,7 +122,7 @@ export const updateSettings = async (
   if (promotionalNotifications !== undefined) {
     updateData['settings.promotionalNotifications'] = promotionalNotifications;
   }
-  const pushNotificationSetting = pushNotifications ?? pushNotificaitons;
+  const pushNotificationSetting = pushNotifications ?? pushNotifications;
   if (pushNotificationSetting !== undefined) {
     updateData['settings.pushNotificaitons'] = pushNotificationSetting;
   }
