@@ -6,6 +6,12 @@ import { Rating } from '../models/ratings/index.js';
 import { Audit } from '../models/audits/index.js';
 import { APIError } from '../errors/APIError.js';
 import { AuditAction, MODEL_NAMES } from '../utils/constants.js';
+import { NotificationService } from '../services/notification.js';
+import { User } from '../models/users/index.js';
+import { Role } from '../models/role/index.js';
+import { role } from 'better-auth/plugins';
+import { NotificationTemplates } from '../utils/templates/notification.templates.js';
+import logger from '../config/winston.js';
 
 export const createMenuItem = async (
   req: AuthenticatedRequest,
@@ -45,7 +51,19 @@ export const createMenuItem = async (
       },
     });
   }
-
+  try {
+    const role = await Role.findOne({ name: 'customer' }).select('_id').lean();
+    const users = await User.find({ role_id: role!._id }).select('_id').lean();
+    await NotificationService.notifyMany(
+      users.map((user) => user._id.toString()),
+      NotificationTemplates.itemPromotion(
+        menuItem.name,
+        menuItem.description ?? ''
+      )
+    );
+  } catch (error) {
+    logger.warn('Failed to send menu promotion notification', error);
+  }
   res.status(201).json({
     success: true,
     message: 'Menu item created successfully',

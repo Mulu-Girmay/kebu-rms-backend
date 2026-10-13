@@ -13,6 +13,28 @@ import {
 } from '../utils/serializers.js';
 import { APIError } from '../errors/APIError.js';
 import mongoose from 'mongoose';
+import { NotificationService } from '../services/notification.js';
+import { NotificationTemplates } from '../utils/templates/notification.templates.js';
+import logger from '../config/winston.js';
+
+const notifyCreditAccountOwner = async (
+  userId: string | string[],
+  notification: ReturnType<
+    typeof NotificationTemplates.creditAccountStatusChange
+  >
+): Promise<void> => {
+  const targetUserId = Array.isArray(userId) ? userId[0] : userId;
+  if (!targetUserId) return;
+
+  try {
+    await NotificationService.notifyUser({
+      userId: targetUserId,
+      ...notification,
+    });
+  } catch (error) {
+    logger.warn(`Failed to notify credit account owner ${targetUserId}`, error);
+  }
+};
 
 // GET /api/v1/credit-account
 export const getMyCreditAccount = async (
@@ -140,12 +162,16 @@ export const updateCreditLimit = async (
       ],
       { session }
     );
+    await session.commitTransaction();
+    await notifyCreditAccountOwner(
+      userId,
+      NotificationTemplates.creditLimitChanged(oldLimit, account.creditLimit)
+    );
     res.status(200).json({
       success: true,
       message: 'credit limit updated sucessfully',
       data: serializeCreditAccount(account as ICreditAccount),
     });
-    await session.commitTransaction();
   } catch (error) {
     if (session.inTransaction()) await session.abortTransaction();
     throw error;
@@ -155,7 +181,6 @@ export const updateCreditLimit = async (
 };
 
 //PATCH /api/v1/admin/credit-account/:id/used-credit
-
 export const adjustUsedCredit = async (
   req: AuthenticatedRequest,
   res: Response
@@ -200,6 +225,10 @@ export const adjustUsedCredit = async (
       { session }
     );
     await session.commitTransaction();
+    await notifyCreditAccountOwner(
+      userId,
+      NotificationTemplates.creditUsageUpdate(oldUsed, account.usedCredit)
+    );
     res.status(200).json({
       success: true,
       message: 'used credit adjusted successfully',
@@ -230,6 +259,7 @@ export const freezCreditAccount = async (
       message: 'credit account is already frozzen',
       data: serializeCreditAccount(account as ICreditAccount),
     });
+    return;
   }
   const oldStatus = account.status;
   account.status = CreditAccountStatus.FROZEN;
@@ -246,6 +276,11 @@ export const freezCreditAccount = async (
       reason: reason ?? null,
     },
   });
+  await notifyCreditAccountOwner(
+    userId,
+    NotificationTemplates.creditAccountStatusChange('frozen')
+  );
+
   res.status(200).json({
     success: true,
     message: 'Credit account frozen successfully',
@@ -270,11 +305,11 @@ export const activateCreditAccount = async (
       message: 'credit account is already active',
       data: serializeCreditAccount(account as ICreditAccount),
     });
+    return;
   }
   const oldStatus = account.status;
   account.status = CreditAccountStatus.ACTIVE;
   await account.save();
-
   await Audit.create({
     userId: req.user!.id,
     action: AuditAction.UPDATE,
@@ -286,6 +321,10 @@ export const activateCreditAccount = async (
       reason: reason ?? null,
     },
   });
+  await notifyCreditAccountOwner(
+    userId,
+    NotificationTemplates.creditAccountStatusChange('activated')
+  );
   res.status(200).json({
     success: true,
     message: 'Credit account activated successfully',
@@ -310,6 +349,7 @@ export const closeCreditAccount = async (
       message: 'credit account is already closed',
       data: serializeCreditAccount(account as ICreditAccount),
     });
+    return;
   }
   const oldStatus = account.status;
   account.status = CreditAccountStatus.CLOSED;
@@ -326,6 +366,11 @@ export const closeCreditAccount = async (
       reason: reason ?? null,
     },
   });
+  await notifyCreditAccountOwner(
+    userId,
+    NotificationTemplates.creditAccountStatusChange('closed')
+  );
+
   res.status(200).json({
     success: true,
     message: 'Credit account closed successfully',

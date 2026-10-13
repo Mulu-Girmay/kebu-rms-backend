@@ -25,6 +25,8 @@ import {
 import mongoose, { mongo } from 'mongoose';
 import logger from '../config/winston.js';
 import { Types } from 'mongoose';
+import { NotificationService } from '../services/notification.js';
+import { NotificationTemplates } from '../utils/templates/notification.templates.js';
 
 const populateRole = (query: any) =>
   query.populate('role_id', 'name description is_system_role');
@@ -179,8 +181,31 @@ export const createStaffaccount = async (
 
     try {
       await sendWelcomeStaffEmail(email, name, password, role.name);
-    } catch (err) {
-      logger.error('Failed to send welcome staff email', err);
+    } catch (error) {
+      try {
+        const template = 'The email is not sent to the newly created user ';
+        const to = name;
+        await NotificationService.notifyUser({
+          userId: req.user!.id,
+          ...NotificationTemplates.emailFailure(
+            to,
+            template,
+            error instanceof Error ? error.message : 'unknown error'
+          ),
+        });
+      } catch (notifyErr) {
+        logger.error('Failed to notify staff about email failure', notifyErr);
+      }
+      logger.error('Failed to send welcome staff email', error);
+    }
+
+    try {
+      await NotificationService.notifyUser({
+        userId: user.id,
+        ...NotificationTemplates.welcomeStaff(role.name),
+      });
+    } catch (error) {
+      logger.error('Failed to send staff welcome notification', error);
     }
 
     res.status(201).json({
@@ -375,6 +400,17 @@ export const suspendUser = async (req: AuthenticatedRequest, res: Response) => {
   } catch (err) {
     logger.error(`Failed to send status email to ${user.email}:`, err);
   }
+  try {
+    await NotificationService.notifyUser({
+      userId: user._id.toString(),
+      ...NotificationTemplates.accountSuspended(
+        req.body.reason?.toString().trim() ||
+          'Please contact support for details.'
+      ),
+    });
+  } catch (error) {
+    logger.error(`Failed to notify suspended user ${user._id}:`, error);
+  }
   res.status(200).json({
     success: true,
     message: 'User suspended successfully',
@@ -386,7 +422,7 @@ export const changeUserRole = async (
   req: AuthenticatedRequest,
   res: Response
 ) => {
-  const targetUserId = req.params.id!;
+  const targetUserId: any = req.params.id!;
   const { role_id } = req.body as { role_id: string };
   if (targetUserId === req.user!.id) {
     throw new APIError('You cannot change your own role', 400);
@@ -442,6 +478,16 @@ export const changeUserRole = async (
   if (!updatedUser) {
     throw new APIError('Failed to fetch updated user', 500);
   }
+  try {
+    const role = oldRole?.name ? oldRole?.name : 'Unspecefied';
+    await NotificationService.notifyUser({
+      userId: targetUserId,
+      ...NotificationTemplates.roleChanged(role, newRole.name),
+    });
+  } catch (error) {
+    logger.error('Failed to notify staff about email failure', error);
+  }
+
   res.status(200).json({
     success: true,
     message: `User role changed from '${oldRole?.name ?? 'unknown'}' to '${newRole.name}' successfully`,

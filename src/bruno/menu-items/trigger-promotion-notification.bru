@@ -1,0 +1,33 @@
+meta {
+  name: Trigger Mock Promotion Notification
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/api/v1/admin/menu-items
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "categoryId": "{{categoryId}}",
+    "name": "Mock Notification Item {{$timestamp}}",
+    "description": "Temporary menu item used to trigger a promotion notification.",
+    "price": 1,
+    "isAvailable": true
+  }
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("should create the mock item and trigger customer promotion notifications", function() {
+    expect(res.getStatus()).to.equal(201);
+    expect(res.getBody().success).to.be.true;
+    expect(res.getBody().data.name).to.include("Mock Notification Item");
+  });
+}

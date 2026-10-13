@@ -11,6 +11,7 @@ import { orderAdminRouter, orderCustomerRouter } from './order.routes.js';
 import favoriteRoutes from './favorite.routes.js';
 import ratingRoutes from './rating.routes.js';
 import rolesRouter from './roles.js';
+import notificationRouter from './notification.js';
 import { walletAdminRouter, walletSelfRouter } from './wallet.js';
 import {
   creditAccountAdminRouter,
@@ -52,4 +53,6 @@ router.use('/transactions', transactionSelfRouter);
 
 router.use('/credit-account', creditAccountSelfRouter);
 router.use('/admin/credit-accounts', creditAccountAdminRouter);
+
+router.use('/notifications', notificationRouter);
 export default router;

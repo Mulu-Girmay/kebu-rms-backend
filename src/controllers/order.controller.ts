@@ -15,6 +15,8 @@ import { KITCHEN_ROOM } from '../socket/rooms.js';
 import logger from '../config/winston.js';
 import mongoose from 'mongoose';
 import { PaymentService } from '../services/payment.js';
+import { NotificationService } from '../services/notification.js';
+import { NotificationTemplates } from '../utils/templates/notification.templates.js';
 
 export const createOrder = async (
   req: AuthenticatedRequest,
@@ -100,7 +102,7 @@ export const createOrder = async (
   const session = await mongoose.startSession();
   let order;
   try {
-    await session.withTransaction(async () => {
+    order = await session.withTransaction(async () => {
       const [created] = await Order.create(
         [
           {
@@ -117,18 +119,18 @@ export const createOrder = async (
         ],
         { session }
       );
-      order = created;
-      if (!order) throw new APIError('unable to create order', 400);
+      if (!created) throw new APIError('unable to create order', 400);
       const breakdown = await PaymentService.chargeOrder(
         userId,
-        order._id.toString(),
+        created._id.toString(),
         totalAmount,
         session
       );
 
-      order.paymentBreakdown = breakdown;
-      order.paymentStatus = 'paid';
-      await order.save({ session });
+      created.paymentBreakdown = breakdown;
+      created.paymentStatus = 'paid';
+      await created.save({ session });
+      return created;
     });
   } catch (error) {
     logger.warn(`Order creation/payment failed for user ${userId}:`, error);
@@ -145,6 +147,35 @@ export const createOrder = async (
   } catch (error) {
     logger.warn('Failed to emit socket event for order.created', error);
   }
+
+  const notificationResults = await Promise.allSettled([
+    NotificationService.notifyUser({
+      userId,
+      ...NotificationTemplates.orderPlaced(order.orderNumber, totalAmount),
+    }),
+    NotificationService.notifyUser({
+      userId,
+      ...NotificationTemplates.orderCharged(
+        order.orderNumber,
+        totalAmount,
+        order.paymentBreakdown!.walletAmount,
+        order.paymentBreakdown!.creditAmount
+      ),
+    }),
+    NotificationService.notifyRole({
+      roleName: 'kitchen_admin',
+      ...NotificationTemplates.newOrderForKitchen(
+        order.orderNumber,
+        orderItems.length,
+        totalAmount
+      ),
+    }),
+  ]);
+  notificationResults.forEach((result) => {
+    if (result.status === 'rejected') {
+      logger.warn('Failed to send order placement notification', result.reason);
+    }
+  });
 
   res.status(201).json({
     success: true,
@@ -308,6 +339,29 @@ export const cancelOrder = async (
   } catch (error) {
     logger.warn('Failed to emit socket event for cancelled order', error);
   }
+
+  const notificationResults = await Promise.allSettled([
+    NotificationService.notifyUser({
+      userId,
+      ...NotificationTemplates.orderCancelled(order.orderNumber),
+    }),
+    NotificationService.notifyUser({
+      userId,
+      ...NotificationTemplates.orderRefunded(
+        order.orderNumber,
+        order.paymentBreakdown!.walletAmount,
+        order.paymentBreakdown!.creditAmount
+      ),
+    }),
+  ]);
+  notificationResults.forEach((result) => {
+    if (result.status === 'rejected') {
+      logger.warn(
+        'Failed to send order cancellation notification',
+        result.reason
+      );
+    }
+  });
 
   res.status(200).json({
     success: true,
@@ -503,6 +557,44 @@ export const updateOrderStatus = async (
   }
 
   await order.save();
+
+  let notification: ReturnType<
+    typeof NotificationTemplates.orderAccepted
+  > | null = null;
+  switch (status) {
+    case OrderStatus.ACCEPTED:
+      notification = NotificationTemplates.orderAccepted(order.orderNumber);
+      break;
+    case OrderStatus.REJECTED:
+      notification = NotificationTemplates.orderRejected(
+        order.orderNumber,
+        order.rejectionReason ?? 'No reason provided'
+      );
+      break;
+    case OrderStatus.READY:
+      notification = NotificationTemplates.orderReady(order.orderNumber);
+      break;
+    case OrderStatus.COMPLETED:
+      notification = NotificationTemplates.orderCompleted(order.orderNumber);
+      break;
+    case OrderStatus.CANCELLED:
+      notification = NotificationTemplates.orderCancelled(
+        order.orderNumber,
+        false
+      );
+      break;
+  }
+
+  if (notification) {
+    try {
+      await NotificationService.notifyUser({
+        userId: order.userId,
+        ...notification,
+      });
+    } catch (error) {
+      logger.warn('Failed to send order status notification', error);
+    }
+  }
 
   try {
     socketManager.emitToRoom(
