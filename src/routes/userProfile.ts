@@ -5,6 +5,7 @@ import {
   updateSettings,
   changePassword,
   updateProfile,
+  deleteProfileImage,
 } from '../controllers/userProfile.js';
 import { requireAuth } from '../middlewares/auth.js';
 import {
@@ -24,6 +25,7 @@ const router = Router();
 
 /** User profile */
 router.get('/', requireAuth, asyncHandler(getProfile));
+router.delete('/image', requireAuth, asyncHandler(deleteProfileImage));
 router.patch(
   '/',
   requireAuth,
