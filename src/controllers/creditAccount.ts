@@ -180,6 +180,154 @@ export const updateCreditLimit = async (
   }
 };
 
+// PATCH /api/v1/admin/credit-accounts/batch/limit
+export const batchUpdateCreditLimit = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  const rawList = Array.isArray(req.body)
+    ? req.body
+    : req.body?.updates ||
+      req.body?.items ||
+      req.body?.accounts ||
+      req.body?.data;
+
+  if (!Array.isArray(rawList) || rawList.length === 0) {
+    throw new APIError(
+      'An array of credit limit updates is required and cannot be empty',
+      400
+    );
+  }
+
+  const updates: Array<{ userId: string; creditLimit: number }> = rawList.map(
+    (item: any, idx: number) => {
+      const userId = item?.userId ?? item?.id;
+      const creditLimit = item?.creditLimit ?? item?.limit;
+      const parsedLimit =
+        typeof creditLimit === 'number' ? creditLimit : Number(creditLimit);
+
+      if (!userId || typeof userId !== 'string' || !userId.trim()) {
+        throw new APIError(
+          `Item at index ${idx}: userId is required and must be a non-empty string`,
+          400
+        );
+      }
+
+      if (
+        creditLimit === undefined ||
+        creditLimit === null ||
+        isNaN(parsedLimit) ||
+        parsedLimit < 0
+      ) {
+        throw new APIError(
+          `Item at index ${idx}: creditLimit must be a non-negative number`,
+          400
+        );
+      }
+
+      return {
+        userId: userId.trim(),
+        creditLimit: parsedLimit,
+      };
+    }
+  );
+
+  const session = await mongoose.startSession();
+
+  try {
+    session.startTransaction();
+
+    const updatedAccounts: ICreditAccount[] = [];
+    const auditEntries: any[] = [];
+    const notificationsToDispatch: Array<{
+      userId: string;
+      oldLimit: number;
+      newLimit: number;
+    }> = [];
+
+    for (const update of updates) {
+      const { userId, creditLimit } = update;
+      const account = await CreditAccount.findOne({ user: userId }).session(
+        session
+      );
+      if (!account) {
+        throw new APIError(`Credit account not found for user ${userId}`, 404);
+      }
+
+      if (creditLimit < account.usedCredit) {
+        throw new APIError(
+          `Credit limit (${creditLimit}) cannot be lower than usedCredit (${account.usedCredit}) for user ${userId}`,
+          400
+        );
+      }
+
+      const oldLimit = account.creditLimit;
+      account.creditLimit = creditLimit;
+
+      await account.save({ session });
+
+      auditEntries.push({
+        userId: req.user!.id,
+        action: AuditAction.UPDATE,
+        tableName: MODEL_NAMES.CREDIT_ACCOUNT,
+        recordId: account._id,
+        meta: {
+          action: 'credit_limit_change',
+          from: { creditLimit: oldLimit },
+          to: { creditLimit: account.creditLimit },
+        },
+      });
+
+      notificationsToDispatch.push({
+        userId,
+        oldLimit,
+        newLimit: account.creditLimit,
+      });
+
+      updatedAccounts.push(account as ICreditAccount);
+    }
+
+    if (auditEntries.length > 0) {
+      await Audit.create(auditEntries, { session });
+    }
+
+    await session.commitTransaction();
+
+    for (const notif of notificationsToDispatch) {
+      try {
+        await notifyCreditAccountOwner(
+          notif.userId,
+          NotificationTemplates.creditLimitChanged(
+            notif.oldLimit,
+            notif.newLimit
+          )
+        );
+      } catch (err) {
+        logger.warn(
+          `Failed to notify user ${notif.userId} about credit limit change`,
+          err
+        );
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Batch credit limits updated successfully',
+      data: updatedAccounts.map(serializeCreditAccount),
+    });
+  } catch (error) {
+    if (session.inTransaction()) {
+      await session.abortTransaction();
+    }
+    throw error;
+  } finally {
+    await session.endSession();
+  }
+};
+
+export const updateBatchCreditLimits = batchUpdateCreditLimit;
+export const bulkUpdateCreditLimits = batchUpdateCreditLimit;
+
 //PATCH /api/v1/admin/credit-account/:id/used-credit
 export const adjustUsedCredit = async (
   req: AuthenticatedRequest,

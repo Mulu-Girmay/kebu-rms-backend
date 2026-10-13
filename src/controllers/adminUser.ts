@@ -122,6 +122,13 @@ export const createStaffaccount = async (
   const role = await Role.findById(role_id);
   if (!role) throw new APIError('Role not found', 404);
 
+  if (role.name.toLowerCase() === 'customer') {
+    throw new APIError(
+      'Admins cannot create accounts with Customer role. Customers must register through the standard onboarding flow.',
+      400
+    );
+  }
+
   if (req.user!.role?.name !== 'super_admin') {
     throw new APIError('Only super admins can create other super admins', 403);
   }
@@ -245,66 +252,18 @@ export const createStaffaccount = async (
     );
   }
 };
-/** DELETE /api/v1/users/:id */
-export const deleteUser = async (req: AuthenticatedRequest, res: Response) => {
-  const targetId = req.params.id!;
-  if (targetId === req.user!.id) {
-    throw new APIError('You cannot delete your own account', 400);
-  }
-
-  const user = await User.findById(targetId);
-  if (!user) {
-    throw new APIError('User not found', 404);
-  }
-  const session = await mongoose.startSession();
-
-  try {
-    session.startTransaction();
-
-    const [orderCount, wallet] = await Promise.all([
-      Order.countDocuments({ userId: targetId }).session(session),
-      Wallet.findOne({ user: targetId }),
-    ]);
-    let transactionCount = 0;
-    if (wallet) {
-      transactionCount = await WalletTransaction.countDocuments({
-        wallet: (wallet as any)._id,
-      }).session(session);
-    }
-    if (orderCount > 0 || transactionCount > 0) {
-      throw new APIError(
-        'User cannot be permanently deleted because historical orders or financial transactions exist. Deactivate the account instead.',
-        409
-      );
-    }
-    await Promise.all([
-      CreditAccount.deleteOne({ user: targetId }).session(session),
-      Wallet.deleteOne({ user: targetId }).session(session),
-      User.deleteOne({ _id: targetId }).session(session),
-    ]);
-
-    await Audit.create(
-      [
-        {
-          userId: req.user!.id,
-          action: AuditAction.DELETE,
-          tableName: 'User',
-          recordId: targetId,
-          meta: {
-            reason: 'administrative deletion',
-          },
-        },
-      ],
-      { session }
-    );
-    await session.commitTransaction();
-    res.status(204).send();
-  } catch (error) {
-    if (session.inTransaction()) await session.abortTransaction();
-    throw error;
-  } finally {
-    await session.endSession();
-  }
+/**
+ * DELETE /api/v1/users/:id
+ * @deprecated Hard deletes are phased out. Accounts should be deactivated instead.
+ */
+export const deleteUser = async (
+  _req: AuthenticatedRequest,
+  _res: Response
+) => {
+  throw new APIError(
+    'User deletion endpoint is deprecated and deactivated. Hard deletes are no longer supported. Please deactivate the user account instead.',
+    400
+  );
 };
 /**PATCH /api/v1/users/:id/activate */
 export const activateUser = async (

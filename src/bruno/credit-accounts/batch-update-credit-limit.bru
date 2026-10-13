@@ -1,0 +1,31 @@
+meta {
+  name: Batch Update Credit Limit
+  type: http
+  seq: 15
+}
+
+patch {
+  url: {{baseUrl}}/api/v1/admin/credit-accounts/batch/limit
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "updates": [
+      {
+        "userId": "user_6ac34ae07f574d250601db4d",
+        "creditLimit": 600
+      }
+    ]
+  }
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("batch update returns data array", function() {
+    expect(res.body.data).to.be.an('array');
+  });
+}

@@ -9,6 +9,7 @@ import {
   listCreditAccounts,
   getUserCreditAccount,
   updateCreditLimit,
+  batchUpdateCreditLimit,
   adjustUsedCredit,
   freezCreditAccount,
   activateCreditAccount,
@@ -16,6 +17,7 @@ import {
 } from '../controllers/creditAccount.js';
 import {
   validateUpdateLimit,
+  validateBatchUpdateLimit,
   validateReason,
   validateListCreditAccounts,
 } from '../validators/creditAccount.validator.js';
@@ -40,6 +42,43 @@ creditAccountAdminRouter.get(
   validateListCreditAccounts,
   validateRequest,
   asyncHandler(listCreditAccounts)
+);
+
+// Batch credit limit update endpoints (registered before parameterized /:id routes)
+creditAccountAdminRouter.patch(
+  '/batch/limit',
+  requireAuth,
+  requirePermission(RESOURCES.CREDIT_ACCOUNTS, ACTIONS.UPDATE),
+  validateBatchUpdateLimit,
+  validateRequest,
+  asyncHandler(batchUpdateCreditLimit)
+);
+
+creditAccountAdminRouter.patch(
+  '/batch-limit',
+  requireAuth,
+  requirePermission(RESOURCES.CREDIT_ACCOUNTS, ACTIONS.UPDATE),
+  validateBatchUpdateLimit,
+  validateRequest,
+  asyncHandler(batchUpdateCreditLimit)
+);
+
+creditAccountAdminRouter.patch(
+  '/batch',
+  requireAuth,
+  requirePermission(RESOURCES.CREDIT_ACCOUNTS, ACTIONS.UPDATE),
+  validateBatchUpdateLimit,
+  validateRequest,
+  asyncHandler(batchUpdateCreditLimit)
+);
+
+creditAccountAdminRouter.post(
+  '/batch/limit',
+  requireAuth,
+  requirePermission(RESOURCES.CREDIT_ACCOUNTS, ACTIONS.UPDATE),
+  validateBatchUpdateLimit,
+  validateRequest,
+  asyncHandler(batchUpdateCreditLimit)
 );
 
 creditAccountAdminRouter.get(
