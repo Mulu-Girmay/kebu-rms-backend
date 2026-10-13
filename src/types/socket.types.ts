@@ -17,6 +17,7 @@ export interface ServerToClientEvents {
     pausedAt: Date | null;
     pauseReason: string | null;
   }) => void;
+  [SOCKET_EVENTS.NOTIFICATION_CREATED]: (payload: any) => void;
 }
 
 export interface ClientToServerEvents {
