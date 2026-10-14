@@ -537,26 +537,46 @@ export const updateOrderStatus = async (
 
   const now = new Date();
   order.status = status;
+  const orderSaved = false;
+  let wasRefunded = false;
 
   if (status === OrderStatus.ACCEPTED) {
     order.acceptedAt = now;
-  } else if (status === OrderStatus.REJECTED) {
+  } else if (
+    status === OrderStatus.REJECTED ||
+    status === OrderStatus.CANCELLED
+  ) {
     order.rejectedAt = now;
     if (rejectionReason) {
       order.rejectionReason = rejectionReason.trim();
+    }
+
+    wasRefunded = order.paymentStatus === 'paid';
+    const session = await mongoose.startSession();
+    try {
+      await session.withTransaction(async () => {
+        if (wasRefunded) {
+          await PaymentService.refundOrder(
+            order.userId,
+            {
+              _id: order._id.toString(),
+              paymentBreakdown: order.paymentBreakdown!,
+            },
+            session
+          );
+          order.paymentStatus = 'refunded';
+        }
+
+        await order.save({ session });
+      });
+    } finally {
+      await session.endSession();
     }
   } else if (status === OrderStatus.READY) {
     order.readyAt = now;
   } else if (status === OrderStatus.COMPLETED) {
     order.completedAt = now;
-  } else if (status === OrderStatus.CANCELLED) {
-    order.cancelledAt = now;
-    if (rejectionReason) {
-      order.rejectionReason = rejectionReason.trim();
-    }
   }
-
-  await order.save();
 
   let notification: ReturnType<
     typeof NotificationTemplates.orderAccepted
@@ -565,7 +585,7 @@ export const updateOrderStatus = async (
     case OrderStatus.ACCEPTED:
       notification = NotificationTemplates.orderAccepted(order.orderNumber);
       break;
-    case OrderStatus.REJECTED:
+    case OrderStatus.REJECTED || OrderStatus.CANCELLED:
       notification = NotificationTemplates.orderRejected(
         order.orderNumber,
         order.rejectionReason ?? 'No reason provided'
@@ -593,6 +613,21 @@ export const updateOrderStatus = async (
       });
     } catch (error) {
       logger.warn('Failed to send order status notification', error);
+    }
+  }
+
+  if (wasRefunded) {
+    try {
+      await NotificationService.notifyUser({
+        userId: order.userId,
+        ...NotificationTemplates.orderRefunded(
+          order.orderNumber,
+          order.paymentBreakdown!.walletAmount,
+          order.paymentBreakdown!.creditAmount
+        ),
+      });
+    } catch (error) {
+      logger.warn('Failed to send order refund notification', error);
     }
   }
 
