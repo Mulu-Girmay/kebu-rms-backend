@@ -108,8 +108,6 @@ export const topUpWallet = async (
   } catch (error) {
     logger.warn(`Failed to notify user ${userId} about wallet top-up`, error);
   }
-  console.log('fREfH HERE');
-  console.log('fREvHERE');
 
   res.status(200).json({
     success: true,

@@ -181,10 +181,7 @@ export const PaymentService = {
     amount: number,
     session: ClientSession
   ): Promise<TopUpResult> {
-    console.log('HERE ssssbro');
-
     const { wallet, creditAccount } = await fetchAccounts(userId, session);
-    console.log('HERE 0 bro');
 
     if (!wallet.isActive) {
       throw new APIError('Wallet is not active', 400);
@@ -207,7 +204,6 @@ export const PaymentService = {
     //    Tx#1: The   top-up
     //    Tx#2: The credit repayment (deducted from the top-up)
     const transactions: Record<string, unknown>[] = [];
-    console.log('HERE bro');
     if (creditRepaid > 0) {
       transactions.push({
         wallet: wallet._id,
@@ -221,7 +217,6 @@ export const PaymentService = {
           walletCredited,
         },
       });
-      console.log('HEREs bro');
 
       transactions.push({
         wallet: wallet._id,
@@ -250,10 +245,8 @@ export const PaymentService = {
         },
       });
     }
-    console.log('HERE 6bro');
 
     await WalletTransaction.insertMany(transactions, { session });
-    console.log('HERE b66ro');
 
     logger.info(
       `Topped up user ${userId}: amount=${amount}, creditRepaid=${creditRepaid}, walletCredited=${walletCredited}`
