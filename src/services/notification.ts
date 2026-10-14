@@ -26,7 +26,7 @@ export const NotificationService = {
       return null;
     }
 
-    const shouldPushNotif = !shouldNotify(
+    const shouldPushNotif = shouldNotify(
       user.settings as any,
       params.type,
       params.meta
