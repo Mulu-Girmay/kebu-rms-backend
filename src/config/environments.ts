@@ -35,7 +35,7 @@ const envVarSchema = Joi.object({
     .description('Google OAuth2 Refresh Token'),
   GOOGLE_CLIENT_ID: Joi.string().allow('').default(''),
   GOOGLE_CLIENT_SECRET: Joi.string().allow('').default(''),
-  APP_CLIENT_URL: Joi.string().default('http://localhost:3000'),
+  APP_CLIENT_URL: Joi.string().default('http://localhost:5173'),
 }).unknown(true);
 
 const { value: envVars, error } = envVarSchema.validate(process.env, {
