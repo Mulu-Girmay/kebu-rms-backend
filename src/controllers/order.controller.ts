@@ -232,7 +232,9 @@ export const getOrders = async (
   const [total, orders] = await Promise.all([
     Order.countDocuments(queryFilter),
     Order.find(queryFilter)
+      .populate('userId', 'name image')
       .populate('items.menuItemId', 'name imageUrl price isAvailable')
+      .sort({ placedAt: 1 })
       .sort(sort)
       .skip(skip)
       .limit(limitNum),

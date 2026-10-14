@@ -82,6 +82,7 @@ const authOptions = {
 
   emailAndPassword: {
     enabled: true,
+    requireEmailVerification: true,
     sendResetPassword: async ({ user, token }) => {
       await sendPasswordResetEmail(user.email, user.name || 'User', token);
     },
