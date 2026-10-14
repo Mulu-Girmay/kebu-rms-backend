@@ -6,13 +6,18 @@ import type {
   WalletTransactionSortBy,
   WalletTransactionType,
 } from '../types/types.js';
+import { APIError } from '../errors/APIError.js';
 
 export const getUserWalletTransactions = async (
   req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   const { userId } = req.params as { userId: string };
-
+  if (req.user!.role!.name === 'customer')
+    throw new APIError(
+      'Forbidden:You do not have permission to access this resource ',
+      403
+    );
   const {
     page = 1,
     limit = 10,
@@ -66,6 +71,12 @@ export const getAllWalletTransactions = async (
   req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
+  if (req.user!.role!.name === 'customer')
+    throw new APIError(
+      'Forbidden:You do not have permission to access this resource ',
+      403
+    );
+
   const {
     search,
     type,

@@ -34,6 +34,11 @@ export const getUserWallet = async (
   res: Response
 ): Promise<void> => {
   const { userId } = req.params as { userId: string };
+  if (req.user!.role!.name === 'customer')
+    throw new APIError(
+      'Forbidden:You do not have permission to access this resource ',
+      403
+    );
 
   const wallet = await Wallet.findOne({
     user: userId,

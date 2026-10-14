@@ -29,7 +29,7 @@ walletSelfRouter.get(
 walletAdminRouter.get(
   '/:userId',
   requireAuth,
-  requirePermission(RESOURCES.WALLETS, ACTIONS.READALL),
+  requirePermission(RESOURCES.WALLETS, ACTIONS.READ),
   validateUserIdParam,
   validateRequest,
   asyncHandler(getUserWallet)

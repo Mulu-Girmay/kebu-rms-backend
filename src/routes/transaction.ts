@@ -25,7 +25,7 @@ transactionSelfRouter.get(
 transactionAdminRouter.get(
   '/:userId/transactions',
   requireAuth,
-  requirePermission(RESOURCES.WALLET_TRANSACTIONS, ACTIONS.READALL),
+  requirePermission(RESOURCES.WALLET_TRANSACTIONS, ACTIONS.READ),
   ...validateUserIdParam,
   ...validateWalletTransactionsQuery,
   validateRequest,
@@ -35,7 +35,7 @@ transactionAdminRouter.get(
 transactionAdminRouter.get(
   '/',
   requireAuth,
-  requirePermission(RESOURCES.WALLET_TRANSACTIONS, ACTIONS.READALL),
+  requirePermission(RESOURCES.WALLET_TRANSACTIONS, ACTIONS.READ),
   ...validateWalletTransactionsQuery,
   validateRequest,
   asyncHandler(getAllWalletTransactions)
