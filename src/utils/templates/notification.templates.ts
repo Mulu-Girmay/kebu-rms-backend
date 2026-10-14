@@ -52,7 +52,7 @@ export const NotificationTemplates = {
   orderCompleted: (orderNumber: string): TemplateResult => ({
     type: NotificationType.ORDER_UPDATE,
     message: `Order ${orderNumber} completed. Enjoy your meal!`,
-    redirectRoute: '/orders/history',
+    redirectRoute: '/orders',
     redirectParams: { orderNumber },
     meta: { triggerStatus: 'completed' },
   }),
@@ -61,7 +61,7 @@ export const NotificationTemplates = {
     message: refunded
       ? `Order ${orderNumber} has been cancelled and refunded.`
       : `Order ${orderNumber} has been cancelled.`,
-    redirectRoute: '/orders/history',
+    redirectRoute: '/orders',
     redirectParams: { orderNumber },
     meta: { triggerStatus: 'cancelled' },
   }),
@@ -78,7 +78,7 @@ export const NotificationTemplates = {
       creditRepaid > 0
         ? `Wallet topped up with ${amount}. ${creditRepaid} applied to credit, ${walletCredited} added to wallet.`
         : `Wallet topped up with ${amount}.`,
-    redirectRoute: '/wallet/transactions',
+    redirectRoute: '/wallet',
     meta: { amount, walletCredited, creditRepaid },
   }),
 
@@ -90,7 +90,7 @@ export const NotificationTemplates = {
   ): TemplateResult => ({
     type: NotificationType.TRANSACTION,
     message: `Order ${orderNumber} charged: ${total} (wallet: ${walletAmount}, credit: ${creditAmount}).`,
-    redirectRoute: '/wallet/transactions',
+    redirectRoute: '/wallet',
     redirectParams: { orderNumber },
     meta: { total, walletAmount, creditAmount },
   }),
@@ -102,7 +102,7 @@ export const NotificationTemplates = {
   ): TemplateResult => ({
     type: NotificationType.TRANSACTION,
     message: `Order ${orderNumber} refunded. Wallet: +${walletAmount}, Credit restored: ${creditAmount}.`,
-    redirectRoute: '/wallet/transactions',
+    redirectRoute: '/wallet',
     redirectParams: { orderNumber },
     meta: { walletAmount, creditAmount },
   }),
@@ -110,7 +110,7 @@ export const NotificationTemplates = {
   creditLimitChanged: (oldLimit: number, newLimit: number): TemplateResult => ({
     type: NotificationType.TRANSACTION,
     message: `Your credit limit has been updated from ${oldLimit} to ${newLimit}.`,
-    redirectRoute: '/credit-account',
+    redirectRoute: '/wallet',
     meta: { oldLimit, newLimit },
   }),
 
@@ -120,7 +120,7 @@ export const NotificationTemplates = {
   ): TemplateResult => ({
     type: NotificationType.TRANSACTION,
     message: `Your credit usage has been updated from ${oldCreditUsage} to ${creditUsage}.`,
-    redirectRoute: '/credit-account',
+    redirectRoute: '/wallet',
     meta: { oldCreditUsage, creditUsage },
   }),
 
@@ -144,7 +144,7 @@ export const NotificationTemplates = {
   ): TemplateResult => ({
     type: NotificationType.EMAIL_FAILURE,
     message: `Email failed: "${template}" to ${recipient} — ${error}`,
-    redirectRoute: '/admin/audits',
+    redirectRoute: '/admin/audit',
     meta: { recipient, template, error },
   }),
 
@@ -160,7 +160,7 @@ export const NotificationTemplates = {
     type: NotificationType.PROMOTION,
     message: `Something delicious just landed on our menu
       Meet ${menu_name}: ${description}. Order now and let us know what you think!"`,
-    redirectRoute: '/menue-items',
+    redirectRoute: '/menu',
     meta: { description },
   }),
   // System
@@ -169,7 +169,6 @@ export const NotificationTemplates = {
   accountSuspended: (reason: string): TemplateResult => ({
     type: NotificationType.SYSTEM,
     message: `Your account has been suspended: ${reason}`,
-    redirectRoute: '/support',
     meta: { reason },
   }),
 
@@ -183,7 +182,7 @@ export const NotificationTemplates = {
   welcomeStaff: (roleName: string): TemplateResult => ({
     type: NotificationType.SYSTEM,
     message: `Welcome to Kebu RMS! Your ${roleName} account is active.`,
-    redirectRoute: '/dashboard',
+    redirectRoute: '/admin',
     meta: { roleName },
   }),
 
