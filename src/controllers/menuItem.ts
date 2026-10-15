@@ -1,9 +1,9 @@
 import type { Response } from 'express';
 import { type QueryFilter } from 'mongoose';
 import { MenuItem } from '../models/menuItems/index.js';
+import { Category } from '../models/categories/index.js';
 import { Favorite } from '../models/favorites/index.js';
 import { APIError } from '../errors/APIError.js';
-import { asyncHandler } from '../utils/asyncHandler.js';
 import { serializeMenuItem } from '../utils/serializers.js';
 import type { AuthenticatedRequest } from '../middlewares/auth.js';
 import { cache, CACHE_KEYS, CACHE_TTL } from '../utils/cache.js';
@@ -39,8 +39,18 @@ export const listMenuItems = async (
     }
   }
   const filter: QueryFilter<unknown> = { ...BASE_FILTER };
+  const activeCategoryIds = await Category.find({ isActive: true }).distinct(
+    '_id'
+  );
+  filter.categoryId = { $in: activeCategoryIds };
 
-  if (category) filter.categoryId = category;
+  if (category) {
+    filter.categoryId = activeCategoryIds.some(
+      (id) => id.toString() === category
+    )
+      ? category
+      : { $in: [] };
+  }
 
   if (search) {
     const words = search.trim().split(/\s+/);
@@ -153,7 +163,17 @@ export const getPopularItems = async (
       limit: limitNum,
       sort: { favoriteCount: -1 },
     };
-    items = await MenuItem.findAvailable(options);
+    const activeCategoryIds = await Category.find({ isActive: true }).distinct(
+      '_id'
+    );
+    items = await MenuItem.find({
+      isAvailable: true,
+      categoryId: { $in: activeCategoryIds },
+    })
+      .populate('categoryId', 'name isActive')
+      .sort(options.sort)
+      .limit(limitNum)
+      .lean<IMenuItem[]>();
 
     cache.set(cacheKey, items, CACHE_TTL.POPULAR_ITEMS);
   }
@@ -182,7 +202,7 @@ export const getMenuItem = async (
   res: Response
 ): Promise<void> => {
   const item = await MenuItem.findById(req.params.id)
-    .populate('categoryId', 'name')
+    .populate('categoryId', 'name isActive')
     .lean<IMenuItem>();
 
   if (!item) {

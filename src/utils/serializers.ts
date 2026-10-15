@@ -44,7 +44,7 @@ export const serializeCategory = (category: ICategory, itemCount = 0) => ({
 
 const isPopulatedCategory = (
   c: IMenuItem['categoryId']
-): c is { _id: Types.ObjectId | string; name: string } =>
+): c is { _id: Types.ObjectId | string; name: string; isActive?: boolean } =>
   typeof c === 'object' && c !== null && 'name' in c;
 
 export const serializeMenuItem = (item: IMenuItem, isFavorited = false) => ({
@@ -53,7 +53,10 @@ export const serializeMenuItem = (item: IMenuItem, isFavorited = false) => ({
   description: item.description ?? null,
   price: item.price,
   imageUrl: item.imageUrl ?? null,
-  isAvailable: item.isAvailable,
+  isAvailable:
+    item.isAvailable &&
+    (!isPopulatedCategory(item.categoryId) ||
+      item.categoryId.isActive !== false),
   favoriteCount: item.favoriteCount,
   category: isPopulatedCategory(item.categoryId)
     ? {
