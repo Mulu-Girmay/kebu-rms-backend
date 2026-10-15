@@ -2,6 +2,7 @@ import type { Response } from 'express';
 import type { AuthenticatedRequest } from '../middlewares/auth.js';
 import { Order } from '../models/orders/index.js';
 import { MenuItem } from '../models/menuItems/index.js';
+import { Category } from '../models/categories/index.js';
 import { User } from '../models/users/index.js';
 import {
   KitchenService,
@@ -18,6 +19,13 @@ import { PaymentService } from '../services/payment.js';
 import { NotificationService } from '../services/notification.js';
 import { NotificationTemplates } from '../utils/templates/notification.templates.js';
 import { Role } from '../models/role/index.js';
+
+const getMenuItemCategoryId = (categoryId: unknown): string => {
+  if (categoryId && typeof categoryId === 'object' && '_id' in categoryId) {
+    return String((categoryId as { _id: unknown })._id);
+  }
+  return String(categoryId);
+};
 
 export const createOrder = async (
   req: AuthenticatedRequest,
@@ -47,6 +55,9 @@ export const createOrder = async (
 
   const menuItemIds = items.map((i) => i.menuItemId);
   const foundMenuItems = await MenuItem.find({ _id: { $in: menuItemIds } });
+  const activeCategoryIds = new Set(
+    (await Category.find({ isActive: true }).distinct('_id')).map(String)
+  );
 
   const menuItemMap = new Map(
     foundMenuItems.map((item) => [item._id.toString(), item])
@@ -60,7 +71,10 @@ export const createOrder = async (
         404
       );
     }
-    if (!menuItem.isAvailable) {
+    if (
+      !menuItem.isAvailable ||
+      !activeCategoryIds.has(getMenuItemCategoryId(menuItem.categoryId))
+    ) {
       throw new APIError(
         `Menu item "${menuItem.name}" is currently unavailable`,
         400
@@ -391,6 +405,9 @@ export const reorder = async (
 
   const menuItemIds = previousOrder.items.map((i) => i.menuItemId);
   const foundMenuItems = await MenuItem.find({ _id: { $in: menuItemIds } });
+  const activeCategoryIds = new Set(
+    (await Category.find({ isActive: true }).distinct('_id')).map(String)
+  );
 
   const menuItemMap = new Map(
     foundMenuItems.map((item) => [item._id.toString(), item])
@@ -398,7 +415,10 @@ export const reorder = async (
 
   const reorderItems = previousOrder.items.map((item) => {
     const menuItem = menuItemMap.get(item.menuItemId.toString());
-    const isAvailable = menuItem ? menuItem.isAvailable : false;
+    const isAvailable = menuItem
+      ? menuItem.isAvailable &&
+        activeCategoryIds.has(getMenuItemCategoryId(menuItem.categoryId))
+      : false;
     const currentPrice = menuItem ? menuItem.price : item.unitPrice;
 
     return {
