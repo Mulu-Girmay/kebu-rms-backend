@@ -51,11 +51,24 @@ export const listRoles = async (
   _req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
-  const roles = await Role.find().populate('permissions').sort({ name: 1 });
+  const [roles, userCounts] = await Promise.all([
+    Role.find().populate('permissions').sort({ name: 1 }),
+    User.aggregate<{ _id: string; user_count: number }>([
+      { $match: { role_id: { $exists: true, $ne: null } } },
+      { $group: { _id: '$role_id', user_count: { $sum: 1 } } },
+    ]),
+  ]);
+
+  const userCountByRoleId = new Map(
+    userCounts.map(({ _id, user_count }) => [String(_id), user_count])
+  );
 
   res.status(200).json({
     success: true,
-    data: roles,
+    data: roles.map((role) => ({
+      ...role.toObject(),
+      user_count: userCountByRoleId.get(String(role._id)) ?? 0,
+    })),
   });
 };
 

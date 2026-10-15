@@ -12,6 +12,7 @@ import { Role } from '../models/role/index.js';
 import { role } from 'better-auth/plugins';
 import { NotificationTemplates } from '../utils/templates/notification.templates.js';
 import logger from '../config/winston.js';
+import { cache, CACHE_KEYS } from '../utils/cache.js';
 
 export const createMenuItem = async (
   req: AuthenticatedRequest,
@@ -282,6 +283,8 @@ export const toggleMenuItemAvailability = async (
   if (!menuItem) {
     throw new APIError('Menu item not found', 404);
   }
+
+  cache.delByPrefix(CACHE_KEYS.POPULAR_ITEMS_PREFIX);
 
   if (req.user?.id) {
     await Audit.create({
