@@ -29,40 +29,57 @@ export const StatusChangeEmail: React.FC<StatusChangeEmailProps> = ({
       <Head />
       <Preview>
         {isSuspended
-          ? 'Your Account Has Been Suspended'
-          : `Your Account Status Updated to: ${newStatus}`}
+          ? 'Your Swen Cafe account has been suspended'
+          : `Your Swen Cafe account status is now ${newStatus}`}
       </Preview>
       <Body style={mainStyle}>
         <Container style={containerStyle}>
+          {/* Brand header */}
+          <Section style={brandSectionStyle}>
+            <Text style={brandTextStyle}>Swen Cafe</Text>
+            <Text style={taglineStyle}>
+             </Text>
+          </Section>
+
+          {/* Heading — changes tone based on status */}
           <Section style={headerStyle}>
-            <Heading style={isSuspended ? headingStyleWarning : headingStyle}>
-              {isSuspended ? '⚠️ Account Suspended' : '📋 Account Status Update'}
+            <Heading
+              style={isSuspended ? headingStyleWarning : headingStyle}
+            >
+              {isSuspended ? 'Account Suspended' : 'Account Status Update'}
             </Heading>
           </Section>
+
+          {/* Content */}
           <Section style={contentStyle}>
             <Text style={textStyle}>Hello {fullName},</Text>
             <Text style={textStyle}>
-              We are writing to inform you that your account status has been
-              changed to <strong>{newStatus}</strong>.
+              We&apos;re writing to let you know that your account status has
+              been updated to <strong style={emphasisStyle}>{newStatus}</strong>.
             </Text>
+
+            {/* Reason callout — only shown if a reason was provided */}
             {reason && (
-              <Section style={reasonBoxStyle}>
-                <Text style={reasonLabelStyle}>
-                  <strong>Reason:</strong>
-                </Text>
+              <Section
+                style={isSuspended ? reasonBoxWarningStyle : reasonBoxStyle}
+              >
+                <Text style={reasonLabelStyle}>Reason</Text>
                 <Text style={reasonTextStyle}>{reason}</Text>
               </Section>
             )}
+
             <Text style={textStyle}>
               {isSuspended
-                ? 'If you believe this was a mistake, please reply to this email to appeal.'
-                : 'Thank you for using our platform.'}
+                ? 'If you believe this was a mistake, please reply to this email to appeal and a member of our team will assist you.'
+                : 'Thank you for being part of the Swen Cafe community.'}
             </Text>
+
             <Hr style={hrStyle} />
+
             <Text style={footerStyle}>
-              Best regards,
+              Warm regards,
               <br />
-              <strong>Kebu RMS Team</strong>
+              <strong style={footerBrandStyle}>The Swen Cafe Team</strong>
             </Text>
           </Section>
         </Container>
@@ -71,73 +88,143 @@ export const StatusChangeEmail: React.FC<StatusChangeEmailProps> = ({
   );
 };
 
+// ============================================================
+// Styles — Swen Cafe design system
+// ============================================================
+
 const mainStyle: React.CSSProperties = {
-  backgroundColor: '#f6f9fc',
+  backgroundColor: '#F5EFE7',
   fontFamily:
-    '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-  padding: '40px 0',
+    'Georgia, "Times New Roman", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+  padding: '40px 20px',
+  margin: 0,
 };
 
 const containerStyle: React.CSSProperties = {
-  backgroundColor: '#ffffff',
+  backgroundColor: '#FFFDFB',
   margin: '0 auto',
-  padding: '32px 40px',
-  borderRadius: '8px',
+  padding: '40px 44px',
+  borderRadius: '16px',
   maxWidth: '560px',
-  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+  border: '1px solid #EFE6D9',
+  boxShadow: '0 4px 20px rgba(74, 55, 40, 0.06)',
+};
+
+const brandSectionStyle: React.CSSProperties = {
+  textAlign: 'center',
+  marginBottom: '28px',
+};
+
+const brandTextStyle: React.CSSProperties = {
+  color: '#4A3728',
+  fontSize: '28px',
+  fontWeight: '700',
+  fontStyle: 'italic',
+  fontFamily: 'Georgia, "Times New Roman", serif',
+  margin: '0 0 6px',
+  letterSpacing: '-0.3px',
+};
+
+const taglineStyle: React.CSSProperties = {
+  color: '#9B8978',
+  fontSize: '13px',
+  fontStyle: 'italic',
+  margin: '0',
+  fontFamily: 'Georgia, "Times New Roman", serif',
 };
 
 const headerStyle: React.CSSProperties = {
-  marginBottom: '24px',
+  marginBottom: '20px',
+  paddingTop: '24px',
+  borderTop: '1px solid #EFE6D9',
 };
 
 const headingStyle: React.CSSProperties = {
-  color: '#1a1a1a',
-  fontSize: '24px',
+  color: '#3D2E1F',
+  fontSize: '22px',
   fontWeight: '700',
+  fontFamily: 'Georgia, "Times New Roman", serif',
   margin: '0',
+  textAlign: 'center',
 };
 
+// Suspended: warm terracotta instead of harsh red — softer but still alarming
 const headingStyleWarning: React.CSSProperties = {
   ...headingStyle,
-  color: '#dc2626',
+  color: '#A64B3C',
 };
 
 const contentStyle: React.CSSProperties = {
-  color: '#4a5568',
+  color: '#5A4636',
   fontSize: '15px',
   lineHeight: '24px',
+  fontFamily:
+    '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
 };
 
 const textStyle: React.CSSProperties = {
   margin: '0 0 16px',
+  color: '#5A4636',
 };
 
+const emphasisStyle: React.CSSProperties = {
+  color: '#3D2E1F',
+  fontWeight: '600',
+};
+
+// Default reason callout — neutral/informational
 const reasonBoxStyle: React.CSSProperties = {
-  backgroundColor: '#f3f4f6',
-  padding: '12px 16px',
-  borderRadius: '6px',
-  margin: '16px 0',
-  borderLeft: '4px solid #3b82f6',
+  backgroundColor: '#F5EFE7',
+  padding: '16px 18px',
+  borderRadius: '10px',
+  margin: '20px 0',
+  borderLeft: '4px solid #8B6F47',
+};
+
+// Suspended reason callout — same shape, warmer warning color
+const reasonBoxWarningStyle: React.CSSProperties = {
+  ...reasonBoxStyle,
+  backgroundColor: '#FBF1EC',
+  borderLeft: '4px solid #A64B3C',
 };
 
 const reasonLabelStyle: React.CSSProperties = {
-  margin: '0 0 8px',
-  color: '#1a1a1a',
+  margin: '0 0 6px',
+  color: '#3D2E1F',
+  fontSize: '12px',
+  fontWeight: '700',
+  textTransform: 'uppercase',
+  letterSpacing: '0.6px',
+  fontFamily:
+    '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
 };
 
 const reasonTextStyle: React.CSSProperties = {
   margin: '0',
-  color: '#4a5568',
+  color: '#5A4636',
+  fontSize: '14px',
+  lineHeight: '22px',
 };
 
 const hrStyle: React.CSSProperties = {
-  borderColor: '#e5e7eb',
-  margin: '24px 0',
+  borderColor: '#EFE6D9',
+  borderTop: '1px solid #EFE6D9',
+  margin: '28px 0 16px',
 };
 
 const footerStyle: React.CSSProperties = {
-  color: '#6b7280',
+  color: '#9B8978',
   fontSize: '13px',
+  lineHeight: '20px',
   margin: '0',
+  fontStyle: 'italic',
+  fontFamily: 'Georgia, "Times New Roman", serif',
 };
+
+const footerBrandStyle: React.CSSProperties = {
+  color: '#4A3728',
+  fontStyle: 'normal',
+  fontWeight: '600',
+};
+
+export default StatusChangeEmail;
