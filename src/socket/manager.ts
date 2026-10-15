@@ -56,6 +56,15 @@ class SocketManager {
     );
   }
 
+  emitToAll<E extends keyof ServerToClientEvents>(
+    event: E,
+    ...args: Parameters<ServerToClientEvents[E]>
+  ): void {
+    logger.info(
+      `Socket emit broadcast: ${String(event)} to all connected users`
+    );
+    this.getServer().emit(event, ...args);
+  }
   emitToUser<E extends keyof ServerToClientEvents>(
     userId: string,
     event: E,

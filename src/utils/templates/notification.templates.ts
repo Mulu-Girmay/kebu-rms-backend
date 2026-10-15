@@ -94,6 +94,12 @@ export const NotificationTemplates = {
     redirectParams: { orderNumber },
     meta: { total, walletAmount, creditAmount },
   }),
+  kitchenOrderStatusChange: (isPaused: boolean): TemplateResult => ({
+    type: NotificationType.ORDER_UPDATE,
+    message: isPaused
+      ? 'Kitchen is temporarily closed. New orders are currently paused.'
+      : 'Kitchen is open! You can place your orders now.',
+  }),
 
   orderRefunded: (
     orderNumber: string,

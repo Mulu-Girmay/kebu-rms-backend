@@ -17,6 +17,7 @@ import mongoose from 'mongoose';
 import { PaymentService } from '../services/payment.js';
 import { NotificationService } from '../services/notification.js';
 import { NotificationTemplates } from '../utils/templates/notification.templates.js';
+import { Role } from '../models/role/index.js';
 
 export const createOrder = async (
   req: AuthenticatedRequest,
@@ -774,15 +775,17 @@ export const togglePauseOrders = async (
   await service.save();
 
   try {
-    socketManager.emitToRoom(
-      KITCHEN_ROOM,
-      SOCKET_EVENTS.SERVICE_PAUSE_TOGGLED,
-      {
-        isOrdersPaused: service.isOrdersPaused,
-        pausedAt: service.pausedAt,
-        pauseReason: service.pauseReason,
-      }
+    const role = await Role.findOne({ name: 'customer' }).select('_id').lean();
+    const users = await User.find({ role_id: role!._id }).select('_id').lean();
+    await NotificationService.notifyMany(
+      users.map((user) => user._id.toString()),
+      NotificationTemplates.kitchenOrderStatusChange(service.isOrdersPaused)
     );
+    socketManager.emitToAll(SOCKET_EVENTS.SERVICE_PAUSE_TOGGLED, {
+      isOrdersPaused: service.isOrdersPaused,
+      pausedAt: service.pausedAt,
+      pauseReason: service.pauseReason,
+    });
   } catch (error) {
     logger.warn('Failed to emit socket event for service.pause_toggled', error);
   }
