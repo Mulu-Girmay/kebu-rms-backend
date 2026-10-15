@@ -13,8 +13,14 @@ import { NotificationTemplates } from '../utils/templates/notification.templates
 import logger from '../config/winston.js';
 
 const populateRole = (query: any) =>
-  query.populate('role_id', 'name description is_system_arole');
-
+  query.populate({
+    path: 'role_id',
+    select: 'name description is_system_role permissions',
+    populate: {
+      path: 'permissions',
+      select: 'name resource action description',
+    },
+  });
 const updateBetterAuthProfile = async (
   req: AuthenticatedRequest,
   payload: {

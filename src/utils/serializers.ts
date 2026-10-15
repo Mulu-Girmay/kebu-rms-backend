@@ -1,5 +1,15 @@
 import type { Types } from 'mongoose';
 import type { ICategory, IFavorite, IMenuItem } from '../types/types.js';
+const populateRole = (query: any) =>
+  query.populate({
+    path: 'role_id',
+    select: 'name description is_system_role permissions',
+    populate: {
+      path: 'permissions',
+      select: 'name resource action description',
+    },
+  });
+
 export const serializeUser = (user: any) => {
   const role =
     user.role_id && typeof user.role_id === 'object' && '_id' in user.role_id
@@ -7,18 +17,29 @@ export const serializeUser = (user: any) => {
           id: user.role_id._id,
           name: user.role_id.name,
           description: user.role_id.description,
+          is_system_role: user.role_id.is_system_role ?? false,
+          permissions: Array.isArray(user.role_id.permissions)
+            ? user.role_id.permissions.map((p: any) =>
+                typeof p === 'object' && p !== null
+                  ? {
+                      id: p._id?.toString() || p.id,
+                      name: p.name,
+                      resource: p.resource,
+                      action: p.action,
+                    }
+                  : p
+              )
+            : [],
         }
       : user.role_id
-        ? {
-            id: user.role_id,
-          }
+        ? { id: user.role_id }
         : null;
 
   return {
     id: user._id,
     name: user.name || null,
     email: user.email,
-    image: user.image ?? user.image ?? null,
+    image: user.image ?? null,
     status: user.status,
     must_change_password: user.must_change_password,
     settings: {
