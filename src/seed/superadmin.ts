@@ -1,7 +1,9 @@
+import mongoose, { Types } from 'mongoose';
 import { auth } from '../config/auth.js';
 import { Role } from '../models/role/index.js';
 import { User } from '../models/users/index.js';
 import { UserStatus } from '../utils/constants.js';
+import logger from '../config/winston.js';
 
 export interface SeedSuperAdminOptions {
   name?: string;
@@ -16,7 +18,7 @@ export const seedSuperAdmin = async (
   const email = (
     options.email ||
     process.env.SUPERADMIN_EMAIL ||
-    'admin@example.com'
+    'adminuser@example.com'
   ).toLowerCase();
   const password =
     options.password || process.env.SUPERADMIN_PASSWORD || 'Admin@123456';
@@ -55,48 +57,66 @@ export const seedSuperAdmin = async (
     return;
   }
 
-  // Sign up user via Better Auth to create user record and hashed password account
+  const ctx = await auth.$context;
+  const userId = `user_${new Types.ObjectId().toString()}`;
+  const hashedPassword = await ctx.password.hash(password);
+
+  let createdUserId: string | null = null;
+
   try {
-    await auth.api.signUpEmail({
-      body: {
+    console.log(`Creating fresh verified Super Admin context for ${email}...`);
+
+    const user = await ctx.internalAdapter.createUser(
+      {
+        id: userId,
+        _id: userId,
         name,
         email,
-        password,
-      },
-    });
-  } catch (error: unknown) {
-    // If user already exists in auth provider, proceed to update role
-    const message = error instanceof Error ? error.message : String(error);
-    console.warn('Better Auth sign-up notice:', message);
-  }
-
-  // Update newly registered user to super_admin role and mark as verified
-  const createdUser = await User.findOneAndUpdate(
-    { email },
-    {
-      $set: {
-        role_id: superAdminRole._id.toString(),
         emailVerified: true,
-        status: UserStatus.ACTIVE,
+        role_id: superAdminRole._id.toString(),
+        status: 'active',
+        must_change_password: false,
+        settings: {
+          orderStatusNotifications: 'all',
+          promotionalNotifications: false,
+          pushNotificaitons: false,
+        },
       },
-    },
-    { new: true }
-  );
-
-  if (!createdUser) {
-    throw new Error(
-      `Failed to find or update created user with email: ${email}`
+      { method: 'signup' }
     );
-  }
+    createdUserId = user.id;
 
-  console.log('----------------------------------------------------');
-  console.log('Super Admin user created successfully:');
-  console.log(`  Name:     ${name}`);
-  console.log(`  Email:    ${email}`);
-  console.log(`  Password: ${password}`);
-  console.log(`  Role:     super_admin (${superAdminRole._id})`);
-  console.log(`  Status:   active (emailVerified: true)`);
-  console.log('----------------------------------------------------');
+    await ctx.internalAdapter.createAccount({
+      userId: user.id,
+      accountId: user.id,
+      issuer: 'local:credential',
+      providerId: 'credential',
+      password: hashedPassword,
+    });
+
+    console.log('----------------------------------------------------');
+    console.log('Super Admin user created successfully via Adapter:');
+    console.log(`  ID:       ${user.id}`);
+    console.log(`  Name:     ${name}`);
+    console.log(`  Email:    ${email}`);
+    console.log(`  Password: ${password}`);
+    console.log(`  Role:     super_admin (${superAdminRole._id})`);
+    console.log(`  Status:   active (emailVerified: true)`);
+    console.log('----------------------------------------------------');
+  } catch (error) {
+    if (createdUserId) {
+      try {
+        await ctx.internalAdapter.deleteUser(createdUserId);
+        logger.warn(`Rolled back admin user creation for ${createdUserId}`);
+      } catch (cleanupError) {
+        logger.error(
+          `Failed to clean up after user creation failure for ${createdUserId}`,
+          cleanupError
+        );
+      }
+    }
+    throw error;
+  }
 };
 
 const isDirectRun =
