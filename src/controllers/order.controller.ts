@@ -234,7 +234,6 @@ export const getOrders = async (
     Order.countDocuments(queryFilter),
     Order.find(queryFilter)
       .populate('userId', 'name image')
-      .populate('items.menuItemId', 'name imageUrl price isAvailable')
       .sort({ placedAt: 1 })
       .sort(sort)
       .skip(skip)
@@ -705,6 +704,8 @@ export const getKitchenOrders = async (
   }
 
   const orders = await Order.find(queryFilter)
+
+    .populate('userId', 'name image')
     .populate('items.menuItemId', 'name imageUrl price isAvailable')
     .sort({ placedAt: 1 });
 
