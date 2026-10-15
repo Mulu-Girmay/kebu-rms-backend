@@ -146,7 +146,7 @@ export const sendWelcomeStaffEmail = async (
   temporaryPassword: string,
   roleName: string
 ): Promise<void> => {
-  const loginUrl = `${config.clientUrl}/login`;
+  const loginUrl = `${config.clientUrl}/auth/login`;
   await sendEmail({
     to: email,
     subject: 'Your Kebu RMS staff account',
