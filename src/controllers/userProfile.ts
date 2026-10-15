@@ -156,7 +156,6 @@ export const changePassword = async (
       body: {
         currentPassword,
         newPassword,
-        revokeOtherSessions: true,
       },
     });
     const user = await User.findById(req.user!.id);
