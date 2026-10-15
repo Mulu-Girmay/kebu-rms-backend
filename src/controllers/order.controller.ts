@@ -539,7 +539,7 @@ export const updateOrderStatus = async (
 
   const now = new Date();
   order.status = status;
-  const orderSaved = false;
+  let orderSaved = false;
   let wasRefunded = false;
 
   if (status === OrderStatus.ACCEPTED) {
@@ -548,7 +548,11 @@ export const updateOrderStatus = async (
     status === OrderStatus.REJECTED ||
     status === OrderStatus.CANCELLED
   ) {
-    order.rejectedAt = now;
+    if (status === OrderStatus.CANCELLED) {
+      order.cancelledAt = now;
+    } else {
+      order.rejectedAt = now;
+    }
     if (rejectionReason) {
       order.rejectionReason = rejectionReason.trim();
     }
@@ -570,6 +574,7 @@ export const updateOrderStatus = async (
         }
 
         await order.save({ session });
+        orderSaved = true;
       });
     } finally {
       await session.endSession();
@@ -580,6 +585,10 @@ export const updateOrderStatus = async (
     order.completedAt = now;
   }
 
+  if (!orderSaved) {
+    await order.save();
+  }
+
   let notification: ReturnType<
     typeof NotificationTemplates.orderAccepted
   > | null = null;
@@ -587,7 +596,7 @@ export const updateOrderStatus = async (
     case OrderStatus.ACCEPTED:
       notification = NotificationTemplates.orderAccepted(order.orderNumber);
       break;
-    case OrderStatus.REJECTED || OrderStatus.CANCELLED:
+    case OrderStatus.REJECTED:
       notification = NotificationTemplates.orderRejected(
         order.orderNumber,
         order.rejectionReason ?? 'No reason provided'
