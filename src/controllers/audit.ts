@@ -1,6 +1,10 @@
 import type { Response } from 'express';
 import type { AuthenticatedRequest } from '../middlewares/auth.js';
 import { Audit } from '../models/audits/index.js';
+import { Order } from '../models/orders/index.js';
+import { Wallet } from '../models/wallet/index.js';
+import { WalletTransaction } from '../models/walletTransaction/index.js';
+import { WalletTransactionType } from '../utils/constants.js';
 import { Parser } from 'json2csv';
 
 export const getAllAudits = async (
@@ -101,51 +105,133 @@ export const exportAudits = async (
   req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
-  const { userId, action, tableName, recordId, from, to } = req.query as {
+  const {
+    userId,
+    from,
+    to,
+    saving = 0,
+    change = 0,
+    salary = 0,
+  } = req.query as {
     userId?: string;
-    action?: string;
-    tableName?: string;
-    recordId?: string;
     from?: string;
     to?: string;
+    saving?: number;
+    change?: number;
+    salary?: number;
   };
 
-  const filter: Record<string, unknown> = {};
+  const createdAt: { $gte?: Date; $lte?: Date } = {};
+  if (from) createdAt.$gte = new Date(from);
+  if (to) createdAt.$lte = new Date(to);
 
-  if (userId) filter.userId = userId;
-  if (action) filter.action = action;
-  if (tableName) filter.tableName = tableName;
-  if (recordId) filter.recordId = recordId;
+  const dateFilter = from || to ? { createdAt } : {};
+  const orderFilter: Record<string, unknown> = {
+    ...dateFilter,
+    status: { $nin: ['cancelled', 'rejected'] },
+    paymentStatus: 'paid',
+  };
+  if (userId) orderFilter.userId = userId;
 
-  if (from || to) {
-    const createdAt: { $gte?: Date; $lte?: Date } = {};
+  const [orders, depositTotals] = await Promise.all([
+    Order.find(orderFilter).sort({ createdAt: 1 }).lean(),
+    WalletTransaction.aggregate<{ total: number }>([
+      {
+        $match: {
+          type: WalletTransactionType.CREDIT,
+          'meta.reason': 'wallet_topup',
+          ...dateFilter,
+        },
+      },
+      {
+        $lookup: {
+          from: Wallet.collection.name,
+          localField: 'wallet',
+          foreignField: '_id',
+          as: 'wallet',
+        },
+      },
+      { $unwind: '$wallet' },
+      ...(userId ? [{ $match: { 'wallet.user': userId } }] : []),
+      { $group: { _id: null, total: { $sum: '$amount' } } },
+    ]),
+  ]);
 
-    if (from) createdAt.$gte = new Date(from);
-    if (to) createdAt.$lte = new Date(to);
+  const revenue = orders.reduce((total, order) => total + order.totalAmount, 0);
+  const depositsTotal = depositTotals[0]?.total ?? 0;
+  const period = from && to ? `${from} to ${to}` : from || to || 'All time';
 
-    filter.createdAt = createdAt;
-  }
+  type ExportRow = {
+    revenue: number;
+    period: string;
+    order: string;
+    depositsTotal: number;
+    date: string;
+    day: string;
+    foodItem: string;
+    pricePerItem: string;
+    saving: number;
+    change: number;
+    salary: number;
+    total: number;
+  };
 
-  const audits = await Audit.find(filter).sort({ createdAt: -1 }).lean();
+  const rows: ExportRow[] = orders.map((order) => {
+    const date = order.createdAt;
+    return {
+      revenue,
+      period,
+      order: order.orderNumber,
+      depositsTotal,
+      date: date.toISOString().slice(0, 10),
+      day: new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(date),
+      foodItem: order.items
+        .map((item) => `${item.quantity}x ${item.name}`)
+        .join(', '),
+      pricePerItem: order.items
+        .map((item) => `${item.quantity}x ${item.unitPrice}`)
+        .join(', '),
+      saving,
+      change,
+      salary,
+      total: order.totalAmount,
+    };
+  });
+
+  rows.push({
+    revenue,
+    period,
+    order: 'TOTAL',
+    depositsTotal,
+    date: '',
+    day: '',
+    foodItem: '',
+    pricePerItem: '',
+    saving: saving * orders.length,
+    change: change * orders.length,
+    salary: salary * orders.length,
+    total: revenue,
+  });
 
   const parser = new Parser({
     fields: [
-      {
-        label: 'id',
-        value: '_id',
-      },
-      'userId',
-      'action',
-      'tableName',
-      'recordId',
-      'meta',
-      'createdAt',
-      'updatedAt',
+      { label: 'Revenue', value: 'revenue' },
+      { label: 'Period', value: 'period' },
+      { label: 'Order', value: 'order' },
+      { label: 'Deposits Total', value: 'depositsTotal' },
+      { label: 'Date', value: 'date' },
+      { label: 'Day', value: 'day' },
+      { label: 'Food Item', value: 'foodItem' },
+      { label: 'Price per item', value: 'pricePerItem' },
+      { label: 'Saving', value: 'saving' },
+      { label: 'Change', value: 'change' },
+      { label: 'Salary', value: 'salary' },
+      { label: 'Total', value: 'total' },
     ],
     withBOM: true,
   });
 
-  const csv = parser.parse(audits);
+  const csv = parser.parse(rows);
 
   res
     .status(200)

@@ -1,4 +1,4 @@
-import { query, param } from 'express-validator';
+import { query, body, param } from 'express-validator';
 
 export const validateAuditQuery = [
   query('userId')
@@ -66,6 +66,26 @@ export const validateAuditQuery = [
     .optional()
     .isIn(['asc', 'desc'])
     .withMessage('Order must be either asc or desc'),
+];
+
+export const validateAuditExportQuery = [
+  ...validateAuditQuery,
+  query('saving')
+    .isEmpty()
+    .isFloat({ min: 0 })
+    .withMessage('Saving must be a number greater than or equal to 0')
+    .toFloat(),
+  query('change')
+    .isEmpty()
+    .optional()
+    .isFloat({ min: 0 })
+    .withMessage('Change must be a number greater than or equal to 0')
+    .toFloat(),
+  query('salary')
+    .isEmpty()
+    .isFloat({ min: 0 })
+    .withMessage('Salary must be a number greater than or equal to 0')
+    .toFloat(),
 ];
 
 export const validateAuditIdParam = [

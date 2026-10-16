@@ -13,6 +13,7 @@ import { ACTIONS, RESOURCES } from '../utils/constants.js';
 import { validateRequest } from '../validators/errors.parser.js';
 import {
   validateAuditIdParam,
+  validateAuditExportQuery,
   validateAuditQuery,
 } from '../validators/audit.validator.js';
 
@@ -31,7 +32,7 @@ auditAdminRouter.get(
   '/export',
   requireAuth,
   requirePermission(RESOURCES.AUDITS, ACTIONS.READ),
-  ...validateAuditQuery,
+  ...validateAuditExportQuery,
   validateRequest,
   asyncHandler(exportAudits)
 );
