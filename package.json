@@ -20,10 +20,10 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "prepare": "husky",
     "seed": "tsx src/seed/index.ts",
     "seed:admin": "tsx src/seed/superadmin.ts",
-    "seed:test": "tsx src/seed/testData.ts"
+    "seed:test": "tsx src/seed/testData.ts",
+    "prepare": "command -v husky >/dev/null 2>&1 && husky || true"
   },
   "lint-staged": {
     "*.{json,md,yml,yaml,ts,js}": [
